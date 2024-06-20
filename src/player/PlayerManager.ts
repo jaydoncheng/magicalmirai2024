@@ -34,7 +34,6 @@ export class PlayerManager {
             return false;
         });
 
-        /* 停止ボタン */
         controlStop.addEventListener("click", (e) => {
             e.preventDefault();
             if (player) {
@@ -74,12 +73,6 @@ export class PlayerManager {
             },
 
             onVideoReady(v) {
-                let w = player.video.firstWord;
-                while (w) {
-                    w.animate = function(now, unit) {
-                    }
-                    w = w.next;
-                }
                 c = null;
             },
 
@@ -96,10 +89,7 @@ export class PlayerManager {
                 }
                 let current = c || player.video.firstChar;
                 while (current && current.startTime < time + 500) {
-                    // 新しい文字が発声されようとしている
-                    // console.log(c, current);
                     if (c !== current) {
-                        // console.log("newChar", current);
                         newChar(current);
                         c = current;
                     }
