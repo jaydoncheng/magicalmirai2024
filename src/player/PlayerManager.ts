@@ -1,4 +1,4 @@
-import { Player, IVideo } from 'textalive-app-api'
+import { Player, IVideo, IChar } from 'textalive-app-api'
 
 export class PlayerManager {
     private _player: Player;
@@ -10,20 +10,26 @@ export class PlayerManager {
             throw new Error("media element not found");
         }
 
-        const controlPlay: HTMLElement | null = document.querySelector("#bt_play");
-        const controlStop: HTMLElement | null = document.querySelector("#bt_rewind");
-        if (controlPlay === null || controlStop === null) {
-            throw new Error("control element not found");
-        }
-        /* 再生・一時停止ボタン */
+        const controlPlay: HTMLElement = document.querySelector("#bt_play")!;
+        const controlPause: HTMLElement = document.querySelector("#bt_pause")!;
+        const controlStop: HTMLElement = document.querySelector("#bt_rewind")!;
+
         controlPlay.addEventListener("click", (e) => {
             e.preventDefault();
             if (player) {
-                if (player.isPlaying) {
-                    player.requestPause();
-                } else {
-                    player.requestPlay();
-                }
+                player.requestPlay();
+                controlPause.style.display = "inline";
+                controlPlay.style.display = "none";
+            }
+            return false;
+        });
+
+        controlPause.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (player) {
+                player.requestPause();
+                controlPause.style.display = "none";
+                controlPlay.style.display = "inline";
             }
             return false;
         });
@@ -33,8 +39,6 @@ export class PlayerManager {
             e.preventDefault();
             if (player) {
                 player.requestStop();
-
-                // 再生を停止したら画面表示をリセットする
             }
             return false;
         });
@@ -44,9 +48,13 @@ export class PlayerManager {
             mediaElement: media,
             mediaBannerPosition: "bottom right"
         });
+        let c: any;
 
         player.addListener({
             onAppReady(app) {
+                if (app.managed) {
+                    document.querySelector("#control")!.className = "disabled";
+                }
                 if (!app.songUrl) {
                     media.className = "disabled";
 
@@ -66,21 +74,36 @@ export class PlayerManager {
             },
 
             onVideoReady(v) {
-                console.log("onVideoReady", v);
                 let w = player.video.firstWord;
-                console.log("firstWord", w);
                 while (w) {
                     w.animate = function(now, unit) {
-                        console.log("animate", now, unit);
                     }
                     w = w.next;
                 }
+                c = null;
+            },
+
+            onTimerReady() {
+                console.log("onTimerReady");
+                document.querySelector("#controls")!.style.display = "block";
+                document.querySelector("#loading")!.style.display = "none";
             },
 
             onTimeUpdate(time) {
-                console.log("onTimeUpdate", time);
-                let beat = player.findBeat(time);
-                if (beat) {
+
+                if (!player.video.firstChar) {
+                    return;
+                }
+                let current = c || player.video.firstChar;
+                while (current && current.startTime < time + 500) {
+                    // 新しい文字が発声されようとしている
+                    // console.log(c, current);
+                    if (c !== current) {
+                        // console.log("newChar", current);
+                        newChar(current);
+                        c = current;
+                    }
+                    current = current.next;
                 }
 
             },
@@ -94,6 +117,11 @@ export class PlayerManager {
             }
         });
 
+        const view = document.querySelector("#view")!;
+        function newChar(c : IChar) {
+            console.log("newChar", c);
+            view.innerHTML += c.text;
+            
+        }
     }
-
 }

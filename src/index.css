@@ -43,6 +43,7 @@ a {
     user-select: none;
     cursor: pointer;
     margin-bottom: 10px;
+    display: none;
 }
 #controls img {
     width: calc(32px + 3vmin);
