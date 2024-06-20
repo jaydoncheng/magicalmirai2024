@@ -37,20 +37,21 @@ a {
     left: 10px;
     bottom: 10px;
     z-index: 3;
+    display: block;
+}
+#controls {
+    user-select: none;
+    cursor: pointer;
+    margin-bottom: 10px;
     display: none;
 }
-/* #controls { */
-/*     user-select: none; */
-/*     cursor: pointer; */
-/*     margin-bottom: 10px; */
-/* } */
-/* #controls img { */
-/*     width: calc(32px + 3vmin); */
-/*     margin: 0 5px; */
-/* } */
-/* #controls #bt_pause { */
-/*     display: none; */
-/* } */
+#controls img {
+    width: calc(32px + 3vmin);
+    margin: 0 5px;
+}
+#controls #bt_pause {
+    display: none;
+}
 #license {
     font-size: calc(0.4rem + 0.5vmin);
     width: calc(100vw - 100px - 16vmin);
