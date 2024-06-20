@@ -1,18 +1,19 @@
 import { SceneManager } from "./scene/SceneManager";
 
-class Main
-{
+class Main {
     private _sceneManager: SceneManager;
 
-    constructor () {}
-    
-    public initialize ()
-    {
+    constructor() { }
+
+    public initialize() {
         this._sceneManager = new SceneManager();
+        this._sceneManager.resize();
+        this._sceneManager.update();
+        // this._sceneManager.updateTest();
     }
 
-    private _resize ()
-    {
+    private _resize() {
+        this._sceneManager.resize();
     }
 }
 
