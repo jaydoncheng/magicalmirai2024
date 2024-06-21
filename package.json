@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "description": "TODO",
   "scripts": {
-    "build-dev": "parcel src/index.html --dist-dir dev",
-    "build": "parcel build src/index.html --public-url ./ --dist-dir docs --no-source-maps",
+    "build-dev": "npm run gensongs && parcel src/index.html --dist-dir dev",
+    "build": "npm run gensongs && parcel build src/index.html --public-url ./ --dist-dir docs --no-source-maps",
     "clean": "del-cli .parcel-cache dev docs",
-    "prebuild": "del-cli docs && cd src/assets && copyfiles ./**/* ../../docs"
+    "prebuild": "del-cli docs && cd src/assets && copyfiles ./**/* ../../docs",
+    "gensongs": "sh ./gensongs.sh"
   },
   "keywords": [
     "textalive"

@@ -1,42 +1,41 @@
 import { Building } from "./scene/Building";
 import { SceneManager } from "./scene/SceneManager";
 import { PlayerManager } from "./player/PlayerManager";
+import Globals from "./core/Globals";
+import Controls from "./core/Controls";
 
 class Main {
-  private _sceneManager: SceneManager;
-  private maxPlot = 1;
-  private location = 0.0;
+    private _sceneManager: SceneManager;
+    private _player: PlayerManager;
 
-  constructor() {}
+    constructor() { }
 
-  public initialize() {
-    this._sceneManager = new SceneManager();
-    this._player = new PlayerManager();
+    public initialize() {
+        this._sceneManager = new SceneManager();
+        this._player = new PlayerManager();
 
-    // var _building = new Building(1, 2, 3);
-    // _building.move(1, 2, 3);
-    // this._sceneManager.addBuilding(_building);
 
-    var i = true;
+        // var i: number = 0;
+        // while (i < this.maxPlot) {
+        //     var x = i % 10 + i;
+        //     var _building = new Building(0.9, 1, 0.9);
+        //     _building.move(1, 0, x);
+        //     this._sceneManager.addBuilding(_building);
+        //
+        //     i++;
+        // }
+        //
+        this._sceneManager.resize();
+        this._sceneManager.update();
+        this._sceneManager.updateTest();
 
-    // loop to create buildings
-    while (i) {
-      this.location++;
-      var _building = new Building(0.9, 1, 0.9);
-      _building.move(1, 0, this.location + 0.5);
-      this._sceneManager.addBuilding(_building);
-
-      if (this.location > 10) i = false;
+        window.addEventListener("resize", this._resize.bind(this));
     }
 
-    this._sceneManager.resize();
-    this._sceneManager.update();
-    this._sceneManager.updateTest();
-  }
-
-  private _resize() {
-    this._sceneManager.resize();
-  }
+    private _resize() {
+        console.log("resize");
+        this._sceneManager.resize();
+    }
 }
 
 new Main().initialize();
