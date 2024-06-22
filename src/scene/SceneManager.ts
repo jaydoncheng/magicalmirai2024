@@ -13,9 +13,12 @@ export class SceneManager {
     // this class will then be responsible for:
     // - initializing the renderer and scene,
     // - calling the whatever function/class/system that will populate the scene
+    //      - additionally this whatever will probably also handle lighting?
     // - handle the song change events n shit and pass it downstream
     // - post processing
-    // and probably a bunch of other misc shit
+    // and probably a bunch of other misc shit. it needs to expose a
+    // small API to PlayerManager which lets PM update elements in the
+    // scenes as well as control camera n shit
     private _view: HTMLElement;
 
     private _renderer: THREE.WebGLRenderer;
