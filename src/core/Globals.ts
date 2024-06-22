@@ -1,3 +1,6 @@
+import { PlayerManager } from '../player/PlayerManager';
+import { SceneManager } from '../scene/SceneManager';
+import Controls from './Controls';
 import { ISong } from './ISong'
 import Songs from './songs'
 
@@ -10,5 +13,10 @@ export default {
         this.currentSong = this.songs[index]
         const event = new CustomEvent('songchanged', { detail: this.currentSong })
         window.dispatchEvent(event)
-    }
+    },
+
+    player: null as PlayerManager | null,
+    scene: null as SceneManager | null,
+    controls: null as Controls | null,
+
 }

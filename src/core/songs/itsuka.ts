@@ -13,9 +13,13 @@ export default {
     },
     keyframes: {
         "0": {
-            camera: {
-                position: { x: 0, y: 1, z: 5 },
-                rotation: { x: 0, y: 0, z: 0 }
+            colors: {
+                sky: 0x5555ff,
+                fog: 0x5555ff,
+                ambientLight: 0xffffff,
+                pointLight: 0xffffff,
+                plane: 0xffffff,
+                box: 0x00ff00
             }
         }
     }

@@ -11,8 +11,9 @@ class Main {
     constructor() { }
 
     public initialize() {
-        this._sceneManager = new SceneManager();
-        this._player = new PlayerManager();
+        Globals.controls = Controls;
+        this._sceneManager = Globals.scene = new SceneManager();
+        // this._player = Globals.player = new PlayerManager();
 
 
         // var i: number = 0;
@@ -27,7 +28,6 @@ class Main {
         //
         this._sceneManager.resize();
         this._sceneManager.update();
-        this._sceneManager.updateTest();
 
         window.addEventListener("resize", this._resize.bind(this));
     }

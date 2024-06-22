@@ -59,6 +59,7 @@ export class PlayerManager {
 
             onTimeUpdate(time) {
                 console.log("onTimeUpdate", time);
+                // TODO: Implement scene updating, character processing, etc
             },
 
             onPlay() {
