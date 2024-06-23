@@ -28,6 +28,7 @@ export class SceneManager {
     private _plight: THREE.PointLight;
 
     constructor() {
+        Globals.controls!.setReady('scene', false);
         this._view = document.querySelector("#view")!;
         this._renderer = new THREE.WebGLRenderer();
         this._renderer.setAnimationLoop(this.update.bind(this));
@@ -104,6 +105,8 @@ export class SceneManager {
         this._camera.position.z = 5;
         this._camera.position.y = 1.5;
         this.resize();
+
+        Globals.controls!.setReady('scene', true);
     }
 
     public resize() {

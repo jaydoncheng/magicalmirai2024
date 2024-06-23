@@ -1,9 +1,8 @@
 import { Player, IVideo, IChar } from 'textalive-app-api'
 import Globals from '../core/Globals';
-import Controls from '../core/Controls';
 
 export class PlayerManager {
-    // TODO: Once loading/ready process is implemented in Controls,
+    // TODO: Once loading/ready process is implemented in Globals.controls,
     // remove any lines that reference #loading and #controls
     private _player: Player;
     private _video: IVideo;
@@ -14,14 +13,15 @@ export class PlayerManager {
     }
 
     constructor() {
+        Globals.controls.setReady("player", false);
         const media: HTMLElement | null = document.querySelector("#media");
         if (media === null) {
             throw new Error("media element not found");
         }
 
-        Controls.onPlay(() => { this._player.requestPlay(); });
-        Controls.onPause(() => { this._player.requestPause(); });
-        Controls.onStop(() => { this._player.requestStop(); });
+        Globals.controls.onPlay(() => { this._player.requestPlay(); });
+        Globals.controls.onPause(() => { this._player.requestPause(); });
+        Globals.controls.onStop(() => { this._player.requestStop(); });
 
         this._initPlayer();
 
@@ -40,7 +40,6 @@ export class PlayerManager {
                     // document.querySelector("#control")!.className = "disabled";
                 }
                 if (!app.songUrl) {
-
                     player.createFromSongUrl(Globals.currentSong.songUrl, {
                         video: Globals.currentSong.video,
                     })
@@ -53,8 +52,7 @@ export class PlayerManager {
 
             onTimerReady() {
                 console.log("onTimerReady");
-                document.querySelector("#controls")!.style.display = "block";
-                document.querySelector("#loading")!.style.display = "none";
+                Globals.controls.setReady('player', true);
             },
 
             onTimeUpdate(time) {
@@ -74,9 +72,8 @@ export class PlayerManager {
     private _onSongChanged() {
         this._player.requestStop();
 
-        document.querySelector("#controls")!.style.display = "block";
-        document.querySelector("#loading")!.style.display = "none";
-        Controls.reset();
+        Globals.controls.reset();
+        Globals.controls.setReady("player", false);
 
         this._initPlayer();
 

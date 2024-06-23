@@ -15,9 +15,9 @@ class Controls {
     private _onPlay: Function[] = [];
     private _onPause: Function[] = [];
     private _onStop: Function[] = [];
+    private _whoisReady = {};
 
     constructor() {
-        console.log("Controls constructor")
         var playBtn = this.playBtn = document.querySelector("#bt_play")!;
         var pauseBtn = this.pauseBtn = document.querySelector("#bt_pause")!;
         var stopBtn = this.stopBtn = document.querySelector("#bt_rewind")!;
@@ -65,6 +65,27 @@ class Controls {
         });
     }
 
+    // Any component which needs to be ready before the controls
+    // can be displayed should call this method with state = false
+    // When the component is ready, call this function with state = true
+    public setReady(caller: string, state: boolean) {
+        this._whoisReady[caller] = state;
+        this._onReady();
+    }
+
+    private _onReady() {
+        document.querySelector("#debug")!.innerHTML = JSON.stringify(this._whoisReady);
+        if (Object.values(this._whoisReady).every((v) => v === true)) {
+            this.loadingEl.style.display = "none";
+            this.controlsEl.style.display = "block";
+            return true;
+        } else {
+            this.loadingEl.style.display = "block";
+            this.controlsEl.style.display = "none";
+            return false;
+        }
+    }
+
     public reset() {
         this.pauseBtn.style.display = "none";
         this.playBtn.style.display = "inline";
@@ -94,5 +115,5 @@ class Controls {
     }
 }
 
-var controls = new Controls();
-export default controls;
+export type ControlsType = Controls;
+export default new Controls();
