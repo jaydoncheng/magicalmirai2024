@@ -25,7 +25,7 @@ class Main {
         // }
         //
         this._sceneManager.resize();
-        this._sceneManager.update();
+        // this._sceneManager.update();
 
         window.addEventListener("resize", this._resize.bind(this));
     }

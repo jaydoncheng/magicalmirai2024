@@ -48,6 +48,20 @@ export class PlayerManager {
 
             onVideoReady(v) {
                 console.log("onVideoReady");
+                
+                // animate gets called everytime a "unit" comes up in the song
+                // const animate = function(now, unit) {
+                //     if (unit.contains(now)) {
+                //         if (unit.startTime <= now && unit.endTime >= now) {
+                //             console.log("hi")
+                //         }
+                //     }
+                // }
+                // let w = player.video.firstWord;
+                // while (w) {
+                //     w.animate = animate;
+                //     w = w.next;
+                // }
             },
 
             onTimerReady() {
@@ -58,6 +72,7 @@ export class PlayerManager {
             onTimeUpdate(time) {
                 console.log("onTimeUpdate", time);
                 // TODO: Implement scene updating, character processing, etc
+                Globals.scene.update(time);
             },
 
             onPlay() {
