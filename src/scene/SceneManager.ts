@@ -3,8 +3,7 @@ import * as THREE from "three";
 import { Building } from "./Building";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+import { SceneBuilder } from "./SceneBuilder";
 
 export class SceneManager {
     // TODO: ok so
@@ -27,7 +26,11 @@ export class SceneManager {
     private _scene: THREE.Scene;
     private _camera: THREE.Camera;
     private _controls;
-    private _plight: THREE.PointLight;
+    private _sceneBuilder : SceneBuilder;
+
+    private startingPos: THREE.Vector3;
+    private textCanvas: HTMLCanvasElement;
+    private textPlane: THREE.Mesh;
 
     constructor() {
         Globals.controls!.setReady('scene', false);
@@ -35,7 +38,6 @@ export class SceneManager {
         this._renderer = new THREE.WebGLRenderer({
             antialias: true
         });
-        // this._renderer.setAnimationLoop(this.update.bind(this));
 
         this._view.appendChild(this._renderer.domElement);
         this.initialize();
@@ -61,98 +63,74 @@ export class SceneManager {
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        this._scene.background = new THREE.Color(colors.sky);
-        const fog = new THREE.Fog(colors.fog, 0.015, 100);
-        this._scene.fog = fog;
-
-        const alight = new THREE.AmbientLight(colors.ambientLight, 0.1);
-        alight.position.set(0, 1, 0);
-        this._scene.add(alight);
-
-        var plight = this._plight = new THREE.PointLight(colors.pointLight, 1, 50, 5);
-        plight.position.set(0, 5, 0);
-        plight.castShadow = true;
-        plight.shadow.bias = 0.00001;
-        this._scene.add(plight);
-
-        const planeGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-        const planeMaterial = new THREE.MeshStandardMaterial({
-            color: colors.plane,
-            side: THREE.FrontSide,
-        });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.scale.set(32, 3200, 1);
-        plane.receiveShadow = true;
-        plane.castShadow = true;
-        plane.rotation.x = -Math.PI / 2;
-        this._scene.add(plane);
-
-        for (let i = 0; i < 1000; i++) {
-            const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-            const boxMaterial = new THREE.MeshPhongMaterial({ color: colors.box });
-            const box = new THREE.Mesh(boxGeometry, boxMaterial);
-            var x = Math.random() * 20 - 10;
-            var z = Math.random() * 300;
-            if (x > -1 && x < 1) {
-                x = x > 0 ? 1 : -1;
-                box.material.color.setHex(0xff0000);
-            }
-            box.scale.set(1, 1 + Math.random() * 8, 1);
-            box.position.set(x, 0.5, -z + 10);
-            box.castShadow = true;
-            box.receiveShadow = true;
-            this._scene.add(box);
-        }
+        // -------------------- this gotta be its own thing --------------------------------
+        this._sceneBuilder = new SceneBuilder(this._scene, colors);
+        this._sceneBuilder.build();
 
         this._camera.position.z = 5;
         this._camera.position.y = 1.5;
+
+        var canvas = this.textCanvas = document.createElement("canvas");
+
+        var texture = new THREE.CanvasTexture(canvas);
+
+        const scale = 0.02;
+        const height = canvas.height * scale;
+        const width = canvas.width * scale;
+        var textPlane = this.textPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(width, height, 32, 32),
+            new THREE.MeshBasicMaterial({ map: texture })
+        );
+        textPlane.position.set(0, 1, -5);
+        textPlane.rotation.x = -Math.PI;
+        textPlane.rotation.y = Math.PI;
+        textPlane.rotation.z = Math.PI;
+
+        this._scene.add(textPlane);
+
+        this.drawText("Hello, world!");
+        // ----------------------------------------------------------------------
+        this.startingPos = this._camera.position.clone();
         this.resize();
 
         Globals.controls!.setReady('scene', true);
         this._renderer.setAnimationLoop(this._update.bind(this));
-
-        this.addText("hello", 0, 0, 0);
-
-    }
-
-    public addText(text: string, x: number, y: number, z: number) {
-        const loader = new FontLoader();
-        // i wish u best of luck, parcel doesnt handle json files very well
-        // and needs them copied as a static asset
-        // https://discourse.threejs.org/t/unable-to-use-fontloader-or-textgeometry/35803
-        // ill go look later
-        loader.load('fonts/helvetiker_regular.typeface.json', (font) => {
-            const geometry = new TextGeometry(text, {
-                font: font,
-                size: 0.1,
-                height: 0.01,
-                curveSegments: 12,
-                bevelEnabled: false,
-                bevelThickness: 0.01,
-                bevelSize: 0.01,
-                bevelOffset: 0,
-                bevelSegments: 5,
-            });
-            const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(x, y, z);
-            this._scene.add(mesh);
-        });
     }
 
     public resize() {
         this._renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    public drawText(text: string) {
+        var ctx = this.textCanvas.getContext("2d")!;
+        var canvas = this.textCanvas;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        var texture = new THREE.CanvasTexture(canvas);
+        this.textPlane.material.dispose();
+        this.textPlane.material = new THREE.MeshBasicMaterial({ map: texture, transparent: true});
+    }
+
+    private shouldBeAt = new THREE.Vector3();
+    private prevTime = 0;
     public update(time: number) {
-        this._camera.position.z = -time / 1000;
+        var t = time / 1000;
+        this.shouldBeAt.z = time / 100;
+        this.shouldBeAt.x = Math.sin(t)/4;
+        this.shouldBeAt.y = (Math.cos(t*2)/2)+0.5;
     }
 
     private _clock = new THREE.Clock();
     public _update() {
-        this._camera.position.z -= 0.1 * this._clock.getDelta();
+        var newPos = this.startingPos.clone().sub(this.shouldBeAt);
+        this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
+        this.textPlane.position.z = this._camera.position.z - 5;
         this._camera.lookAt(0, 1, this._camera.position.z - 5);
-        // this._plight.position.z = this._camera.position.z - 10;
+
         this._renderer.render(this._scene, this._camera);
         this._controls.update();
     }

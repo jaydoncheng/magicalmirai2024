@@ -1,4 +1,4 @@
-import { Player, IVideo, IChar } from 'textalive-app-api'
+import { Player, IVideo, IChar, ITextUnit } from 'textalive-app-api'
 import Globals from '../core/Globals';
 
 export class PlayerManager {
@@ -13,15 +13,15 @@ export class PlayerManager {
     }
 
     constructor() {
-        Globals.controls.setReady("player", false);
+        Globals.controls!.setReady("player", false);
         const media: HTMLElement | null = document.querySelector("#media");
         if (media === null) {
             throw new Error("media element not found");
         }
 
-        Globals.controls.onPlay(() => { this._player.requestPlay(); });
-        Globals.controls.onPause(() => { this._player.requestPause(); });
-        Globals.controls.onStop(() => { this._player.requestStop(); });
+        Globals.controls!.onPlay(() => { this._player.requestPlay(); });
+        Globals.controls!.onPause(() => { this._player.requestPause(); });
+        Globals.controls!.onStop(() => { this._player.requestStop(); });
 
         this._initPlayer();
 
@@ -50,29 +50,30 @@ export class PlayerManager {
                 console.log("onVideoReady");
                 
                 // animate gets called everytime a "unit" comes up in the song
-                // const animate = function(now, unit) {
-                //     if (unit.contains(now)) {
-                //         if (unit.startTime <= now && unit.endTime >= now) {
-                //             console.log("hi")
-                //         }
-                //     }
-                // }
-                // let w = player.video.firstWord;
-                // while (w) {
-                //     w.animate = animate;
-                //     w = w.next;
-                // }
+                const animate = function(now, unit : ITextUnit) {
+                    if (unit.contains(now)) {
+                        if (unit.startTime <= now && unit.endTime >= now) {
+                            console.log(unit.text);
+                            Globals.scene!.drawText(unit.text)
+                        }
+                    }
+                }
+                let w = player.video.firstWord;
+                while (w) {
+                    w.animate = animate;
+                    w = w.next;
+                }
             },
 
             onTimerReady() {
                 console.log("onTimerReady");
-                Globals.controls.setReady('player', true);
+                Globals.controls!.setReady('player', true);
             },
 
             onTimeUpdate(time) {
                 console.log("onTimeUpdate", time);
                 // TODO: Implement scene updating, character processing, etc
-                Globals.scene.update(time);
+                Globals.scene!.update(time);
             },
 
             onPlay() {
@@ -87,8 +88,8 @@ export class PlayerManager {
     private _onSongChanged() {
         this._player.requestStop();
 
-        Globals.controls.reset();
-        Globals.controls.setReady("player", false);
+        Globals.controls!.reset();
+        Globals.controls!.setReady("player", false);
 
         this._initPlayer();
 

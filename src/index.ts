@@ -14,19 +14,7 @@ class Main {
         this._sceneManager = Globals.scene = new SceneManager();
         this._player = Globals.player = new PlayerManager();
 
-        // var i: number = 0;
-        // while (i < this.maxPlot) {
-        //     var x = i % 10 + i;
-        //     var _building = new Building(0.9, 1, 0.9);
-        //     _building.move(1, 0, x);
-        //     this._sceneManager.addBuilding(_building);
-        //
-        //     i++;
-        // }
-        //
         this._sceneManager.resize();
-        // this._sceneManager.update();
-
         window.addEventListener("resize", this._resize.bind(this));
     }
 
