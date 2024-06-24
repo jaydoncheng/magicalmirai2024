@@ -29,6 +29,7 @@ export class SceneManager {
     private _sceneBuilder : SceneBuilder;
 
     private startingPos: THREE.Vector3;
+    private cameraTarget: THREE.Vector3;
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
 
@@ -91,6 +92,7 @@ export class SceneManager {
         this.drawText("Hello, world!");
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
+        this.cameraTarget = this._camera.position.clone();
         this.resize();
 
         Globals.controls!.setReady('scene', true);
@@ -113,23 +115,32 @@ export class SceneManager {
         var texture = new THREE.CanvasTexture(canvas);
         this.textPlane.material.dispose();
         this.textPlane.material = new THREE.MeshBasicMaterial({ map: texture, transparent: true});
+        this.textPlane.position.x = -canvas.width * 0.02 / 2;
+        this.cameraTarget = this.textPlane.position.clone();
     }
 
     private shouldBeAt = new THREE.Vector3();
-    private prevTime = 0;
     public update(time: number) {
         var t = time / 1000;
         this.shouldBeAt.z = time / 100;
         this.shouldBeAt.x = Math.sin(t)/4;
         this.shouldBeAt.y = (Math.cos(t*2)/2)+0.5;
+
+        this.textPlane.position.z = -(time / 100) - 7;
+        this.textPlane.position.x = -Math.sin(t)/2;
+        this.textPlane.lookAt(this._camera.position);
     }
 
     private _clock = new THREE.Clock();
+    private prevPos = new THREE.Vector3(0, 0, 0);
     public _update() {
         var newPos = this.startingPos.clone().sub(this.shouldBeAt);
+        if (this.prevPos.distanceTo(newPos) > 2) {
+            this._sceneBuilder.populate(this.prevPos, newPos);
+            this.prevPos = newPos;
+        }
         this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
-        this.textPlane.position.z = this._camera.position.z - 5;
-        this._camera.lookAt(0, 1, this._camera.position.z - 5);
+        this._camera.lookAt(this.textPlane.position);
 
         this._renderer.render(this._scene, this._camera);
         this._controls.update();
