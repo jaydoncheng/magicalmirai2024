@@ -1,13 +1,13 @@
-import * as THREE from 'three';
-import { Building } from './Building';
+import * as THREE from "three";
+import { Building } from "./Building";
 
 export class SceneBuilder {
     private _scene: THREE.Scene;
-    private _colors : any;
-    private buildings : Building[] = [];
+    private _colors: any;
+    private buildings: Building[] = [];
 
-    constructor(scene : THREE.Scene, colors : any) { 
-        this._scene = scene; 
+    constructor(scene: THREE.Scene, colors: any) {
+        this._scene = scene;
         this._colors = colors;
     }
 
@@ -56,18 +56,22 @@ export class SceneBuilder {
         var direction = new THREE.Vector3();
         direction.subVectors(to, from);
         direction.normalize();
+        var xCord = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6];
+        // var xCord = [9, -7, -5, -3, -1, 1, 3, 5, 7, 9];
+        this.shuffle(xCord, 2);
 
         for (let i = 0; i < 10; i++) {
-            var building = new Building(1, Math.round(1 + Math.random() * 10), 1);
-            var mesh = building.getMesh();
+            var building = new Building(1, Math.round(1 + Math.random() * 5), 1);
+            var mesh = building.getBox();
             mesh.position.copy(from);
             mesh.position.add(to.clone().multiplyScalar(Math.random() * distance));
 
-            mesh.position.y = 1;
-            mesh.position.x += Math.random() * 10 - 5;
-            if (mesh.position.x > -1 && mesh.position.x < 1) {
-                mesh.position.x = mesh.position.x < 0 ? -2 : 2;
-            }
+            mesh.position.y = 0;
+            mesh.position.x = xCord[i];
+            // mesh.position.x += Math.random() * 10 - 5;
+            // if (mesh.position.x > -1 && mesh.position.x < 1) {
+            //   mesh.position.x = mesh.position.x < 0 ? -2 : 2;
+            // }
             this.animate(building);
             this._scene.add(mesh);
         }
@@ -77,6 +81,24 @@ export class SceneBuilder {
         if (building.buildingBox.scale.y <= building.scale.y - 1) {
             building.popup();
             requestAnimationFrame(() => this.animate(building));
+        }
+    }
+
+    public shuffle(arr, n) {
+        // to make a randomizer without duplicates, im using a shuffling an array of nums and just
+        // incrementing the index i take a number from after each number is picked.
+        // n is the amount of times the numbers are shuffled, more shuffles creates better results.
+
+        if (n <= 0) {
+            // amount of shuffles should ATLEAST be 1
+            n = 1;
+        }
+
+        for (let k = 0; k < n; k++) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
         }
     }
 }

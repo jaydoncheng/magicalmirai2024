@@ -26,7 +26,7 @@ export class SceneManager {
     private _scene: THREE.Scene;
     private _camera: THREE.Camera;
     private _controls;
-    private _sceneBuilder : SceneBuilder;
+    private _sceneBuilder: SceneBuilder;
 
     private startingPos: THREE.Vector3;
     private cameraTarget: THREE.Vector3;
@@ -34,10 +34,10 @@ export class SceneManager {
     private textPlane: THREE.Mesh;
 
     constructor() {
-        Globals.controls!.setReady('scene', false);
+        Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
         this._renderer = new THREE.WebGLRenderer({
-            antialias: true
+            antialias: true,
         });
 
         this._view.appendChild(this._renderer.domElement);
@@ -71,17 +71,17 @@ export class SceneManager {
         this._camera.position.z = 5;
         this._camera.position.y = 1.5;
 
-        var canvas = this.textCanvas = document.createElement("canvas");
+        var canvas = (this.textCanvas = document.createElement("canvas"));
 
         var texture = new THREE.CanvasTexture(canvas);
 
         const scale = 0.02;
         const height = canvas.height * scale;
         const width = canvas.width * scale;
-        var textPlane = this.textPlane = new THREE.Mesh(
+        var textPlane = (this.textPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(width, height, 32, 32),
-            new THREE.MeshBasicMaterial({ map: texture })
-        );
+            new THREE.MeshBasicMaterial({ map: texture }),
+        ));
         textPlane.position.set(0, 1, -5);
         textPlane.rotation.x = -Math.PI;
         textPlane.rotation.y = Math.PI;
@@ -95,7 +95,7 @@ export class SceneManager {
         this.cameraTarget = this._camera.position.clone();
         this.resize();
 
-        Globals.controls!.setReady('scene', true);
+        Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
     }
 
@@ -114,8 +114,11 @@ export class SceneManager {
 
         var texture = new THREE.CanvasTexture(canvas);
         this.textPlane.material.dispose();
-        this.textPlane.material = new THREE.MeshBasicMaterial({ map: texture, transparent: true});
-        this.textPlane.position.x = -canvas.width * 0.02 / 2;
+        this.textPlane.material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+        });
+        this.textPlane.position.x = (-canvas.width * 0.02) / 2;
         this.cameraTarget = this.textPlane.position.clone();
     }
 
@@ -123,11 +126,11 @@ export class SceneManager {
     public update(time: number) {
         var t = time / 1000;
         this.shouldBeAt.z = time / 100;
-        this.shouldBeAt.x = Math.sin(t)/4;
-        this.shouldBeAt.y = (Math.cos(t*2)/2)+0.5;
+        this.shouldBeAt.x = Math.sin(t) / 4;
+        this.shouldBeAt.y = Math.cos(t * 2) / 2 + 0.5;
 
         this.textPlane.position.z = -(time / 100) - 7;
-        this.textPlane.position.x = -Math.sin(t)/2;
+        this.textPlane.position.x = -Math.sin(t) / 2;
         this.textPlane.lookAt(this._camera.position);
     }
 
