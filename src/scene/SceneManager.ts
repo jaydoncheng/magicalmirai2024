@@ -91,18 +91,18 @@ export class SceneManager {
         this._scene.add(textPlane);
 
         this.drawText("Hello, world!");
-        // const loader = new GLTFLoader();
-        // loader.load(
-        //     "../assets/scene.gltf",
-        //     (gltf) => {
-        //         gltf.scene.position.set(0, 0, 0);
-        //         this._scene.add(gltf.scene);
-        //     },
-        //     undefined,
-        //     (error) => {
-        //         console.error(error);
-        //     },
-        // );
+        const loader = new GLTFLoader();
+        loader.load(
+            "../assets/scene.gltf",
+            (gltf) => {
+                gltf.scene.position.set(0, 0, 0);
+                this._scene.add(gltf.scene);
+            },
+            undefined,
+            (error) => {
+                console.error(error);
+            },
+        );
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
         this.cameraTarget = this._camera.position.clone();
