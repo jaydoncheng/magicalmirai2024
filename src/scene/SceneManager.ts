@@ -4,6 +4,7 @@ import { Building } from "./Building";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
 import { SceneBuilder } from "./SceneBuilder";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export class SceneManager {
     // TODO: ok so
@@ -90,6 +91,18 @@ export class SceneManager {
         this._scene.add(textPlane);
 
         this.drawText("Hello, world!");
+        // const loader = new GLTFLoader();
+        // loader.load(
+        //     "../assets/scene.gltf",
+        //     (gltf) => {
+        //         gltf.scene.position.set(0, 0, 0);
+        //         this._scene.add(gltf.scene);
+        //     },
+        //     undefined,
+        //     (error) => {
+        //         console.error(error);
+        //     },
+        // );
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
         this.cameraTarget = this._camera.position.clone();
@@ -142,8 +155,8 @@ export class SceneManager {
             this._sceneBuilder.populate(this.prevPos, newPos);
             this.prevPos = newPos;
         }
-        this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
-        this._camera.lookAt(this.textPlane.position);
+        // this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
+        // this._camera.lookAt(this.textPlane.position);
 
         this._renderer.render(this._scene, this._camera);
         this._controls.update();
