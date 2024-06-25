@@ -44,7 +44,7 @@ export class SceneManager {
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
 
-    private stats : Stats;
+    private stats: Stats;
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -81,12 +81,14 @@ export class SceneManager {
         this.camSubParent.add(this._camera);
         this.camParent.add(this.camSubParent);
 
+        this._scene.add(this.camParent);
+
         this.fakeCam = this._camera.clone();
         this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
         this._controls.enableDamping = true;
         this._controls.dampingFactor = 0.25;
-        this._controls.enablePan = false;
-        this._controls.enableZoom = false;
+        // this._controls.enablePan = false;
+        // this._controls.enableZoom = false;
 
         this._controls.target = this.cameraTarget;
         this._controls.update;
@@ -101,6 +103,8 @@ export class SceneManager {
         // -------------------- this gotta be its own thing --------------------------------
         this._sceneBuilder = new SceneBuilder(this._scene, colors);
         this._sceneBuilder.build();
+
+        this.camParent.add(this._sceneBuilder.getPlane());
 
         // this._camera.position.z = 5;
         // this._camera.position.y = 1.5;
@@ -174,13 +178,15 @@ export class SceneManager {
 
     private shouldBeAt = new THREE.Vector3();
     private directionVector = new THREE.Vector3();
+    private started = false;
     public update(time: number) {
+        this.started = true;
         var t = time / 1000;
         // this.shouldBeAt.z = time / 100;
-        // this.shouldBeAt.x = Math.sin(t) / 4;
-        // this.shouldBeAt.y = Math.cos(t * 2) / 2 + 0.5;
+        this.camSubParent.position.x = Math.sin(t) / 4;
+        this.camSubParent.position.y = Math.cos(t * 2) / 2 + 0.5;
 
-        this.textPlane.position.z = -(time / 100) - 7;
+        this.textPlane.position.z = this.camParent.position.z + 7;
         this.textPlane.position.x = -Math.sin(t) / 2;
         this.textPlane.lookAt(this._camera.position);
 
@@ -195,6 +201,8 @@ export class SceneManager {
     private _clock = new THREE.Clock();
     private prevPos = new THREE.Vector3(0, 0, 0);
     private _x = new THREE.Vector3();
+    private buildCount = 0;
+    // At max only have ?? number of buildingBlocks
     public _update() {
         // var newPos = this.startingPos.clone().sub(this.shouldBeAt);
         // if (this.prevPos.distanceTo(newPos) > 2) {
@@ -205,16 +213,21 @@ export class SceneManager {
         if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
             this._sceneBuilder.populate(this.camParent.position, this.shouldBeAt);
             this.prevPos.copy(this.camParent.position);
+            this.buildCount++;
+            if (this.buildCount >= 15) {
+                this._sceneBuilder.deleteBlock();
+            }
         }
 
-        this.camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
-        // this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
-        // this._camera.lookAt(this.textPlane.position);
-        //
-        // this.cameraTarget.getWorldPosition(this.camHelper);
+        if (this.started) {
+            this.camParent.position.lerp(
+                this.shouldBeAt,
+                this._clock.getDelta() * 10,
+            );
+        }
+
         this._camera.getWorldPosition(this._x);
         this._camera.copy(this.fakeCam);
-        // this.camParent.position.z += 0.01;
         this._camera.getWorldPosition(this._x);
         this.stats.update();
 
