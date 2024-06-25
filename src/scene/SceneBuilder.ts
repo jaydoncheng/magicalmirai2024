@@ -56,11 +56,11 @@ export class SceneBuilder {
         var direction = new THREE.Vector3();
         direction.subVectors(to, from);
         direction.normalize();
-        var xCord = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6];
+        // var xCord = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6];
         // var xCord = [9, -7, -5, -3, -1, 1, 3, 5, 7, 9];
-        this.shuffle(xCord, 2);
+        var xCord = this.cordGen(-6, 6, 1.5, 3);
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < xCord.length; i++) {
             var building = new Building(1, Math.round(1 + Math.random() * 5), 1);
             var mesh = building.getBox();
             mesh.position.copy(from);
@@ -70,7 +70,7 @@ export class SceneBuilder {
             mesh.position.x = xCord[i];
             // mesh.position.x += Math.random() * 10 - 5;
             // if (mesh.position.x > -1 && mesh.position.x < 1) {
-            //   mesh.position.x = mesh.position.x < 0 ? -2 : 2;
+            //     mesh.position.x = mesh.position.x < 0 ? -2 : 2;
             // }
             this.animate(building);
             this._scene.add(mesh);
@@ -84,10 +84,32 @@ export class SceneBuilder {
         }
     }
 
-    public shuffle(arr, n) {
+    public cordGen(l, r, gap, n) {
         // to make a randomizer without duplicates, im using a shuffling an array of nums and just
         // incrementing the index i take a number from after each number is picked.
+        // l is amount of buildings on left
+        // r is amount on right
+        // g is the gap inbetween
         // n is the amount of times the numbers are shuffled, more shuffles creates better results.
+
+        if (l > 0) {
+            throw new Error('for method "cordGen", l must be bigger than 0');
+        }
+
+        if (r < 0) {
+            throw new Error('for method "cordGen", r must be smaller than 0');
+        }
+
+        let arr: number[] = [];
+        for (let m: number = l; m < 0; m++) {
+            arr.push(m + 0.5 - gap * 0.5);
+        }
+
+        for (let m: number = 1; m <= r; m++) {
+            arr.push(m - 0.5 + gap * 0.5);
+        }
+
+        console.log(arr);
 
         if (n <= 0) {
             // amount of shuffles should ATLEAST be 1
@@ -96,9 +118,13 @@ export class SceneBuilder {
 
         for (let k = 0; k < n; k++) {
             for (let i = arr.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
+                let j = Math.floor(Math.random() * (i + 1));
                 [arr[i], arr[j]] = [arr[j], arr[i]];
             }
         }
+
+        console.log(arr);
+
+        return arr;
     }
 }
