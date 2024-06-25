@@ -93,7 +93,7 @@ export class SceneManager {
         this.drawText("Hello, world!");
         const loader = new GLTFLoader();
         loader.load(
-            "../assets/scene.gltf",
+            "./scene.gltf",
             (gltf) => {
                 gltf.scene.position.set(0, 0, 0);
                 this._scene.add(gltf.scene);
