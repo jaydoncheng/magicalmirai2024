@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Building } from "./Building";
+import { BuildingGroup } from "./BuildingGroup";
 
 export class SceneBuilder {
     private _scene: THREE.Scene;
@@ -26,55 +27,12 @@ export class SceneBuilder {
         plight.shadow.bias = 0.00001;
         this._scene.add(plight);
 
-        const planeGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-        const planeMaterial = new THREE.MeshStandardMaterial({
-            color: this._colors.plane,
-            side: THREE.FrontSide,
-        });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.scale.set(32, 3200, 1);
-        plane.receiveShadow = true;
-        plane.castShadow = true;
-        plane.rotation.x = -Math.PI / 2;
-        this._scene.add(plane);
-
-        // for (let i = 0; i < 100; i++) {
-        //     var building = new Building(1, Math.round(1 + Math.random() * 8), 1);
-        //     var mesh = building.getMesh();
-        //     mesh.position.x = Math.random() * 10 - 5;
-        //     mesh.position.z = Math.random() * 100 - 50;
-        //
-        //     this.animate(building);
-        //     this._scene.add(mesh);
-        // }
         this.populate(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -5));
     }
 
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
-        // populate with buildings between from and to vector
-        var distance = from.distanceTo(to);
-        var direction = new THREE.Vector3();
-        direction.subVectors(to, from);
-        direction.normalize();
-        // var xCord = [-6, -5, -4, -3, -2, 2, 3, 4, 5, 6];
-        // var xCord = [9, -7, -5, -3, -1, 1, 3, 5, 7, 9];
-        var xCord = this.cordGen(-6, 6, 1.5, 3);
-
-        for (let i = 0; i < xCord.length; i++) {
-            var building = new Building(1, Math.round(1 + Math.random() * 5), 1);
-            var mesh = building.getBox();
-            mesh.position.copy(from);
-            mesh.position.add(to.clone().multiplyScalar(Math.random() * distance));
-
-            mesh.position.y = 0;
-            mesh.position.x = xCord[i];
-            // mesh.position.x += Math.random() * 10 - 5;
-            // if (mesh.position.x > -1 && mesh.position.x < 1) {
-            //     mesh.position.x = mesh.position.x < 0 ? -2 : 2;
-            // }
-            this.animate(building);
-            this._scene.add(mesh);
-        }
+        var buildingGroup = new BuildingGroup(this._scene, this._colors);
+        buildingGroup.build(from, to);
     }
 
     public animate(building: Building) {
