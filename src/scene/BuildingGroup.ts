@@ -29,6 +29,8 @@ export class BuildingGroup {
 
         this._parent.position.copy(from);
         this._parent.lookAt(to);
+
+        this._scene.add(this._parent);
     }
 
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
@@ -37,8 +39,9 @@ export class BuildingGroup {
         var direction = new THREE.Vector3();
         direction.subVectors(to, from);
         direction.normalize();
-        var xCord = this.cordGen(-6, 6, 1.5, 3);
+        var xCord = this.cordGen(-5, 5, 1.5, 2);
         var zCord = this.cordGen(0, distance, 0, 3);
+        console.log("distance: " + distance);
 
         for (let i = 0; i < xCord.length; i++) {
             var building = new Building(1, Math.round(1 + Math.random() * 5), 1);

@@ -5,6 +5,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
 import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { Vector3 } from "three";
+import { degrees } from "three/examples/jsm/nodes/Nodes";
 
 export class SceneManager {
     // TODO: ok so
@@ -30,7 +32,14 @@ export class SceneManager {
     private _sceneBuilder: SceneBuilder;
 
     private startingPos: THREE.Vector3;
+
+    private camParent: THREE.Group;
+    private camSubParent: THREE.Group; // takes the camera target into account
     private cameraTarget: THREE.Vector3;
+    private camHelper: THREE.Vector3;
+    private fakeCam: THREE.Camera;
+    private direction: number;
+
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
 
@@ -56,9 +65,28 @@ export class SceneManager {
             0.1,
             1000,
         );
-        this._controls = new OrbitControls(this._camera, this._renderer.domElement);
+        this._camera.position.set(0, 1, -0.001);
+
+        this.cameraTarget = new THREE.Vector3(0, 1, 0);
+        // offset target to replicate first person
+        this.camHelper = new THREE.Vector3();
+
+        this.camSubParent = new THREE.Group();
+        this.camParent = new THREE.Group();
+        this.camSubParent.add(this._camera);
+        this.camParent.add(this.camSubParent);
+
+        this.fakeCam = this._camera.clone();
+        this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
         this._controls.enableDamping = true;
         this._controls.dampingFactor = 0.25;
+        this._controls.enablePan = false;
+        this._controls.enableZoom = false;
+
+        this._controls.target = this.cameraTarget;
+        this._controls.update;
+        this._camera.copy(this.fakeCam);
+        this.direction = 0;
 
         var { colors } = Globals.currentSong.keyframes["0"];
 
@@ -69,8 +97,8 @@ export class SceneManager {
         this._sceneBuilder = new SceneBuilder(this._scene, colors);
         this._sceneBuilder.build();
 
-        this._camera.position.z = 5;
-        this._camera.position.y = 1.5;
+        // this._camera.position.z = 5;
+        // this._camera.position.y = 1.5;
 
         var canvas = (this.textCanvas = document.createElement("canvas"));
 
@@ -105,11 +133,15 @@ export class SceneManager {
         );
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
-        this.cameraTarget = this._camera.position.clone();
+        // this.cameraTarget = this._camera.position.clone();
         this.resize();
 
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
+    }
+
+    public setDirection(degrees: number) {
+        this.direction = degrees;
     }
 
     public resize() {
@@ -126,40 +158,61 @@ export class SceneManager {
         ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
         var texture = new THREE.CanvasTexture(canvas);
-        this.textPlane.material.dispose();
+        // this.textPlane.material.dispose();
         this.textPlane.material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
         });
         this.textPlane.position.x = (-canvas.width * 0.02) / 2;
-        this.cameraTarget = this.textPlane.position.clone();
+        // this.cameraTarget = this.textPlane.position.clone();
     }
 
     private shouldBeAt = new THREE.Vector3();
+    private directionVector = new THREE.Vector3();
     public update(time: number) {
         var t = time / 1000;
-        this.shouldBeAt.z = time / 100;
-        this.shouldBeAt.x = Math.sin(t) / 4;
-        this.shouldBeAt.y = Math.cos(t * 2) / 2 + 0.5;
+        // this.shouldBeAt.z = time / 100;
+        // this.shouldBeAt.x = Math.sin(t) / 4;
+        // this.shouldBeAt.y = Math.cos(t * 2) / 2 + 0.5;
 
         this.textPlane.position.z = -(time / 100) - 7;
         this.textPlane.position.x = -Math.sin(t) / 2;
         this.textPlane.lookAt(this._camera.position);
+
+        let deg = (this.direction * Math.PI) / 180;
+
+        this.directionVector = new THREE.Vector3(Math.sin(deg), 0, Math.cos(deg));
+
+        this.shouldBeAt = this.camParent.position.clone().add(this.directionVector);
     }
 
     private _clock = new THREE.Clock();
     private prevPos = new THREE.Vector3(0, 0, 0);
     public _update() {
-        var newPos = this.startingPos.clone().sub(this.shouldBeAt);
-        if (this.prevPos.distanceTo(newPos) > 2) {
-            this._sceneBuilder.populate(this.prevPos, newPos);
-            this.prevPos = newPos;
+        // var newPos = this.startingPos.clone().sub(this.shouldBeAt);
+        // if (this.prevPos.distanceTo(newPos) > 2) {
+        //     this._sceneBuilder.populate(this.prevPos, newPos);
+        //     this.prevPos = newPos;
+        // }
+
+        var currentPos = this.camParent.position.clone();
+        if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
+            this._sceneBuilder.populate(currentPos, this.shouldBeAt);
+            this.prevPos = currentPos;
         }
+
+        this.camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
         // this._camera.position.lerp(newPos, this._clock.getDelta() * 10);
         // this._camera.lookAt(this.textPlane.position);
+        //
+        // this.cameraTarget.getWorldPosition(this.camHelper);
+        let x = new THREE.Vector3();
+        this._camera.getWorldPosition(x);
+        this._camera.copy(this.fakeCam);
+        // this.camParent.position.z += 0.01;
+        this._camera.getWorldPosition(x);
 
         this._renderer.render(this._scene, this._camera);
-        this._controls.update();
     }
 
     public addBuilding(building: Building) {

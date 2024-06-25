@@ -41,48 +41,4 @@ export class SceneBuilder {
             requestAnimationFrame(() => this.animate(building));
         }
     }
-
-    public cordGen(l, r, gap, n) {
-        // to make a randomizer without duplicates, im using a shuffling an array of nums and just
-        // incrementing the index i take a number from after each number is picked.
-        // l is amount of buildings on left
-        // r is amount on right
-        // g is the gap inbetween
-        // n is the amount of times the numbers are shuffled, more shuffles creates better results.
-
-        if (l > 0) {
-            throw new Error('for method "cordGen", l must be smaller than 0');
-        }
-
-        if (r < 0) {
-            throw new Error('for method "cordGen", r must be bigger than 0');
-        }
-
-        let arr: number[] = [];
-        for (let m: number = l; m < 0; m++) {
-            arr.push(m + 0.5 - gap * 0.5);
-        }
-
-        for (let m: number = 1; m <= r; m++) {
-            arr.push(m - 0.5 + gap * 0.5);
-        }
-
-        console.log(arr);
-
-        if (n <= 0) {
-            // amount of shuffles should ATLEAST be 1
-            n = 1;
-        }
-
-        for (let k = 0; k < n; k++) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-        }
-
-        console.log(arr);
-
-        return arr;
-    }
 }
