@@ -92,11 +92,11 @@ export class SceneBuilder {
         // g is the gap inbetween
         // n is the amount of times the numbers are shuffled, more shuffles creates better results.
 
-        if (l < 0) {
+        if (l > 0) {
             throw new Error('for method "cordGen", l must be smaller than 0');
         }
 
-        if (r > 0) {
+        if (r < 0) {
             throw new Error('for method "cordGen", r must be bigger than 0');
         }
 
