@@ -7,6 +7,7 @@ import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Vector3 } from "three";
 import { degrees } from "three/examples/jsm/nodes/Nodes";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 
 export class SceneManager {
     // TODO: ok so
@@ -43,6 +44,7 @@ export class SceneManager {
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
 
+    private stats : Stats;
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -55,6 +57,9 @@ export class SceneManager {
 
         const _init = this.initialize.bind(this);
         window.addEventListener("songchanged", _init);
+
+        this.stats = new Stats();
+        document.body.appendChild(this.stats.dom);
     }
 
     public initialize() {
@@ -181,13 +186,15 @@ export class SceneManager {
 
         let deg = (this.direction * Math.PI) / 180;
 
-        this.directionVector = new THREE.Vector3(Math.sin(deg), 0, Math.cos(deg));
+        this.directionVector.set(Math.sin(deg), 0, Math.cos(deg));
 
-        this.shouldBeAt = this.camParent.position.clone().add(this.directionVector);
+        this.shouldBeAt.copy(this.camParent.position);
+        this.shouldBeAt.add(this.directionVector);
     }
 
     private _clock = new THREE.Clock();
     private prevPos = new THREE.Vector3(0, 0, 0);
+    private _x = new THREE.Vector3();
     public _update() {
         // var newPos = this.startingPos.clone().sub(this.shouldBeAt);
         // if (this.prevPos.distanceTo(newPos) > 2) {
@@ -195,10 +202,9 @@ export class SceneManager {
         //     this.prevPos = newPos;
         // }
 
-        var currentPos = this.camParent.position.clone();
         if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
-            this._sceneBuilder.populate(currentPos, this.shouldBeAt);
-            this.prevPos = currentPos;
+            this._sceneBuilder.populate(this.camParent.position, this.shouldBeAt);
+            this.prevPos.copy(this.camParent.position);
         }
 
         this.camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
@@ -206,11 +212,11 @@ export class SceneManager {
         // this._camera.lookAt(this.textPlane.position);
         //
         // this.cameraTarget.getWorldPosition(this.camHelper);
-        let x = new THREE.Vector3();
-        this._camera.getWorldPosition(x);
+        this._camera.getWorldPosition(this._x);
         this._camera.copy(this.fakeCam);
         // this.camParent.position.z += 0.01;
-        this._camera.getWorldPosition(x);
+        this._camera.getWorldPosition(this._x);
+        this.stats.update();
 
         this._renderer.render(this._scene, this._camera);
     }

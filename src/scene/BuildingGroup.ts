@@ -13,17 +13,17 @@ export class BuildingGroup {
     }
 
     public build(from: THREE.Vector3, to: THREE.Vector3) {
-        const planeGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-        const planeMaterial = new THREE.MeshStandardMaterial({
-            color: this._colors.plane,
-            side: THREE.FrontSide,
-        });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.scale.set(32, 32, 1);
-        plane.receiveShadow = true;
-        plane.castShadow = true;
-        plane.rotation.x = -Math.PI / 2;
-        this._parent.add(plane);
+        // const planeGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+        // const planeMaterial = new THREE.MeshStandardMaterial({
+        //     color: this._colors.plane,
+        //     side: THREE.FrontSide,
+        // });
+        // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        // plane.scale.set(32, 32, 1);
+        // plane.receiveShadow = true;
+        // plane.castShadow = true;
+        // plane.rotation.x = -Math.PI / 2;
+        // this._parent.add(plane);
 
         this.populate(from, to);
 
@@ -60,6 +60,8 @@ export class BuildingGroup {
 
     public animate(building: Building) {
         if (building.buildingBox.scale.y <= building.scale.y - 1) {
+            console.log("animating");
+
             building.popup();
             requestAnimationFrame(() => this.animate(building));
         }
