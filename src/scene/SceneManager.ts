@@ -95,7 +95,7 @@ export class SceneManager {
         this._camera.copy(this.fakeCam);
         this.direction = 0;
 
-        var { colors } = Globals.currentSong.keyframes["0"];
+        var colors = Globals.sceneParams.palette;
 
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -142,7 +142,6 @@ export class SceneManager {
         );
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
-        // this.cameraTarget = this._camera.position.clone();
         this.resize();
 
         Globals.controls!.setReady("scene", true);
@@ -186,7 +185,8 @@ export class SceneManager {
         this.camSubParent.position.x = Math.sin(t) / 4;
         this.camSubParent.position.y = Math.cos(t * 2) / 2 + 0.5;
 
-        this.textPlane.position.z = this.camParent.position.z + 7;
+        this.textPlane.position.copy(this.camParent.position);
+        this.textPlane.position.z += 7;
         this.textPlane.position.x = -Math.sin(t) / 2;
         this.textPlane.lookAt(this._camera.position);
 
@@ -202,21 +202,14 @@ export class SceneManager {
     private prevPos = new THREE.Vector3(0, 0, 0);
     private _x = new THREE.Vector3();
     private buildCount = 0;
-    // At max only have ?? number of buildingBlocks
     public _update() {
-        // var newPos = this.startingPos.clone().sub(this.shouldBeAt);
-        // if (this.prevPos.distanceTo(newPos) > 2) {
-        //     this._sceneBuilder.populate(this.prevPos, newPos);
-        //     this.prevPos = newPos;
-        // }
-
         if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
             this._sceneBuilder.populate(this.camParent.position, this.shouldBeAt);
             this.prevPos.copy(this.camParent.position);
             this.buildCount++;
-            if (this.buildCount >= 15) {
-                this._sceneBuilder.deleteBlock();
-            }
+            // if (this.buildCount >= 15) {
+            //     this._sceneBuilder.deleteBlock();
+            // }
         }
 
         if (this.started) {

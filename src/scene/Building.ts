@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Globals from "../core/Globals";
 
 export class Building {
     public buildingBox: THREE.Object3D;
@@ -8,7 +9,7 @@ export class Building {
     constructor(w: number, h: number, d: number) {
         this.scale = new THREE.Vector3(w, h, d);
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        const material = new THREE.MeshStandardMaterial({ color: Globals.sceneParams.palette.buildingTint });
         this.buildingMesh = new THREE.Mesh(geometry, material);
         this.buildingMesh.castShadow = true;
         this.buildingMesh.receiveShadow = true;

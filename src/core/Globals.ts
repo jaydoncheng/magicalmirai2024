@@ -1,6 +1,7 @@
 import { PlayerManager } from '../player/PlayerManager';
 import { SceneManager } from '../scene/SceneManager';
-import Controls, { ControlsType } from './Controls';
+import { ControlsType } from './Controls';
+import SceneParams from './SceneParams';
 import { ISong } from './ISong'
 import Songs from './songs'
 
@@ -18,5 +19,7 @@ export default {
     player: null as PlayerManager | null,
     scene: null as SceneManager | null,
     controls: null as ControlsType | null,
+
+    sceneParams: SceneParams,
 }
 

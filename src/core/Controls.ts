@@ -1,4 +1,5 @@
 import Globals from "./Globals";
+import { GUI, GUIController } from "dat.gui";
 
 class Controls {
     // TODO: Implement switching between loading and ready state;
@@ -9,6 +10,7 @@ class Controls {
     public playBtn: HTMLElement;
     public pauseBtn: HTMLElement;
     public stopBtn: HTMLElement;
+    public editorBtn: HTMLElement;
     public loadingEl: HTMLElement;
     public controlsEl: HTMLElement;
 
@@ -17,12 +19,17 @@ class Controls {
     private _onStop: Function[] = [];
     private _whoisReady = {};
 
+    private _datGUI: GUI;
+    private _datGUIControls: { [key: string]: GUIController } = {};
+
     constructor() {
+
         var playBtn = this.playBtn = document.querySelector("#bt_play")!;
         var pauseBtn = this.pauseBtn = document.querySelector("#bt_pause")!;
-        var stopBtn = this.stopBtn = document.querySelector("#bt_rewind")!;
-        var loadingEl = this.loadingEl = document.querySelector("#loading")!;
-        var controlsEl = this.controlsEl = document.querySelector("#controls")!;
+        var stopBtn = this.stopBtn = document.querySelector("#bt_stop")!;
+        var editorBtn = this.editorBtn = document.querySelector("#bt_editor")!;
+        this.loadingEl = document.querySelector("#loading")!;
+        this.controlsEl = document.querySelector("#controls")!;
 
         const song_selector = document.querySelector("#song_selector")!;
         for (let song of Globals.songs) {
@@ -63,6 +70,21 @@ class Controls {
             this.reset();
             return false;
         });
+
+        editorBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const editorEl: HTMLElement = document.querySelector("#editor")!;
+            editorEl.classList.toggle("active");
+            return false;
+        });
+
+        document.querySelector("#bt_close_editor")!.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.querySelector("#editor")!.classList.toggle("active");
+            return false;
+        });
+
+        this.initDatGUI();
     }
 
     // Any component which needs to be ready before the controls
@@ -74,7 +96,6 @@ class Controls {
     }
 
     private _onReady() {
-        document.querySelector("#debug")!.innerHTML = JSON.stringify(this._whoisReady);
         if (Object.values(this._whoisReady).every((v) => v === true)) {
             this.loadingEl.style.display = "none";
             this.controlsEl.style.display = "block";
@@ -112,6 +133,34 @@ class Controls {
 
     public onStop(fnc: Function) {
         this._onStop.push(fnc);
+    }
+
+    private _traverseObj(obj : any, folder: GUI = this._datGUI) {
+        for (var k in obj) {
+            if (typeof obj[k] === "object" && obj[k] !== null) {
+                if (folder) {
+                    var f = folder.addFolder(k);
+                    this._traverseObj(obj[k], f);
+                }
+            }
+            else {
+                if (typeof obj[k] === "function") {
+                    continue
+                }
+
+                folder.add(obj, k);
+            }
+        }
+    }
+
+    private initDatGUI() {
+        this._datGUI = new GUI();
+        this._datGUI.width = 300;
+        document.querySelector("#dg")!.appendChild(this._datGUI.domElement);
+
+        this._datGUI.remember(Globals.sceneParams);
+        this._traverseObj(Globals.sceneParams, this._datGUI);
+        console.log(this._datGUIControls);
     }
 }
 

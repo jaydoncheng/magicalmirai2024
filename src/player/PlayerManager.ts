@@ -9,7 +9,7 @@ export class PlayerManager {
     private _playerOptions: any = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")!,
-        mediaBannerPosition: "bottom right"
+        mediaBannerPosition: "bottom left"
     }
 
     constructor() {
