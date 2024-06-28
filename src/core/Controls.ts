@@ -116,7 +116,7 @@ class Controls {
 
     private _traverseObj(obj: any, folder: GUI = this._datGUI) {
         for (var k in obj) {
-            var controller : GUIController;
+            var controller : GUIController | null = null;
             if (typeof obj[k] === "function") {
                 // implement later maybe
                 continue
@@ -126,11 +126,13 @@ class Controls {
                 } else {
                     controller = folder.add(obj, k);
                 }
-
-                controller.onFinishChange((value) => {
-                    Globals.three?._onParamsChanged(value);
-                });
+            } else if (typeof obj[k] === "number") {
+                controller = folder.add(obj, k);
             }
+
+            controller?.onFinishChange((value) => {
+                Globals.three?._onParamsChanged(value);
+            });
 
             if (typeof obj[k] === "object" && obj[k] !== null) {
                 this._traverseObj(obj[k], folder.addFolder(k));
@@ -145,7 +147,6 @@ class Controls {
 
         this._datGUI.remember(Globals.sceneParams);
         this._traverseObj(Globals.sceneParams, this._datGUI);
-        console.log(this._datGUIControls);
     }
 }
 
