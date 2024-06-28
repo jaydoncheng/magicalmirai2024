@@ -8,6 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
+import { Buildings } from "./Buildings";
 
 export class ThreeManager {
     // TODO: ok so
@@ -30,7 +31,7 @@ export class ThreeManager {
     private _scene: THREE.Scene;
     private _camera: THREE.Camera;
     private _controls;
-    private _sceneBuilder: SceneBuilder;
+    private _sceneBuilder: Buildings;
 
     private startingPos: THREE.Vector3;
 
@@ -78,8 +79,10 @@ export class ThreeManager {
         );
 
         var skybox = new Skybox(this._scene);
+        this.managers.push(skybox);
         this._scene.add(skybox.initialize());
-        
+
+
 
         this._camera.position.set(0, 1, -0.001);
 
@@ -112,10 +115,8 @@ export class ThreeManager {
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // -------------------- this gotta be its own thing --------------------------------
-        this._sceneBuilder = new SceneBuilder(this._scene, colors);
-        this._sceneBuilder.build();
-
-        this.camParent.add(this._sceneBuilder.getPlane());
+        var buildings = this._sceneBuilder = new Buildings(this._scene);
+        buildings.initialize();
 
         // this._camera.position.z = 5;
         // this._camera.position.y = 1.5;
