@@ -28,7 +28,7 @@ export interface SceneParams {
 export default {
     palette: {
         sky: "#87CEEB",
-        fog: "#87CEEB",
+        fog: "#287493",
         ambientLight: "#aaaaaa",
         pointLight: "#ffffff",
         plane: "#555555",

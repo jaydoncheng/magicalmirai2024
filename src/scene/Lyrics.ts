@@ -7,8 +7,8 @@ export class LyricsManager extends SceneBase {
     private _material: THREE.Material;
     private _textPlane: THREE.Mesh;
 
-    constructor(_parentScene: THREE.Scene) {
-        super(_parentScene);
+    constructor(_parentObject: THREE.Object3D) {
+        super(_parentObject);
         this._textCanvasEl = document.createElement('canvas');
         this._textCanvasEl.width = 1024;
         this._textCanvasEl.height = 1024;
@@ -52,8 +52,7 @@ export class LyricsManager extends SceneBase {
     public initialize() {
         document.body.appendChild(this._textCanvasEl);
 
-        // this._scene.add(this._textPlane);
-        return this._textPlane;
+        this._parentObject.add(this._textPlane);
     }
 
     

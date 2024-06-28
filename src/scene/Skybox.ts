@@ -23,29 +23,11 @@ export class Skybox extends SceneBase {
                 offset: { value: 33 },
                 exponent: { value: 0.6 },
             },
-            vertexShader: `
-                varying vec3 vWorldPosition;
-                void main() {
-                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-                    vWorldPosition = worldPosition.xyz;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 topColor;
-                uniform vec3 bottomColor;
-                uniform float offset;
-                uniform float exponent;
-                varying vec3 vWorldPosition;
-
-                void main() {
-                    float h = normalize(vWorldPosition + offset).y;
-                    gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
-                }
-            `,
+            vertexShader: this._vertexShader,
+            fragmentShader: this._fragmentShader,
         });
-        this._skybox = new THREE.Mesh(this._geometry, this._material);
 
+        this._skybox = new THREE.Mesh(this._geometry, this._material);
         this._palette = Globals.sceneParams.palette;
     }
 
@@ -54,23 +36,47 @@ export class Skybox extends SceneBase {
     }
 
     public initialize() {
-        this._scene.background = new THREE.Color(this._palette!.sky);
         var fog = this._fog = new THREE.Fog(new THREE.Color(this._palette!.fog), 0.015, 100);
         this._scene.fog = fog;
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };
         this._material.uniforms.bottomColor = { value: new THREE.Color(this._palette!.fog) };
 
-        return this._skybox;
+        this._parentObject.add(this._skybox);
     }
 
     public update() {}
 
     public _onParamsChanged(params: any) {
-        this._scene.background = new THREE.Color(this._palette!.sky);
         this._fog.color = new THREE.Color(this._palette!.fog);
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };
         this._material.uniforms.bottomColor = { value: new THREE.Color(this._palette!.fog) };
+
+        console.log("skybox params changed")
+        console.log(this._palette!.sky);
+        console.log(this._palette!.fog);
     }
+
+    private _fragmentShader = `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+        varying vec3 vWorldPosition;
+
+        void main() {
+            float h = normalize(vWorldPosition + offset).y;
+            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+        }
+    `;
+
+    private _vertexShader = `
+        varying vec3 vWorldPosition;
+        void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `;
 }

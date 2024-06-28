@@ -48,6 +48,7 @@ export class ThreeManager {
     private stats: Stats;
 
     private _rootObj : THREE.Group;
+    private _objMngs : { [key: string] : SceneBase } = {};
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -73,6 +74,7 @@ export class ThreeManager {
 
         var skybox = new Skybox(this._rootObj, this._scene);
         skybox.initialize();
+        this._objMngs["skybox"] = skybox;
 
         this._camera = new THREE.PerspectiveCamera(
             90,
@@ -115,6 +117,7 @@ export class ThreeManager {
         // -------------------- this gotta be its own thing --------------------------------
         var buildings = this._sceneBuilder = new Buildings(this._rootObj);
         buildings.initialize();
+        this._objMngs["buildings"] = buildings;
 
         // this._camera.position.z = 5;
         // this._camera.position.y = 1.5;
@@ -244,9 +247,10 @@ export class ThreeManager {
         this._scene.add(building.buildingBox);
     }
 
+    // params currently kinda useless
     public _onParamsChanged(params: any) {
-        for (let manager of this.managers) {
-            manager._onParamsChanged(params);
+        for (let objMng of Object.values(this._objMngs)) {
+            objMng._onParamsChanged(params);
         }
     }
         
