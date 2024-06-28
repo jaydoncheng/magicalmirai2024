@@ -54,7 +54,7 @@ export class PlayerManager {
                     if (unit.contains(now)) {
                         if (unit.startTime <= now && unit.endTime >= now) {
                             console.log(unit.text);
-                            Globals.scene!.drawText(unit.text)
+                            Globals.three!.drawText(unit.text)
                         }
                     }
                 }
@@ -73,7 +73,7 @@ export class PlayerManager {
             onTimeUpdate(time) {
                 console.log("onTimeUpdate", time);
                 // TODO: Implement scene updating, character processing, etc
-                Globals.scene!.update(time);
+                Globals.three!.update(time);
             },
 
             onPlay() {

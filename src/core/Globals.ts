@@ -1,5 +1,5 @@
 import { PlayerManager } from '../player/PlayerManager';
-import { SceneManager } from '../scene/SceneManager';
+import { ThreeManager } from '../scene/ThreeManager';
 import { ControlsType } from './Controls';
 import SceneParams from './SceneParams';
 import { ISong } from './ISong'
@@ -17,7 +17,7 @@ export default {
     },
 
     player: null as PlayerManager | null,
-    scene: null as SceneManager | null,
+    three: null as ThreeManager | null,
     controls: null as ControlsType | null,
 
     sceneParams: SceneParams,

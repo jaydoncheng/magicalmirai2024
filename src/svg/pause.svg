@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-labelledby="title"
-aria-describedby="desc" role="img" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>Pause</title>
-  <desc>A line styled icon from Orion Icon Library.</desc>
-  <circle data-name="layer2"
-  cx="32" cy="32" r="30" fill="none" stroke="#202020" stroke-miterlimit="10"
-  stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></circle>
-  <path data-name="layer1" fill="none" stroke="#202020" stroke-miterlimit="10"
-  stroke-width="2" d="M36 20h4v24h-4zm-12 0h4v24h-4z" stroke-linejoin="round"
-  stroke-linecap="round"></path>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M640-200q-33 0-56.5-23.5T560-280v-400q0-33 23.5-56.5T640-760q33 0 56.5 23.5T720-680v400q0 33-23.5 56.5T640-200Zm-320 0q-33 0-56.5-23.5T240-280v-400q0-33 23.5-56.5T320-760q33 0 56.5 23.5T400-680v400q0 33-23.5 56.5T320-200Z"/></svg>

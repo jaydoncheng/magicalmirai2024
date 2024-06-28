@@ -2,11 +2,6 @@ import Globals from "./Globals";
 import { GUI, GUIController } from "dat.gui";
 
 class Controls {
-    // TODO: Implement switching between loading and ready state;
-    // Controls needs to somehow know that all the other
-    // components (Player, Scene, etc) are ready to go.
-    // Either through some kind of observer pattern or
-    // by having the components call a method on Controls
     public playBtn: HTMLElement;
     public pauseBtn: HTMLElement;
     public stopBtn: HTMLElement;
@@ -44,32 +39,16 @@ class Controls {
             Globals.changeSong(index);
         });
 
-        playBtn.addEventListener("click", (e) => {
+        const handleBtn = (fncL: Function[], fnc: Function) => (e) => {
             e.preventDefault();
-            for (const fnc of this._onPlay) {
-                fnc();
-            }
-            this.togglePlayPause();
+            for (const fnc of fncL) fnc();
+            fnc();
             return false;
-        });
+        }
 
-        pauseBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            for (const fnc of this._onPause) {
-                fnc();
-            }
-            this.togglePlayPause();
-            return false;
-        });
-
-        stopBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            for (const fnc of this._onStop) {
-                fnc();
-            }
-            this.reset();
-            return false;
-        });
+        playBtn.addEventListener("click", handleBtn(this._onPlay, () => this.togglePlayPause()));
+        pauseBtn.addEventListener("click", handleBtn(this._onPause, () => this.togglePlayPause()));
+        stopBtn.addEventListener("click", handleBtn(this._onStop, () => this.reset()));
 
         editorBtn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -135,21 +114,25 @@ class Controls {
         this._onStop.push(fnc);
     }
 
-    private _traverseObj(obj : any, folder: GUI = this._datGUI) {
+    private _traverseObj(obj: any, folder: GUI = this._datGUI) {
         for (var k in obj) {
-            if (typeof obj[k] === "object" && obj[k] !== null) {
-                if (folder) {
-                    var f = folder.addFolder(k);
-                    this._traverseObj(obj[k], f);
-                }
-            }
-            else {
-                if (typeof obj[k] === "function") {
-                    continue
+            var controller : GUIController;
+            if (typeof obj[k] === "function") {
+                // implement later maybe
+                continue
+            } else if (typeof obj[k] === "string") {
+                if (obj[k].startsWith("#")) {
+                    controller = folder.addColor(obj, k);
+                } else {
+                    controller = folder.add(obj, k);
                 }
 
-                folder.add(obj, k);
+                // controller.onFinishChange((value) => {});
             }
+
+            if (typeof obj[k] === "object" && obj[k] !== null) {
+                this._traverseObj(obj[k], folder.addFolder(k));
+            } 
         }
     }
 

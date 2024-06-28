@@ -5,11 +5,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
 import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Vector3 } from "three";
-import { degrees } from "three/examples/jsm/nodes/Nodes";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
-export class SceneManager {
+export class ThreeManager {
     // TODO: ok so
     // scene initialization and populating the scene with objects should
     // probably be done separately, since building prefabs need to be
