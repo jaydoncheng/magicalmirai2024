@@ -6,6 +6,7 @@ import Globals from "../core/Globals";
 import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { SceneBase } from "./SceneBase";
 
 export class ThreeManager {
     // TODO: ok so
@@ -43,6 +44,7 @@ export class ThreeManager {
     private textPlane: THREE.Mesh;
 
     private stats: Stats;
+    private managers: SceneBase[];
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -231,4 +233,11 @@ export class ThreeManager {
     public addBuilding(building: Building) {
         this._scene.add(building.buildingBox);
     }
+
+    public _onParamsChanged(params: any) {
+        for (let manager of this.managers) {
+            manager._onParamsChanged(params);
+        }
+    }
+        
 }

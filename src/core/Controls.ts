@@ -127,7 +127,9 @@ class Controls {
                     controller = folder.add(obj, k);
                 }
 
-                // controller.onFinishChange((value) => {});
+                controller.onFinishChange((value) => {
+                    Globals.three?._onParamsChanged(value);
+                });
             }
 
             if (typeof obj[k] === "object" && obj[k] !== null) {
