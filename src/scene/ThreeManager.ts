@@ -7,6 +7,7 @@ import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
+import { Skybox } from "./Skybox";
 
 export class ThreeManager {
     // TODO: ok so
@@ -75,6 +76,11 @@ export class ThreeManager {
             0.1,
             1000,
         );
+
+        var skybox = new Skybox(this._scene);
+        this._scene.add(skybox.initialize());
+        
+
         this._camera.position.set(0, 1, -0.001);
 
         this.cameraTarget = new THREE.Vector3(0, 1, 0);
