@@ -210,6 +210,9 @@ export class ThreeManager {
             // }
         }
 
+        document.querySelector("#debug")!.innerHTML = `x: ${this.camParent.position.x.toFixed(2)}, y: ${this.camParent.position.y.toFixed(2)}, z: ${this.camParent.position.z.toFixed(2)}`;
+        document.querySelector("#debug")!.innerHTML += `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
+
         if (this.started) {
             this.camParent.position.lerp(
                 this.shouldBeAt,
