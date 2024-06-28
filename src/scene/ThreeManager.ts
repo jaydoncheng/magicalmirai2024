@@ -71,17 +71,15 @@ export class ThreeManager {
         this._scene.add(this._rootObj);
         // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
+        var skybox = new Skybox(this._rootObj, this._scene);
+        skybox.initialize();
+
         this._camera = new THREE.PerspectiveCamera(
             90,
             window.innerWidth / window.innerHeight,
             0.1,
             1000,
         );
-
-        var skybox = new Skybox(this._scene);
-        this.managers.push(skybox);
-        this._scene.add(skybox.initialize());
-
 
 
         this._camera.position.set(0, 1, -0.001);
@@ -115,7 +113,7 @@ export class ThreeManager {
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // -------------------- this gotta be its own thing --------------------------------
-        var buildings = this._sceneBuilder = new Buildings(this._scene);
+        var buildings = this._sceneBuilder = new Buildings(this._rootObj);
         buildings.initialize();
 
         // this._camera.position.z = 5;

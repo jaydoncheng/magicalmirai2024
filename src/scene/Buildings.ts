@@ -6,8 +6,8 @@ export class Buildings extends SceneBase {
 
     private buildingBlocks: THREE.Object3D[] = [];
 
-    constructor(_parentScene: THREE.Scene) {
-        super(_parentScene);
+    constructor(_parentObject: THREE.Object3D) {
+        super(_parentObject);
     }
 
     public initialize() {
@@ -46,7 +46,7 @@ export class Buildings extends SceneBase {
         }
         _parent.position.copy(from);
         _parent.lookAt(to);
-        this._parentScene.add(_parent);
+        this._parentObject.add(_parent);
         this.buildingBlocks.push(_parent);
     }
 

@@ -7,11 +7,13 @@ export class Skybox extends SceneBase {
     private _geometry: THREE.SphereGeometry;
     private _material: THREE.ShaderMaterial;
 
+    private _scene: THREE.Scene;
     private _palette: typeof Globals.sceneParams.palette;
     private _fog : THREE.Fog;
 
-    constructor(_parentScene: THREE.Scene) {
-        super(_parentScene);
+    constructor(_parentObject: THREE.Group, _scene : THREE.Scene) {
+        super(_parentObject);
+        this._scene = _scene;
 
         this._geometry = new THREE.SphereGeometry(100, 32, 32);
         this._material = new THREE.ShaderMaterial({ side: THREE.BackSide, 
@@ -52,9 +54,9 @@ export class Skybox extends SceneBase {
     }
 
     public initialize() {
-        this._parentScene.background = new THREE.Color(this._palette!.sky);
+        this._scene.background = new THREE.Color(this._palette!.sky);
         var fog = this._fog = new THREE.Fog(new THREE.Color(this._palette!.fog), 0.015, 100);
-        this._parentScene.fog = fog;
+        this._scene.fog = fog;
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };
         this._material.uniforms.bottomColor = { value: new THREE.Color(this._palette!.fog) };
@@ -65,7 +67,7 @@ export class Skybox extends SceneBase {
     public update() {}
 
     public _onParamsChanged(params: any) {
-        this._parentScene.background = new THREE.Color(this._palette!.sky);
+        this._scene.background = new THREE.Color(this._palette!.sky);
         this._fog.color = new THREE.Color(this._palette!.fog);
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };
