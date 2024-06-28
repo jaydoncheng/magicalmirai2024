@@ -1,8 +1,13 @@
-export abstract class SceneBase {
-    constructor() {}
+import * as THREE from 'three';
 
-    abstract initialize(): void;
-    abstract update(): void;
-    abstract _onParamsChanged(params: any): void;
+export abstract class SceneBase {
+    _parentScene: THREE.Scene;
+    constructor(parentScene : THREE.Scene) {
+        this._parentScene = parentScene;
+    }
+
+    abstract initialize(): void; // initialize objects and add to scene
+    abstract update(): void; // called by render loop
+    abstract _onParamsChanged(params: any): void; // called by Controller
 
 }
