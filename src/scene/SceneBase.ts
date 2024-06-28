@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 
 export abstract class SceneBase {
-    _parentScene: THREE.Scene;
-    constructor(parentScene : THREE.Scene) {
-        this._parentScene = parentScene;
+
+    _parentObject: THREE.Object3D;
+    constructor(parentObject : THREE.Object3D) {
+        this._parentObject = parentObject;
     }
 
     abstract initialize(): void; // initialize objects and add to scene

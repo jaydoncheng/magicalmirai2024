@@ -44,7 +44,8 @@ export class ThreeManager {
     private textPlane: THREE.Mesh;
 
     private stats: Stats;
-    private managers: SceneBase[];
+
+    private _rootObj : THREE.Group;
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -64,6 +65,10 @@ export class ThreeManager {
 
     public initialize() {
         this._scene = new THREE.Scene();
+        this._rootObj = new THREE.Group();
+        this._scene.add(this._rootObj);
+        // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
+
         this._camera = new THREE.PerspectiveCamera(
             90,
             window.innerWidth / window.innerHeight,
