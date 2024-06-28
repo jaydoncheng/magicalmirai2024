@@ -7,6 +7,7 @@ import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
+import { CameraManager } from "./CameraManager";
 
 export class ThreeManager {
     // TODO: ok so
@@ -27,18 +28,9 @@ export class ThreeManager {
 
     private _renderer: THREE.WebGLRenderer;
     private _scene: THREE.Scene;
-    private _camera: THREE.Camera;
-    private _controls;
     private _sceneBuilder: SceneBuilder;
 
-    private startingPos: THREE.Vector3;
-
-    private camParent: THREE.Group;
-    private camSubParent: THREE.Group; // takes the camera target into account
-    private cameraTarget: THREE.Vector3;
-    private camHelper: THREE.Vector3;
-    private fakeCam: THREE.Camera;
-    private direction: number;
+    private myCamera: CameraManager;
 
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
@@ -69,36 +61,8 @@ export class ThreeManager {
         this._scene.add(this._rootObj);
         // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
-        this._camera = new THREE.PerspectiveCamera(
-            90,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000,
-        );
-        this._camera.position.set(0, 1, -0.001);
 
-        this.cameraTarget = new THREE.Vector3(0, 1, 0);
-        // offset target to replicate first person
-        this.camHelper = new THREE.Vector3();
-
-        this.camSubParent = new THREE.Group();
-        this.camParent = new THREE.Group();
-        this.camSubParent.add(this._camera);
-        this.camParent.add(this.camSubParent);
-
-        this._scene.add(this.camParent);
-
-        this.fakeCam = this._camera.clone();
-        this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
-        this._controls.enableDamping = true;
-        this._controls.dampingFactor = 0.25;
-        // this._controls.enablePan = false;
-        // this._controls.enableZoom = false;
-
-        this._controls.target = this.cameraTarget;
-        this._controls.update;
-        this._camera.copy(this.fakeCam);
-        this.direction = 0;
+        this.myCamera = new CameraManager(this._scene, this._renderer);
 
         var colors = Globals.sceneParams.palette;
 
@@ -109,10 +73,7 @@ export class ThreeManager {
         this._sceneBuilder = new SceneBuilder(this._scene, colors);
         this._sceneBuilder.build();
 
-        this.camParent.add(this._sceneBuilder.getPlane());
-
-        // this._camera.position.z = 5;
-        // this._camera.position.y = 1.5;
+        this.myCamera.add(this._sceneBuilder.getPlane());
 
         var canvas = (this.textCanvas = document.createElement("canvas"));
 
@@ -146,15 +107,10 @@ export class ThreeManager {
             },
         );
         // ----------------------------------------------------------------------
-        this.startingPos = this._camera.position.clone();
         this.resize();
 
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
-    }
-
-    public setDirection(degrees: number) {
-        this.direction = degrees;
     }
 
     public resize() {
@@ -187,52 +143,56 @@ export class ThreeManager {
         this.started = true;
         var t = time / 1000;
         // this.shouldBeAt.z = time / 100;
-        this.camSubParent.position.x = Math.sin(t) / 4;
-        this.camSubParent.position.y = Math.cos(t * 2) / 2 + 0.5;
+        let cam = this.myCamera.getCam();
+        let camParent = this.myCamera.getCamParent();
+        let camSubParent = this.myCamera.getCamSubParent();
 
-        this.textPlane.position.copy(this.camParent.position);
+        camSubParent.position.x = Math.sin(t) / 4;
+        camSubParent.position.y = Math.cos(t * 2) / 2 + 0.5;
+
+        this.textPlane.position.copy(camParent.position);
         this.textPlane.position.z += 7;
         this.textPlane.position.x = -Math.sin(t) / 2;
-        this.textPlane.lookAt(this._camera.position);
+        this.textPlane.lookAt(cam.position);
 
-        let deg = (this.direction * Math.PI) / 180;
+        let deg = (this.myCamera.getDirection() * Math.PI) / 180;
 
         this.directionVector.set(Math.sin(deg), 0, Math.cos(deg));
 
-        this.shouldBeAt.copy(this.camParent.position);
+        this.shouldBeAt.copy(camParent.position);
         this.shouldBeAt.add(this.directionVector);
     }
 
     private _clock = new THREE.Clock();
     private prevPos = new THREE.Vector3(0, 0, 0);
-    private _x = new THREE.Vector3();
     private buildCount = 0;
     public _update() {
+        let cam = this.myCamera.getCam();
+        let camParent = this.myCamera.getCamParent();
+
         if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
-            this._sceneBuilder.populate(this.camParent.position, this.shouldBeAt);
-            this.prevPos.copy(this.camParent.position);
+            this._sceneBuilder.populate(camParent.position, this.shouldBeAt);
+            this.prevPos.copy(camParent.position);
             this.buildCount++;
-            // if (this.buildCount >= 15) {
-            //     this._sceneBuilder.deleteBlock();
-            // }
+            if (this.buildCount >= 15) {
+                this._sceneBuilder.deleteBlock();
+            }
         }
 
-        document.querySelector("#debug")!.innerHTML = `x: ${this.camParent.position.x.toFixed(2)}, y: ${this.camParent.position.y.toFixed(2)}, z: ${this.camParent.position.z.toFixed(2)}`;
-        document.querySelector("#debug")!.innerHTML += `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
+        document.querySelector("#debug")!.innerHTML =
+            `x: ${camParent.position.x.toFixed(2)}, y: ${camParent.position.y.toFixed(2)}, z: ${camParent.position.z.toFixed(2)}`;
+        document.querySelector("#debug")!.innerHTML +=
+            `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
 
         if (this.started) {
-            this.camParent.position.lerp(
-                this.shouldBeAt,
-                this._clock.getDelta() * 10,
-            );
+            camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
         }
 
-        this._camera.getWorldPosition(this._x);
-        this._camera.copy(this.fakeCam);
-        this._camera.getWorldPosition(this._x);
         this.stats.update();
 
-        this._renderer.render(this._scene, this._camera);
+        this.myCamera.update();
+
+        this._renderer.render(this._scene, cam);
     }
 
     public addBuilding(building: Building) {
