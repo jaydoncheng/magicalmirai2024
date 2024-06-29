@@ -9,6 +9,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
+import { BuildingNew } from "./Buildingnew";
 
 export class ThreeManager {
     // TODO: ok so
@@ -101,8 +102,6 @@ export class ThreeManager {
         this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
         this._controls.enableDamping = true;
         this._controls.dampingFactor = 0.25;
-        // this._controls.enablePan = false;
-        // this._controls.enableZoom = false;
 
         this._controls.target = this.cameraTarget;
         this._controls.update;
@@ -159,6 +158,13 @@ export class ThreeManager {
 
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
+
+        var buildingnew = new BuildingNew(
+            this._rootObj, { val: 3, dev: 0 }, { val: 8, dev: 0 }, { val: 3, dev: 0 }
+        );
+        buildingnew._heightSegments = 5;
+        buildingnew.generateGeometry();
+        this._objMngs["buildingnew"] = buildingnew;
     }
 
     public setDirection(degrees: number) {

@@ -52,10 +52,6 @@ export class Skybox extends SceneBase {
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };
         this._material.uniforms.bottomColor = { value: new THREE.Color(this._palette!.fog) };
-
-        console.log("skybox params changed")
-        console.log(this._palette!.sky);
-        console.log(this._palette!.fog);
     }
 
     private _fragmentShader = `

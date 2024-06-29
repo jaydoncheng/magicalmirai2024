@@ -21,6 +21,13 @@ export interface SceneParams {
             height?: { min?: number, max?: number },
             depth?: { min?: number, max?: number },
         },
+    },
+    cube?: {
+        width?: number;
+        height?: number;
+        depth?: number;
+        twistAlpha?: number;
+        heightSegments?: number;
     }
 }
 
@@ -47,5 +54,12 @@ export default {
             height: { min: 1, max: 1 },
             depth: { min: 1, max: 1 },
         },
+    },
+    cube: {
+        width: 1,
+        height: 1,
+        depth: 1,
+        twistAlpha: 0,
+        heightSegments: 5,
     }
 } as SceneParams;
