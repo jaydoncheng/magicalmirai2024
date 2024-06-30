@@ -73,6 +73,8 @@ export class ThreeManager {
 
     this.myCamera.add(this._sceneBuilder.getPlane());
 
+    this.myCamera.setBuildFunc(this.buildSet.bind(this));
+
     var canvas = (this.textCanvas = document.createElement("canvas"));
 
     var texture = new THREE.CanvasTexture(canvas);
@@ -134,12 +136,15 @@ export class ThreeManager {
     // this.cameraTarget = this.textPlane.position.clone();
   }
 
-  private shouldBeAt = new THREE.Vector3();
-  private directionVector = new THREE.Vector3();
-  private started = false;
+  // private shouldBeAt = new THREE.Vector3();
+  // private directionVector = new THREE.Vector3();
+  // private started = false;
   public update(time: number) {
-    this.started = true;
+    // this.started = true;
     var t = time / 1000;
+
+    this.myCamera.songUpdate(time);
+
     // this.shouldBeAt.z = time / 100;
     let cam = this.myCamera.getCam();
     let camParent = this.myCamera.getCamParent();
@@ -153,38 +158,59 @@ export class ThreeManager {
     this.textPlane.position.x = -Math.sin(t) / 2;
     this.textPlane.lookAt(cam.position);
 
-    let deg = (0 * Math.PI) / 180;
+    // let deg = (0 * Math.PI) / 180;
+    //
+    // this.directionVector.set(Math.sin(deg), 0, Math.cos(deg));
 
-    this.directionVector.set(Math.sin(deg), 0, Math.cos(deg));
-
-    this.shouldBeAt.copy(camParent.position);
-    this.shouldBeAt.add(this.directionVector);
+    // this.shouldBeAt.copy(camParent.position);
+    // this.shouldBeAt.add(this.directionVector);
   }
 
-  private _clock = new THREE.Clock();
-  private prevPos = new THREE.Vector3(0, 0, 0);
+  private buildSet() {
+    let camParent = this.myCamera.getCamParent();
+    this.myCamera.getDirection(Globals.sceneParams.camera.direction);
+    this._sceneBuilder.populate(
+      camParent.position,
+      camParent.position.add(this.myCamera.getDirectVector()),
+    );
+    this.buildCount++;
+    // if (this.buildCount >= 15) {
+    //   this._sceneBuilder.deleteBlock();
+    // }
+  }
+
+  // private _clock = new THREE.Clock();
+  // private prevPos = new THREE.Vector3(0, 0, 0);
   private buildCount = 0;
   public _update() {
     let cam = this.myCamera.getCam();
     let camParent = this.myCamera.getCamParent();
 
-    if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
-      this._sceneBuilder.populate(camParent.position, this.shouldBeAt);
-      this.prevPos.copy(camParent.position);
-      this.buildCount++;
-      // if (this.buildCount >= 15) {
-      //   this._sceneBuilder.deleteBlock();
-      // }
-    }
+    // if (this.prevPos.distanceTo(this.shouldBeAt) > 2) {
+    //   this._sceneBuilder.populate(camParent.position, this.shouldBeAt);
+    //   this.prevPos.copy(camParent.position);
+    //   this.buildCount++;
+    //   // if (this.buildCount >= 15) {
+    //   //   this._sceneBuilder.deleteBlock();
+    //   // }
+    // }
 
-    document.querySelector("#debug")!.innerHTML =
-      `x: ${camParent.position.x.toFixed(2)}, y: ${camParent.position.y.toFixed(2)}, z: ${camParent.position.z.toFixed(2)}`;
-    document.querySelector("#debug")!.innerHTML +=
-      `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
+    // if (this.myCamera.getPathPercent() >= 1) {
+    //   this.myCamera.getDirection(Globals.sceneParams.camera.direction);
+    //   this._sceneBuilder.populate(
+    //     camParent.position,
+    //     camParent.position.add(this.myCamera.getDirectVector()),
+    //   );
+    //   this.buildCount++;
+    // if (this.buildCount >= 15) {
+    //   this._sceneBuilder.deleteBlock();
+    // }
+    // }
 
-    if (this.started) {
-      camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
-    }
+    // document.querySelector("#debug")!.innerHTML =
+    //   `x: ${camParent.position.x.toFixed(2)}, y: ${camParent.position.y.toFixed(2)}, z: ${camParent.position.z.toFixed(2)}`;
+    // document.querySelector("#debug")!.innerHTML +=
+    //   `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
 
     this.stats.update();
 

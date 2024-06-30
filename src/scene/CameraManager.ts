@@ -15,12 +15,24 @@ export class CameraManager extends SceneBase {
   private _controls: OrbitControls;
   private worldLoc: THREE.Vector3;
 
-  private startingPos: THREE.Vector3;
+  private nextPos: THREE.Vector3;
   private shouldBeAt: THREE.Vector3;
+
+  private framerate: number;
+  private frameInterval: number;
+
+  private prevTime: number;
+  private deltaTime: number;
+  private pathPercent: number;
 
   constructor(parentScene: THREE.Scene, renderer: THREE.Renderer) {
     super(parentScene);
     this._renderer = renderer;
+    this.framerate = 60;
+    this.frameInterval = 1000 / this.framerate;
+    this.prevTime = 0;
+    this.deltaTime = 0;
+    this.pathPercent = 0;
     this.initialize();
   }
 
@@ -33,8 +45,8 @@ export class CameraManager extends SceneBase {
     );
     this._camera.position.set(0, 1, -0.001);
 
-    this.startingPos = new THREE.Vector3(0, 0, 0);
-    this.shouldBeAt = new THREE.Vector3(0, 0, 2);
+    this.nextPos = new THREE.Vector3(0, 0, 0);
+    this.shouldBeAt = new THREE.Vector3(0, 0, 0);
 
     this.cameraTarget = new THREE.Vector3(0, 1, 0);
     // offset target to replicate first person
@@ -69,12 +81,12 @@ export class CameraManager extends SceneBase {
     this.direction.setZ(direcVec.z);
   }
 
-  public position() {
-    return this.worldLoc;
+  public getDirectVector() {
+    return this.direction;
   }
 
-  public setStart(start) {
-    this.startingPos = start;
+  public position() {
+    return this.worldLoc;
   }
 
   public getCam() {
@@ -86,8 +98,8 @@ export class CameraManager extends SceneBase {
   }
 
   public reset() {
-    this.startingPos.set(0, 0, 0);
-    this.shouldBeAt.copy(this.direction);
+    this.nextPos.set(0, 0, 0);
+    this.shouldBeAt.set(0, 0, 0);
   }
 
   public getCamSubParent() {
@@ -96,43 +108,64 @@ export class CameraManager extends SceneBase {
 
   private _clock = new THREE.Clock();
 
+  private atEnd = false;
+
   public songUpdate(time: number) {
-    if (time % 1000) {
-      this.shouldBeAt.add(
-        this.direction.multiplyScalar(Globals.sceneParams.camera.relativeSpeed),
-      );
+    this.shouldBeAt.lerp(this.nextPos, this.pathPercent);
+
+    if (this.pathPercent >= 1) {
+      this.atEnd = true;
+      this.getDirection(Globals.sceneParams.camera.direction);
+      if (this.buildFunction) {
+        this.buildFunction();
+      }
+      this.pathPercent = 0;
+      this.nextPos.add(this.direction);
+      return;
     }
+    this.atEnd = false;
+  }
+
+  private buildFunction: Function;
+
+  public setBuildFunc(fnc: Function) {
+    this.buildFunction = fnc;
+  }
+
+  public isAtEnd() {
+    return this.atEnd;
   }
 
   public update() {
-    this.getDirection(Globals.sceneParams.camera.direction);
-
-    if (this.hasStarted) {
-      this.camParent.position.lerp(
-        this.shouldBeAt,
-        this._clock.getDelta() * 10,
-      );
-    }
+    this.camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
 
     this._controls.update;
     this._camera.copy(this.fakeCam);
     this._camera.getWorldPosition(this.worldLoc);
     this._controls.update;
+
+    document.querySelector("#debug")!.innerHTML =
+      `x: ${this.camParent.position.x.toFixed(2)}, y: ${this.camParent.position.y.toFixed(2)}, z: ${this.camParent.position.z.toFixed(2)}`;
+    document.querySelector("#debug")!.innerHTML +=
+      `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
+    document.querySelector("#debug")!.innerHTML +=
+      `x: ${this.nextPos.x.toFixed(2)}, y: ${this.nextPos.y.toFixed(2)}, z: ${this.nextPos.z.toFixed(2)}`;
+
+    this.animate(Date.now());
   }
 
   public _onParamsChanged(params) {}
 
-  private hasStarted = false;
-
-  public started(bool: boolean) {
-    this.hasStarted = bool;
+  public getPathPercent() {
+    return this.pathPercent;
   }
 
-  private prevTime = 0;
   public animate(currTime) {
-    let deltaTime = currTime - this.prevTime;
+    this.deltaTime = currTime - this.prevTime;
     this.prevTime = currTime;
 
-    requestAnimationFrame(this.animate);
+    this.pathPercent +=
+      (Globals.sceneParams.camera.relativeSpeed / 10) *
+      (this.deltaTime / this.frameInterval);
   }
 }
