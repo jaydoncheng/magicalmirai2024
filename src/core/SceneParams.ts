@@ -26,7 +26,7 @@ export interface SceneParams {
         width?: number;
         height?: number;
         depth?: number;
-        twistAlpha?: number;
+        twistFactor?: { val?: number, dev?: number };
         heightSegments?: number;
     }
 }
@@ -59,7 +59,7 @@ export default {
         width: 1,
         height: 1,
         depth: 1,
-        twistAlpha: 0,
+        twistFactor: { val: 0, dev: 0 },
         heightSegments: 5,
     }
 } as SceneParams;

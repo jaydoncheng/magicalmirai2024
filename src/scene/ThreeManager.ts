@@ -121,37 +121,37 @@ export class ThreeManager {
         // this._camera.position.z = 5;
         // this._camera.position.y = 1.5;
 
-        var canvas = (this.textCanvas = document.createElement("canvas"));
+        // var canvas = (this.textCanvas = document.createElement("canvas"));
 
-        var texture = new THREE.CanvasTexture(canvas);
-
-        const scale = 0.02;
-        const height = canvas.height * scale;
-        const width = canvas.width * scale;
-        var textPlane = (this.textPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(width, height, 32, 32),
-            new THREE.MeshBasicMaterial({ map: texture }),
-        ));
-        textPlane.position.set(0, 1, -5);
-        textPlane.rotation.x = -Math.PI;
-        textPlane.rotation.y = Math.PI;
-        textPlane.rotation.z = Math.PI;
-
-        this._scene.add(textPlane);
-
-        this.drawText("Hello, world!");
-        const loader = new GLTFLoader();
-        loader.load(
-            "./scene.gltf",
-            (gltf) => {
-                gltf.scene.position.set(0, 0, 0);
-                this._scene.add(gltf.scene);
-            },
-            undefined,
-            (error) => {
-                console.error(error);
-            },
-        );
+        // var texture = new THREE.CanvasTexture(canvas);
+        //
+        // const scale = 0.02;
+        // const height = canvas.height * scale;
+        // const width = canvas.width * scale;
+        // var textPlane = (this.textPlane = new THREE.Mesh(
+        //     new THREE.PlaneGeometry(width, height, 32, 32),
+        //     new THREE.MeshBasicMaterial({ map: texture }),
+        // ));
+        // textPlane.position.set(0, 1, -5);
+        // textPlane.rotation.x = -Math.PI;
+        // textPlane.rotation.y = Math.PI;
+        // textPlane.rotation.z = Math.PI;
+        //
+        // this._scene.add(textPlane);
+        //
+        // this.drawText("Hello, world!");
+        // const loader = new GLTFLoader();
+        // loader.load(
+        //     "./scene.gltf",
+        //     (gltf) => {
+        //         gltf.scene.position.set(0, 0, 0);
+        //         this._scene.add(gltf.scene);
+        //     },
+        //     undefined,
+        //     (error) => {
+        //         console.error(error);
+        //     },
+        // );
         // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
         this.resize();
@@ -159,12 +159,51 @@ export class ThreeManager {
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
 
+        var alight = new THREE.AmbientLight(0x404040);
+        this._scene.add(alight);
+        var plight = new THREE.PointLight(0xffffff, 1, 100);
+        plight.position.set(0, 10, 0);
+        this._scene.add(plight);
+
+        var genParams = {
+                width: { val: 3, dev: 2 },
+                height: { val: 8, dev: 8 },
+                depth: { val: 3, dev: 2 },
+                widthSegments: 1,
+                heightSegments: 16,
+                depthSegments: 1,
+                twistFactor: { val: 1, dev: 10 }
+        }
         var buildingnew = new BuildingNew(
-            this._rootObj, { val: 3, dev: 0 }, { val: 8, dev: 0 }, { val: 3, dev: 0 }
-        );
-        buildingnew._heightSegments = 5;
-        buildingnew.generateGeometry();
+            this._rootObj, { val: 4, dev: 1 }, { val: 2, dev: 2 }, { val: 4, dev: 1 },
+            1, 1, 1, genParams);
+        buildingnew._heightSegments = 1;
         this._objMngs["buildingnew"] = buildingnew;
+        for (let i = 0; i < 10; i++) {
+            var mesh = buildingnew.base({
+                width: { val: 3, dev: 0.1 },
+                height: { val: 8, dev: 8 },
+                depth: { val: 3, dev: 0.1 },
+                widthSegments: 1,
+                heightSegments: 16,
+                depthSegments: 1,
+                twistFactor: { val: 1, dev: 10 }
+        });
+            mesh.position.set((4 * i) + (2 * i), 0, 0);
+        }
+
+        for (let i = 0; i < 10; i++) {
+            var mesh = buildingnew.base({
+                width: { val: 3, dev: 2 },
+                height: { val: 8, dev: 8 },
+                depth: { val: 3, dev: 2 },
+                widthSegments: 1,
+                heightSegments: 16,
+                depthSegments: 1,
+                twistFactor: { val: 0, dev: 0 }
+        });
+            mesh.position.set((4 * i) + Math.random() * 5 - 10, 0, 50);
+        }
     }
 
     public setDirection(degrees: number) {
