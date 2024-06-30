@@ -141,3 +141,15 @@ export class BuildingNew extends SceneBase {
     }
 
 }
+
+export const TwistedBuilding = () => {
+    return {
+        width: { val: 1, dev: 0 },
+        height: { val: 1, dev: 0 },
+        depth: { val: 1, dev: 0 },
+        widthSegments: 1,
+        heightSegments: 1,
+        depthSegments: 1,
+        twistFactor: { val: 0, dev: 0 },
+    };
+}
