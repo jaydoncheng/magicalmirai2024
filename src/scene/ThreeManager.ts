@@ -12,20 +12,6 @@ import { Buildings } from "./Buildings";
 import { BuildingNew } from "./Buildingnew";
 
 export class ThreeManager {
-    // TODO: ok so
-    // scene initialization and populating the scene with objects should
-    // probably be done separately, since building prefabs need to be
-    // fetched, loaded, etc.
-    //
-    // this class will then be responsible for:
-    // - initializing the renderer and scene,
-    // - calling the whatever function/class/system that will populate the scene
-    //      - additionally this whatever will probably also handle lighting?
-    // - handle the song change events n shit and pass it downstream
-    // - post processing
-    // and probably a bunch of other misc shit. it needs to expose a
-    // small API to PlayerManager which lets PM update elements in the
-    // scenes as well as control camera n shit
     private _view: HTMLElement;
 
     private _renderer: THREE.WebGLRenderer;
@@ -118,41 +104,6 @@ export class ThreeManager {
         buildings.initialize();
         this._objMngs["buildings"] = buildings;
 
-        // this._camera.position.z = 5;
-        // this._camera.position.y = 1.5;
-
-        // var canvas = (this.textCanvas = document.createElement("canvas"));
-
-        // var texture = new THREE.CanvasTexture(canvas);
-        //
-        // const scale = 0.02;
-        // const height = canvas.height * scale;
-        // const width = canvas.width * scale;
-        // var textPlane = (this.textPlane = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(width, height, 32, 32),
-        //     new THREE.MeshBasicMaterial({ map: texture }),
-        // ));
-        // textPlane.position.set(0, 1, -5);
-        // textPlane.rotation.x = -Math.PI;
-        // textPlane.rotation.y = Math.PI;
-        // textPlane.rotation.z = Math.PI;
-        //
-        // this._scene.add(textPlane);
-        //
-        // this.drawText("Hello, world!");
-        // const loader = new GLTFLoader();
-        // loader.load(
-        //     "./scene.gltf",
-        //     (gltf) => {
-        //         gltf.scene.position.set(0, 0, 0);
-        //         this._scene.add(gltf.scene);
-        //     },
-        //     undefined,
-        //     (error) => {
-        //         console.error(error);
-        //     },
-        // );
-        // ----------------------------------------------------------------------
         this.startingPos = this._camera.position.clone();
         this.resize();
 

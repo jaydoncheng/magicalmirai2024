@@ -1,21 +1,25 @@
 import * as THREE from "three";
 import { SceneBase } from "./SceneBase";
 
+type iHateWritingThis = { val: number, dev: number };
+
 type BuildingParams = {
-    width: { val: number, dev: number },
-    height: { val: number, dev: number },
-    depth: { val: number, dev: number },
+    width: iHateWritingThis, // max width
+    height: iHateWritingThis, // max "
+    depth: iHateWritingThis, // max "
     widthSegments: number,
     heightSegments: number,
     depthSegments: number,
-    twistFactor: { val: number, dev: number },
+    twistFactor: iHateWritingThis,
+    baseRatio: number,
+
 };
 
 export class BuildingNew extends SceneBase {
 
-    public _width: { val: number, dev: number };
-    public _height: { val: number, dev: number };
-    public _depth: { val: number, dev: number };
+    public _width: iHateWritingThis;
+    public _height: iHateWritingThis;
+    public _depth: iHateWritingThis;
 
     public _widthSegments: number;
     public _heightSegments: number;
@@ -24,9 +28,9 @@ export class BuildingNew extends SceneBase {
 
     constructor(
         parentObject: THREE.Object3D,
-        width: { val: number, dev: number },
-        height: { val: number, dev: number },
-        depth: { val: number, dev: number },
+        width: iHateWritingThis,
+        height: iHateWritingThis,
+        depth: iHateWritingThis,
         widthSegments: number = 1,
         heightSegments: number = 1,
         depthSegments: number = 1,
@@ -142,14 +146,27 @@ export class BuildingNew extends SceneBase {
 
 }
 
-export const TwistedBuilding = () => {
+export const p_TwistyTower = () => {
     return {
-        width: { val: 1, dev: 0 },
-        height: { val: 1, dev: 0 },
-        depth: { val: 1, dev: 0 },
+        width: { val: 3, dev: 0.1 },
+        height: { val: 8, dev: 8 },
+        depth: { val: 3, dev: 0.1 },
         widthSegments: 1,
-        heightSegments: 1,
+        heightSegments: 16,
         depthSegments: 1,
-        twistFactor: { val: 0, dev: 0 },
+        twistFactor: { val: 1, dev: 10 }
     };
 }
+
+export const p_BlockyTower = () => {
+    return {
+        width: { val: 3, dev: 2 },
+        height: { val: 8, dev: 8 },
+        depth: { val: 3, dev: 2 },
+        widthSegments: 1,
+        heightSegments: 16,
+        depthSegments: 1,
+        twistFactor: { val: 0, dev: 0 }
+    };
+}
+
