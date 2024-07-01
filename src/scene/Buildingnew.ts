@@ -12,7 +12,8 @@ type BuildingParams = {
     heightSegments: number,
     depthSegments: number,
     twistFactor: Dist,
-    baseRatio: Dist //  base height : max height
+    baseHeightRatio: Dist //  base height : max height
+    baseRatio: Dist // base width : max width
 };
 
 export class BuildingNew extends SceneBase {
@@ -31,9 +32,9 @@ export class BuildingNew extends SceneBase {
             max_h = this._calcDist(genParams.height),
             max_d = this._calcDist(genParams.depth);
 
-        var w = max_w,
-            h = max_h * this._calcDist(genParams.baseRatio),
-            d = max_d;
+        var w = max_w * 0.2 * Math.random(),
+            h = max_h * this._calcDist(genParams.baseHeightRatio),
+            d = max_d * 0.2 * Math.random();
 
         console.log("max building: ", max_w, max_h, max_d);
         console.log("base: ", w, h, d);
@@ -66,9 +67,9 @@ export class BuildingNew extends SceneBase {
         debug_mesh.position.y = max_h/2;
 
         var SectionGenParams = { ...genParams,
-            width: {  deviation: -w/2, offset: w },
-            height: { deviation: max_h/2, offset: max_h - 2*h },
-            depth: { deviation: -d/2, offset: d },
+            width: {  deviation: -w * 0.3, offset: w },
+            height: { deviation: -h, offset: 2*h },
+            depth: { deviation: -d * 0.3, offset: d },
         };
         this.buildSections(mesh, SectionGenParams, max_h);
 
@@ -170,15 +171,15 @@ export class BuildingNew extends SceneBase {
 
 export const p_TwistyTower = () => {
     return {
-        width: { offset: 10, deviation: -5 },
-        height: { offset: 80, deviation: 0 },
-        depth: { offset: 10, deviation: -5 },
+        width: { offset: 15, deviation: -2 },
+        height: { offset: 90, deviation: -10 },
+        depth: { offset: 15, deviation: -2 },
         widthSegments: 1,
         heightSegments: 16,
         depthSegments: 1,
-        twistFactor: { offset: 0, deviation: 15 },
-        baseRatio: { offset: 0.1, deviation: 0.1 },
-        baseHeightRatio: { offset: 0.1, deviation: 0.1 }
+        twistFactor: { offset: 10, deviation: -15 },
+        baseHeightRatio: { offset: 0.2, deviation: -0.1 },
+        baseRatio: { offset: 2, deviation: 0 },
     } as BuildingParams;
 }
 
