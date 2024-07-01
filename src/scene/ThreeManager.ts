@@ -29,7 +29,7 @@ export class ThreeManager {
     private _scene: THREE.Scene;
     private _sceneBuilder: SceneBuilder;
 
-    private myCamera: CameraManager;
+    private _camera: CameraManager;
 
     private textCanvas: HTMLCanvasElement;
     private textPlane: THREE.Mesh;
@@ -60,7 +60,7 @@ export class ThreeManager {
         this._scene.add(this._rootObj);
         // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
-        this.myCamera = new CameraManager(this._scene, this._renderer);
+        this._camera = new CameraManager(this._scene, this._renderer);
 
         var colors = Globals.sceneParams.palette;
 
@@ -71,7 +71,7 @@ export class ThreeManager {
         this._sceneBuilder = new SceneBuilder(this._scene, colors);
         this._sceneBuilder.build();
 
-        this.myCamera.add(this._sceneBuilder.getPlane());
+        this._camera.add(this._sceneBuilder.getPlane());
 
         var canvas = (this.textCanvas = document.createElement("canvas"));
 
@@ -125,40 +125,35 @@ export class ThreeManager {
         ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
         var texture = new THREE.CanvasTexture(canvas);
-        // this.textPlane.material.dispose();
         this.textPlane.material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
         });
         this.textPlane.position.x = (-canvas.width * 0.02) / 2;
-        // this.cameraTarget = this.textPlane.position.clone();
     }
 
-    // private shouldBeAt = new THREE.Vector3();
-    // private directionVector = new THREE.Vector3();
-    // private started = false;
     public update(time: number) {
-        // this.started = true;
         var t = time / 1000;
 
-        this.myCamera.songUpdate(time);
+        this._camera.songUpdate(time);
 
-        // this.shouldBeAt.z = time / 100;
-        let cam = this.myCamera.getCam();
-        let camParent = this.myCamera.getCamParent();
+        let cam = this._camera.getCam();
+        let camGlobalPosition = this._camera.getCamParent();
 
-        this.textPlane.position.copy(camParent.position);
+        this.textPlane.position.copy(camGlobalPosition.position);
         this.textPlane.position.z += 7;
         this.textPlane.position.x = -Math.sin(t) / 2;
         this.textPlane.lookAt(cam.position);
     }
 
+    private buildCount = 0;
+
     private buildSet() {
-        let camParent = this.myCamera.getCamParent();
-        this.myCamera.getDirection(Globals.sceneParams.camera.direction);
+        let camGlobalPosition = this._camera.getCamParent();
+        this._camera.getDirection(Globals.sceneParams.camera.direction);
         this._sceneBuilder.populate(
-            camParent.position,
-            camParent.position.add(this.myCamera.getDirectVector()),
+            camGlobalPosition.position,
+            camGlobalPosition.position.add(this._camera.getDirectVector()),
         );
         this.buildCount++;
         // if (this.buildCount >= 15) {
@@ -166,15 +161,12 @@ export class ThreeManager {
         // }
     }
 
-    // private _clock = new THREE.Clock();
-    // private prevPos = new THREE.Vector3(0, 0, 0);
-    private buildCount = 0;
     public _update() {
-        let cam = this.myCamera.getCam();
+        let cam = this._camera.getCam();
 
         this.stats.update();
 
-        this.myCamera.update();
+        this._camera.update();
 
         this._renderer.render(this._scene, cam);
     }
