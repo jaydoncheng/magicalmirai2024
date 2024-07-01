@@ -1,34 +1,197 @@
 import * as THREE from "three";
-import Globals from "../core/Globals";
+import { SceneBase } from "./SceneBase";
 
-export class Building {
-    public buildingBox: THREE.Object3D;
-    public buildingMesh: THREE.Mesh;
-    public scale: THREE.Vector3;
+// Each value is calculated as `offset + Math.random() * deviation`
+type Dist = { offset: number, deviation: number };
 
-    constructor(w: number, h: number, d: number) {
-        this.scale = new THREE.Vector3(w, h, d);
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshStandardMaterial({ color: Globals.sceneParams.palette.buildingTint });
-        this.buildingMesh = new THREE.Mesh(geometry, material);
-        this.buildingMesh.castShadow = true;
-        this.buildingMesh.receiveShadow = true;
-        this.buildingMesh.position.set(0, 0.5, 0);
-        this.buildingBox = new THREE.Object3D();
-        this.buildingBox.add(this.buildingMesh);
+type BuildingParams = {
+    width: Dist, // max width
+    height: Dist, // max "
+    depth: Dist, // max "
+    widthSegments: number,
+    heightSegments: number,
+    depthSegments: number,
+    twistFactor: Dist,
+    baseHeightRatio: Dist //  base height : max height
+    baseRatio: Dist // base width : max width
+};
+
+export class Building extends SceneBase {
+    constructor(
+        parentObject: THREE.Object3D,
+    ) {
+        super(parentObject);
     }
 
-    public popup() {
-        this.buildingBox.scale.lerp(this.scale, 0.02);
+    private _calcDist(dist: Dist) : number {
+        return dist.offset + (Math.random() * dist.deviation);
     }
 
-    public getBox() {
-        return this.buildingBox;
+    base(genParams: BuildingParams) {
+        var max_w = this._calcDist(genParams.width),
+            max_h = this._calcDist(genParams.height),
+            max_d = this._calcDist(genParams.depth);
+
+        var w = max_w * (1 - 0.2 * Math.random()),
+            h = max_h * this._calcDist(genParams.baseHeightRatio),
+            d = max_d * (1 - 0.2 * Math.random());
+
+        console.log("max building: ", max_w, max_h, max_d);
+        console.log("base: ", w, h, d);
+
+        var geometry = new THREE.BoxGeometry(
+            w, h, d,
+            genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
+        );
+
+        // debug ----------------
+        var max_geo = new THREE.BoxGeometry(
+            max_w, max_h, max_d,
+            genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
+        );
+
+        var debug_mesh = new THREE.Mesh(
+            max_geo,
+            new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true })
+        );
+
+        // -----------------------
+        var mesh = new THREE.Mesh(
+            geometry,
+            new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false })
+        );
+
+        this._parentObject.add(mesh);
+        mesh.position.y = h/2;
+        this._parentObject.add(debug_mesh);
+        debug_mesh.position.y = max_h/2;
+
+        var SectionGenParams = { ...genParams,
+            width: {  deviation: -w * 0.3, offset: w },
+            height: { deviation: -h, offset: 2*h },
+            depth: { deviation: -d * 0.3, offset: d },
+        };
+        this.buildSections(mesh, SectionGenParams, max_h);
+
+        return { mesh, debug_mesh };
     }
 
-    public rotate(x: number, y: number, z: number) {
-        this.buildingBox.rotateX(x);
-        this.buildingBox.rotateY(y);
-        this.buildingBox.rotateZ(z);
+    private buildSections(parent: THREE.Mesh, params: BuildingParams, max_height: number) {
+        parent.getWorldPosition(this.__worldPos);
+        parent.geometry.computeBoundingBox();
+
+        var top = parent.geometry.boundingBox!.max;
+        let y = this.__worldPos.y + top.y;
+        if (y >= max_height) {
+            console.log("max height reached");
+            console.log("top: ", y, "max: ", max_height);
+            console.log("im tired dawg, just delete it");
+            parent.parent?.remove(parent);
+            return;
+        }
+        var m = this.buildSection(parent, params);
+        this.buildSections(m, params, max_height);
     }
+
+    private __worldPos = new THREE.Vector3();
+    buildSection(parent: THREE.Mesh, params: BuildingParams) {
+
+        parent.getWorldPosition(this.__worldPos);
+        parent.geometry.computeBoundingBox();
+        var top = parent.geometry.boundingBox!.max;
+
+        let w = this._calcDist(params.width),
+            h = this._calcDist(params.height),
+            d = this._calcDist(params.depth);
+
+        let geometry = new THREE.BoxGeometry(
+            w, h, d,
+            params.widthSegments, params.heightSegments, params.depthSegments
+        );
+
+        let mesh = new THREE.Mesh(
+            geometry,
+            new THREE.MeshStandardMaterial({ color: 0x0000ff, wireframe: false })
+        );
+
+        // place at center top of parent object
+        mesh.position.set(0, top.y + h / 2, 0);
+
+        let twist = this._calcDist(params.twistFactor);
+        this.twist(twist, mesh);
+        parent.add(mesh);
+
+        console.log("section: ", w, h, d);
+
+        return mesh;
+    }
+
+    private twist(angle: number, m: THREE.Mesh) {
+        var og = m.clone();
+        var pos = m.geometry.getAttribute("position");
+        var ogpos = og.geometry.getAttribute("position");
+
+        var nor = m.geometry.getAttribute("normal");
+        var ognor = og.geometry.getAttribute("normal");
+
+        var p = angle * Math.PI / 180;
+
+        for (let i = 0; i < pos.count; i++) {
+            var x = ogpos.getX(i),
+                y = pos.getY(i),
+                z = ogpos.getZ(i);
+
+            var nx = ognor.getX(i),
+                ny = nor.getY(i),
+                nz = ognor.getZ(i);
+
+            var alpha = Math.sin(p) * y,
+                cos = Math.cos(alpha),
+                sin = Math.sin(alpha);
+
+            pos.setXYZ(i, x * cos - z * sin, y, x * sin + z * cos);
+            nor.setXYZ(i, nx * cos - nz * sin, ny, nx * sin + nz * cos);
+        }
+    }
+
+    public update() {
+
+    }
+
+    // unused?
+    public initialize() {
+    }
+
+    public _onParamsChanged(params: any) {
+
+    }
+
 }
+
+
+export const p_TwistyTower = () => {
+    return {
+        width: { offset: 15, deviation: -2 },
+        height: { offset: 90, deviation: -10 },
+        depth: { offset: 15, deviation: -2 },
+        widthSegments: 1,
+        heightSegments: 16,
+        depthSegments: 1,
+        twistFactor: { offset: 10, deviation: -15 },
+        baseHeightRatio: { offset: 0.2, deviation: -0.1 },
+        baseRatio: { offset: 2, deviation: 0 },
+    } as BuildingParams;
+}
+
+export const p_BlockyTower = () => {
+    return {
+        width: { val: 3, dev: 2 },
+        height: { val: 8, dev: 8 },
+        depth: { val: 3, dev: 2 },
+        widthSegments: 1,
+        heightSegments: 16,
+        depthSegments: 1,
+        twistFactor: { val: 0, dev: 0 }
+    };
+}
+

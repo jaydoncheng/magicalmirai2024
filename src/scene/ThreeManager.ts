@@ -1,13 +1,12 @@
 // Code taken from repo textalive-app-dance
 import * as THREE from "three";
-import { Building } from "./Building";
 import Globals from "../core/Globals";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
-import { BuildingNew, p_TwistyTower } from "./Buildingnew";
+import { Building, p_TwistyTower } from "./Building";
 import { CameraManager } from "./CameraManager";
 
 
@@ -17,12 +16,7 @@ export class ThreeManager {
     private _renderer: THREE.WebGLRenderer;
     private _scene: THREE.Scene;
     private _sceneBuilder: Buildings;
-
     private _camera: CameraManager;
-
-    private textCanvas: HTMLCanvasElement;
-    private textPlane: THREE.Mesh;
-
     private stats: Stats;
 
     private _rootObj : THREE.Group;
@@ -66,27 +60,8 @@ export class ThreeManager {
         // this._objMngs["buildings"] = buildings;
 
         // this._camera.add(this._sceneBuilder.getPlane());
-
-        var canvas = (this.textCanvas = document.createElement("canvas"));
-
-        var texture = new THREE.CanvasTexture(canvas);
-
-        const scale = 0.02;
-        const height = canvas.height * scale;
-        const width = canvas.width * scale;
-        var textPlane = (this.textPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(width, height, 32, 32),
-            new THREE.MeshBasicMaterial({ map: texture }),
-        ));
-        textPlane.position.set(0, 1, -5);
-        textPlane.rotation.x = -Math.PI;
-        textPlane.rotation.y = Math.PI;
-        textPlane.rotation.z = Math.PI;
-
-        this._scene.add(textPlane);
-
-        this.drawText("Hello, world!");
         const loader = new GLTFLoader();
+        // this works, only on the actual page
         loader.load(
             "./scene.gltf",
             (gltf) => {
@@ -98,7 +73,6 @@ export class ThreeManager {
                 console.error(error);
             },
         );
-        // ----------------------------------------------------------------------
         this.resize();
 
         Globals.controls!.setReady("scene", true);
@@ -110,10 +84,10 @@ export class ThreeManager {
         plight.position.set(0, 10, 0);
         this._scene.add(plight);
 
-        var buildingnew = new BuildingNew(this._rootObj);
-        this._objMngs["buildingnew"] = buildingnew;
+        var building = new Building(this._rootObj);
+        this._objMngs["buildingnew"] = building;
         for (let i = 0; i < 10; i++) {
-            var m = buildingnew.base(p_TwistyTower());
+            var m = building.base(p_TwistyTower());
             m.mesh.position.x = i * 20;
             m.debug_mesh.position.x = i * 20;
         }
@@ -123,23 +97,6 @@ export class ThreeManager {
         this._renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    public drawText(text: string) {
-        var ctx = this.textCanvas.getContext("2d")!;
-        var canvas = this.textCanvas;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-        var texture = new THREE.CanvasTexture(canvas);
-        this.textPlane.material = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-        });
-        this.textPlane.position.x = (-canvas.width * 0.02) / 2;
-    }
-
     public update(time: number) {
         var t = time / 1000;
 
@@ -147,11 +104,6 @@ export class ThreeManager {
 
         let cam = this._camera.getCam();
         let camGlobalPosition = this._camera.getCamParent();
-
-        this.textPlane.position.copy(camGlobalPosition.position);
-        this.textPlane.position.z += 7;
-        this.textPlane.position.x = -Math.sin(t) / 2;
-        this.textPlane.lookAt(cam.position);
     }
 
     private buildCount = 0;
