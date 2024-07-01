@@ -12,7 +12,8 @@ type BuildingParams = {
     heightSegments: number,
     depthSegments: number,
     twistFactor: Dist,
-    baseRatio: Dist,
+    baseHeightRatio: Dist, // ratio of base height to max height
+    baseRatio: Dist //  base width : depth
 };
 
 export class BuildingNew extends SceneBase {
@@ -32,7 +33,7 @@ export class BuildingNew extends SceneBase {
             max_d = this._calcDist(genParams.depth);
 
         var w = max_w,
-            h = Math.random() * max_h * this._calcDist(genParams.baseRatio),
+            h = max_h * this._calcDist(genParams.baseHeightRatio),
             d = max_d;
 
         console.log("max building: ", max_w, max_h, max_d);
@@ -67,12 +68,11 @@ export class BuildingNew extends SceneBase {
         debug_mesh.position.y = max_h/2;
 
         var SectionGenParams = { ...genParams,
-            width: {  deviation: 0, offset: w },
+            width: {  deviation: -w, offset: w },
             height: { deviation: -max_h, offset: max_h - h },
-            depth: { deviation: 0, offset: d },
+            depth: { deviation: -d, offset: d },
         };
         this.buildSections(mesh, SectionGenParams, max_h);
-        // this.buildSection(mesh, SectionGenParams);
 
         return { mesh, debug_mesh };
     }
@@ -92,7 +92,6 @@ export class BuildingNew extends SceneBase {
         }
         var m = this.buildSection(parent, params);
         this.buildSections(m, params, max_height);
-
     }
 
     private __worldPos = new THREE.Vector3();
@@ -105,7 +104,6 @@ export class BuildingNew extends SceneBase {
         let w = this._calcDist(params.width),
             h = this._calcDist(params.height),
             d = this._calcDist(params.depth);
-
 
         let geometry = new THREE.BoxGeometry(
             w, h, d,
@@ -181,7 +179,7 @@ export const p_TwistyTower = () => {
         heightSegments: 16,
         depthSegments: 1,
         twistFactor: { offset: 0, deviation: 90 },
-        baseRatio: { offset: 0.1, deviation: 0 }
+        baseRatio: { offset: 0.1, deviation: 0.1 }
     };
 }
 
