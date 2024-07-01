@@ -32,9 +32,9 @@ export class BuildingNew extends SceneBase {
             max_h = this._calcDist(genParams.height),
             max_d = this._calcDist(genParams.depth);
 
-        var w = max_w * 0.2 * Math.random(),
+        var w = max_w * (1 - 0.2 * Math.random()),
             h = max_h * this._calcDist(genParams.baseHeightRatio),
-            d = max_d * 0.2 * Math.random();
+            d = max_d * (1 - 0.2 * Math.random());
 
         console.log("max building: ", max_w, max_h, max_d);
         console.log("base: ", w, h, d);
