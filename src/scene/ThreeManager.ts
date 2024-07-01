@@ -2,7 +2,6 @@
 import * as THREE from "three";
 import { Building } from "./Building";
 import Globals from "../core/Globals";
-import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
@@ -57,16 +56,16 @@ export class ThreeManager {
 
         this._camera = new CameraManager(this._scene, this._renderer);
 
-        var colors = Globals.sceneParams.palette;
+        // var colors = Globals.sceneParams.palette;
 
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        var buildings = this._sceneBuilder = new Buildings(this._rootObj);
-        buildings.initialize();
-        this._objMngs["buildings"] = buildings;
+        // var buildings = this._sceneBuilder = new Buildings(this._rootObj);
+        // buildings.initialize();
+        // this._objMngs["buildings"] = buildings;
 
-        this._camera.add(this._sceneBuilder.getPlane());
+        // this._camera.add(this._sceneBuilder.getPlane());
 
         var canvas = (this.textCanvas = document.createElement("canvas"));
 

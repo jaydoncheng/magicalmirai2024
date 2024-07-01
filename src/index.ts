@@ -12,7 +12,7 @@ class Main {
     public initialize() {
         Globals.controls = Controls;
         this._threeManager = Globals.three = new ThreeManager();
-        // this._player = Globals.player = new PlayerManager();
+        this._player = Globals.player = new PlayerManager();
 
         this._threeManager.resize();
         window.addEventListener("resize", this._resize.bind(this));

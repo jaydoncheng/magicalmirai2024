@@ -179,8 +179,9 @@ export const p_TwistyTower = () => {
         heightSegments: 16,
         depthSegments: 1,
         twistFactor: { offset: 0, deviation: 90 },
-        baseRatio: { offset: 0.1, deviation: 0.1 }
-    };
+        baseRatio: { offset: 0.1, deviation: 0.1 },
+        baseHeightRatio: { offset: 0.1, deviation: 0.1 }
+    } as BuildingParams;
 }
 
 export const p_BlockyTower = () => {
