@@ -18,11 +18,10 @@ class Controls {
     private _datGUIControls: { [key: string]: GUIController } = {};
 
     constructor() {
-
-        var playBtn = this.playBtn = document.querySelector("#bt_play")!;
-        var pauseBtn = this.pauseBtn = document.querySelector("#bt_pause")!;
-        var stopBtn = this.stopBtn = document.querySelector("#bt_stop")!;
-        var editorBtn = this.editorBtn = document.querySelector("#bt_editor")!;
+        var playBtn = (this.playBtn = document.querySelector("#bt_play")!);
+        var pauseBtn = (this.pauseBtn = document.querySelector("#bt_pause")!);
+        var stopBtn = (this.stopBtn = document.querySelector("#bt_stop")!);
+        var editorBtn = (this.editorBtn = document.querySelector("#bt_editor")!);
         this.loadingEl = document.querySelector("#loading")!;
         this.controlsEl = document.querySelector("#controls")!;
 
@@ -44,11 +43,20 @@ class Controls {
             for (const fnc of fncL) fnc();
             fnc();
             return false;
-        }
+        };
 
-        playBtn.addEventListener("click", handleBtn(this._onPlay, () => this.togglePlayPause()));
-        pauseBtn.addEventListener("click", handleBtn(this._onPause, () => this.togglePlayPause()));
-        stopBtn.addEventListener("click", handleBtn(this._onStop, () => this.reset()));
+        playBtn.addEventListener(
+            "click",
+            handleBtn(this._onPlay, () => this.togglePlayPause()),
+        );
+        pauseBtn.addEventListener(
+            "click",
+            handleBtn(this._onPause, () => this.togglePlayPause()),
+        );
+        stopBtn.addEventListener(
+            "click",
+            handleBtn(this._onStop, () => this.reset()),
+        );
 
         editorBtn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -57,11 +65,13 @@ class Controls {
             return false;
         });
 
-        document.querySelector("#bt_close_editor")!.addEventListener("click", (e) => {
-            e.preventDefault();
-            document.querySelector("#editor")!.classList.toggle("active");
-            return false;
-        });
+        document
+            .querySelector("#bt_close_editor")!
+            .addEventListener("click", (e) => {
+                e.preventDefault();
+                document.querySelector("#editor")!.classList.toggle("active");
+                return false;
+            });
 
         this.initDatGUI();
     }
@@ -119,7 +129,7 @@ class Controls {
             var controller : GUIController | null = null;
             if (typeof obj[k] === "function") {
                 // implement later maybe
-                continue
+                continue;
             } else if (typeof obj[k] === "string") {
                 if (obj[k].startsWith("#")) {
                     controller = folder.addColor(obj, k);
@@ -136,7 +146,7 @@ class Controls {
 
             if (typeof obj[k] === "object" && obj[k] !== null) {
                 this._traverseObj(obj[k], folder.addFolder(k));
-            } 
+            }
         }
     }
 

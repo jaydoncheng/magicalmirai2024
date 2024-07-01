@@ -1,4 +1,3 @@
-
 export interface SceneParams {
     palette?: {
         sky?: string;
