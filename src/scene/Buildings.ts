@@ -1,50 +1,24 @@
 import * as THREE from "three";
-import { Object3D } from "three";
 import { Building } from "./Building";
+import { SceneBase } from "./SceneBase";
 
-export class SceneBuilder {
-    private _scene: THREE.Scene;
-    private _colors: any;
-    private _floor: THREE.Mesh;
-    private buildingBlocks: Object3D[] = [];
+export class Buildings extends SceneBase {
 
-    constructor(scene: THREE.Scene, colors: any) {
-        this._scene = scene;
-        this._colors = colors;
+    private buildingBlocks: THREE.Object3D[] = [];
+
+    constructor(_parentObject: THREE.Object3D) {
+        super(_parentObject);
     }
 
-    public build() {
-        this._scene.background = new THREE.Color(this._colors.sky);
-        const fog = new THREE.Fog(this._colors.fog, 0.015, 100);
-        this._scene.fog = fog;
-
-        const alight = new THREE.AmbientLight(this._colors.ambientLight, 0.1);
-        alight.position.set(0, 1, 0);
-        this._scene.add(alight);
-
-        var plight = new THREE.PointLight(this._colors.pointLight, 1, 50, 5);
-        plight.position.set(0, 5, 0);
-        plight.castShadow = true;
-        plight.shadow.bias = 0.00001;
-        this._scene.add(plight);
-
-        const planeGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-        const planeMaterial = new THREE.MeshStandardMaterial({
-            color: this._colors.plane,
-            side: THREE.FrontSide,
-        });
-        this._floor = new THREE.Mesh(planeGeometry, planeMaterial);
-        this._floor.scale.set(32, 320, 1);
-        this._floor.receiveShadow = true;
-        this._floor.castShadow = true;
-        this._floor.rotation.x = -Math.PI / 2;
-
-        this.populate(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -5));
+    public initialize() {
+        // implement later
     }
 
-    public getPlane() {
-        return this._floor;
+    public update() {
+        // implement later
     }
+
+    public _onParamsChanged(params: any) {}
 
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
         var _parent = new THREE.Object3D();
@@ -72,7 +46,7 @@ export class SceneBuilder {
         }
         _parent.position.copy(from);
         _parent.lookAt(to);
-        this._scene.add(_parent);
+        this._parentObject.add(_parent);
         this.buildingBlocks.push(_parent);
     }
 

@@ -126,7 +126,7 @@ class Controls {
 
     private _traverseObj(obj: any, folder: GUI = this._datGUI) {
         for (var k in obj) {
-            var controller: GUIController | null = null;
+            var controller : GUIController | null = null;
             if (typeof obj[k] === "function") {
                 // implement later maybe
                 continue;
@@ -157,7 +157,6 @@ class Controls {
 
         this._datGUI.remember(Globals.sceneParams);
         this._traverseObj(Globals.sceneParams, this._datGUI);
-        console.log(this._datGUIControls);
     }
 }
 

@@ -6,28 +6,18 @@ import { SceneBuilder } from "./SceneBuilder";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
+import { Skybox } from "./Skybox";
+import { Buildings } from "./Buildings";
+import { BuildingNew, p_TwistyTower } from "./Buildingnew";
 import { CameraManager } from "./CameraManager";
 
+
 export class ThreeManager {
-    // TODO: ok so
-    // scene initialization and populating the scene with objects should
-    // probably be done separately, since building prefabs need to be
-    // fetched, loaded, etc.
-    //
-    // this class will then be responsible for:
-    // - initializing the renderer and scene,
-    // - calling the whatever function/class/system that will populate the scene
-    //      - additionally this whatever will probably also handle lighting?
-    // - handle the song change events n shit and pass it downstream
-    // - post processing
-    // and probably a bunch of other misc shit. it needs to expose a
-    // small API to PlayerManager which lets PM update elements in the
-    // scenes as well as control camera n shit
     private _view: HTMLElement;
 
     private _renderer: THREE.WebGLRenderer;
     private _scene: THREE.Scene;
-    private _sceneBuilder: SceneBuilder;
+    private _sceneBuilder: Buildings;
 
     private _camera: CameraManager;
 
@@ -36,7 +26,8 @@ export class ThreeManager {
 
     private stats: Stats;
 
-    private _rootObj: THREE.Group;
+    private _rootObj : THREE.Group;
+    private _objMngs : { [key: string] : SceneBase } = {};
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -60,6 +51,10 @@ export class ThreeManager {
         this._scene.add(this._rootObj);
         // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
+        var skybox = new Skybox(this._rootObj, this._scene);
+        skybox.initialize();
+        this._objMngs["skybox"] = skybox;
+
         this._camera = new CameraManager(this._scene, this._renderer);
 
         var colors = Globals.sceneParams.palette;
@@ -67,9 +62,9 @@ export class ThreeManager {
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // -------------------- this gotta be its own thing --------------------------------
-        this._sceneBuilder = new SceneBuilder(this._scene, colors);
-        this._sceneBuilder.build();
+        var buildings = this._sceneBuilder = new Buildings(this._rootObj);
+        buildings.initialize();
+        this._objMngs["buildings"] = buildings;
 
         this._camera.add(this._sceneBuilder.getPlane());
 
@@ -109,6 +104,20 @@ export class ThreeManager {
 
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
+
+        var alight = new THREE.AmbientLight(0x404040);
+        this._scene.add(alight);
+        var plight = new THREE.PointLight(0xffffff, 1, 100);
+        plight.position.set(0, 10, 0);
+        this._scene.add(plight);
+
+        var buildingnew = new BuildingNew(this._rootObj);
+        this._objMngs["buildingnew"] = buildingnew;
+        for (let i = 0; i < 10; i++) {
+            var m = buildingnew.base(p_TwistyTower());
+            m.mesh.position.x = i * 20;
+            m.debug_mesh.position.x = i * 20;
+        }
     }
 
     public resize() {
@@ -175,5 +184,10 @@ export class ThreeManager {
         this._scene.add(building.buildingBox);
     }
 
-    public _onParamsChanged(params: any) { }
+    // params currently kinda useless
+    public _onParamsChanged(params: any) {
+        for (let objMng of Object.values(this._objMngs)) {
+            objMng._onParamsChanged(params);
+        }
+    }
 }
