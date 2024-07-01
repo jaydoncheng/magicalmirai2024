@@ -12,8 +12,7 @@ type BuildingParams = {
     heightSegments: number,
     depthSegments: number,
     twistFactor: Dist,
-    baseHeightRatio: Dist, // ratio of base height to max height
-    baseRatio: Dist //  base width : depth
+    baseRatio: Dist //  base height : max height
 };
 
 export class BuildingNew extends SceneBase {
@@ -33,7 +32,7 @@ export class BuildingNew extends SceneBase {
             max_d = this._calcDist(genParams.depth);
 
         var w = max_w,
-            h = max_h * this._calcDist(genParams.baseHeightRatio),
+            h = max_h * this._calcDist(genParams.baseRatio),
             d = max_d;
 
         console.log("max building: ", max_w, max_h, max_d);
@@ -56,7 +55,6 @@ export class BuildingNew extends SceneBase {
         );
 
         // -----------------------
-
         var mesh = new THREE.Mesh(
             geometry,
             new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false })
@@ -68,9 +66,9 @@ export class BuildingNew extends SceneBase {
         debug_mesh.position.y = max_h/2;
 
         var SectionGenParams = { ...genParams,
-            width: {  deviation: -w, offset: w },
-            height: { deviation: -max_h, offset: max_h - h },
-            depth: { deviation: -d, offset: d },
+            width: {  deviation: -w/2, offset: w },
+            height: { deviation: max_h/2, offset: max_h - 2*h },
+            depth: { deviation: -d/2, offset: d },
         };
         this.buildSections(mesh, SectionGenParams, max_h);
 
@@ -172,13 +170,13 @@ export class BuildingNew extends SceneBase {
 
 export const p_TwistyTower = () => {
     return {
-        width: { offset: 10, deviation: 0 },
+        width: { offset: 10, deviation: -5 },
         height: { offset: 80, deviation: 0 },
-        depth: { offset: 10, deviation: 0 },
+        depth: { offset: 10, deviation: -5 },
         widthSegments: 1,
         heightSegments: 16,
         depthSegments: 1,
-        twistFactor: { offset: 0, deviation: 90 },
+        twistFactor: { offset: 0, deviation: 15 },
         baseRatio: { offset: 0.1, deviation: 0.1 },
         baseHeightRatio: { offset: 0.1, deviation: 0.1 }
     } as BuildingParams;
