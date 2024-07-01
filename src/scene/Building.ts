@@ -17,13 +17,14 @@ type BuildingParams = {
 };
 
 export class Building extends SceneBase {
-    constructor(
-        parentObject: THREE.Object3D,
-    ) {
+    private genParams: BuildingParams
+    constructor(parentObject: THREE.Object3D,
+                genParams: BuildingParams) {
         super(parentObject);
+        this.genParams = genParams
     }
 
-    private _calcDist(dist: Dist) : number {
+    private _calcDist(dist: Dist): number {
         return dist.offset + (Math.random() * dist.deviation);
     }
 
@@ -62,18 +63,17 @@ export class Building extends SceneBase {
         );
 
         this._parentObject.add(mesh);
-        mesh.position.y = h/2;
+        mesh.position.y = h / 2;
         this._parentObject.add(debug_mesh);
-        debug_mesh.position.y = max_h/2;
+        debug_mesh.position.y = max_h / 2;
 
-        var SectionGenParams = { ...genParams,
-            width: {  deviation: -w * 0.3, offset: w },
-            height: { deviation: -h, offset: 2*h },
+        var SectionGenParams = {
+            ...genParams,
+            width: { deviation: -w * 0.3, offset: w },
+            height: { deviation: -h, offset: 2 * h },
             depth: { deviation: -d * 0.3, offset: d },
         };
         this.buildSections(mesh, SectionGenParams, max_h);
-
-        return { mesh, debug_mesh };
     }
 
     private buildSections(parent: THREE.Mesh, params: BuildingParams, max_height: number) {
@@ -94,7 +94,7 @@ export class Building extends SceneBase {
     }
 
     private __worldPos = new THREE.Vector3();
-    buildSection(parent: THREE.Mesh, params: BuildingParams) {
+    private buildSection(parent: THREE.Mesh, params: BuildingParams) {
 
         parent.getWorldPosition(this.__worldPos);
         parent.geometry.computeBoundingBox();
@@ -158,8 +158,8 @@ export class Building extends SceneBase {
 
     }
 
-    // unused?
     public initialize() {
+        this.base(this.genParams);
     }
 
     public _onParamsChanged(params: any) {
