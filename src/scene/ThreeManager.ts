@@ -9,7 +9,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
-import { BuildingNew } from "./Buildingnew";
+import { BuildingNew, p_TwistyTower } from "./Buildingnew";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -116,44 +116,12 @@ export class ThreeManager {
         plight.position.set(0, 10, 0);
         this._scene.add(plight);
 
-        var genParams = {
-                width: { val: 3, dev: 2 },
-                height: { val: 8, dev: 8 },
-                depth: { val: 3, dev: 2 },
-                widthSegments: 1,
-                heightSegments: 16,
-                depthSegments: 1,
-                twistFactor: { val: 1, dev: 10 }
-        }
-        var buildingnew = new BuildingNew(
-            this._rootObj, { val: 4, dev: 1 }, { val: 2, dev: 2 }, { val: 4, dev: 1 },
-            1, 1, 1, genParams);
-        buildingnew._heightSegments = 1;
+        var buildingnew = new BuildingNew(this._rootObj);
         this._objMngs["buildingnew"] = buildingnew;
         for (let i = 0; i < 10; i++) {
-            var mesh = buildingnew.base({
-                width: { val: 3, dev: 0.1 },
-                height: { val: 8, dev: 8 },
-                depth: { val: 3, dev: 0.1 },
-                widthSegments: 1,
-                heightSegments: 16,
-                depthSegments: 1,
-                twistFactor: { val: 1, dev: 10 }
-        });
-            mesh.position.set((4 * i) + (2 * i), 0, 0);
-        }
-
-        for (let i = 0; i < 10; i++) {
-            var mesh = buildingnew.base({
-                width: { val: 3, dev: 2 },
-                height: { val: 8, dev: 8 },
-                depth: { val: 3, dev: 2 },
-                widthSegments: 1,
-                heightSegments: 16,
-                depthSegments: 1,
-                twistFactor: { val: 0, dev: 0 }
-        });
-            mesh.position.set((4 * i) + Math.random() * 5 - 10, 0, 50);
+            var m = buildingnew.base(p_TwistyTower());
+            m.mesh.position.x = i * 20;
+            m.debug_mesh.position.x = i * 20;
         }
     }
 

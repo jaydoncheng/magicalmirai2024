@@ -1,60 +1,60 @@
 import * as THREE from "three";
 import { SceneBase } from "./SceneBase";
 
-type iHateWritingThis = { val: number, dev: number };
+// Each value is calculated as `offset + Math.random() * deviation`
+type Dist = { offset: number, deviation: number };
 
 type BuildingParams = {
-    width: iHateWritingThis, // max width
-    height: iHateWritingThis, // max "
-    depth: iHateWritingThis, // max "
+    width: Dist, // max width
+    height: Dist, // max "
+    depth: Dist, // max "
     widthSegments: number,
     heightSegments: number,
     depthSegments: number,
-    twistFactor: iHateWritingThis,
-    baseRatio: number,
-
+    twistFactor: Dist,
+    baseRatio: Dist,
 };
 
 export class BuildingNew extends SceneBase {
-
-    public _width: iHateWritingThis;
-    public _height: iHateWritingThis;
-    public _depth: iHateWritingThis;
-
-    public _widthSegments: number;
-    public _heightSegments: number;
-    public _depthSegments: number;
-    public _genParams: BuildingParams;
-
     constructor(
         parentObject: THREE.Object3D,
-        width: iHateWritingThis,
-        height: iHateWritingThis,
-        depth: iHateWritingThis,
-        widthSegments: number = 1,
-        heightSegments: number = 1,
-        depthSegments: number = 1,
-        genParams: BuildingParams
     ) {
         super(parentObject);
-        this._width = width;
-        this._height = height;
-        this._depth = depth;
-        this._widthSegments = widthSegments;
-        this._heightSegments = heightSegments;
-        this._depthSegments = depthSegments;
-        this._genParams = { ...genParams };
     }
 
-    base(genParams?: BuildingParams) {
-        var w = this._width.val + Math.random() * this._width.dev,
-            h = this._height.val + Math.random() * this._height.dev,
-            d = this._depth.val + Math.random() * this._depth.dev;
+    private _calcDist(dist: Dist) : number {
+        return dist.offset + (Math.random() * dist.deviation);
+    }
+
+    base(genParams: BuildingParams) {
+        var max_w = this._calcDist(genParams.width),
+            max_h = this._calcDist(genParams.height),
+            max_d = this._calcDist(genParams.depth);
+
+        var w = max_w,
+            h = Math.random() * max_h * this._calcDist(genParams.baseRatio),
+            d = max_d;
+
+        console.log("max building: ", max_w, max_h, max_d);
+        console.log("base: ", w, h, d);
 
         var geometry = new THREE.BoxGeometry(
             w, h, d,
-            this._widthSegments, this._heightSegments, this._depthSegments
+            genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
         );
+
+        // debug ----------------
+        var max_geo = new THREE.BoxGeometry(
+            max_w, max_h, max_d,
+            genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
+        );
+
+        var debug_mesh = new THREE.Mesh(
+            max_geo,
+            new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true })
+        );
+
+        // -----------------------
 
         var mesh = new THREE.Mesh(
             geometry,
@@ -62,45 +62,71 @@ export class BuildingNew extends SceneBase {
         );
 
         this._parentObject.add(mesh);
-        mesh.position.set(-1, h / 2, -2);
+        mesh.position.y = h/2;
+        this._parentObject.add(debug_mesh);
+        debug_mesh.position.y = max_h/2;
 
-        this.build(mesh, genParams || this._genParams);
+        var SectionGenParams = { ...genParams,
+            width: {  deviation: 0, offset: w },
+            height: { deviation: -max_h, offset: max_h - h },
+            depth: { deviation: 0, offset: d },
+        };
+        this.buildSections(mesh, SectionGenParams, max_h);
+        // this.buildSection(mesh, SectionGenParams);
 
-        return mesh;
+        return { mesh, debug_mesh };
     }
 
-    private __worldPos = new THREE.Vector3();
-    build(parent: THREE.Mesh, params: BuildingParams) {
+    private buildSections(parent: THREE.Mesh, params: BuildingParams, max_height: number) {
         parent.getWorldPosition(this.__worldPos);
         parent.geometry.computeBoundingBox();
 
         var top = parent.geometry.boundingBox!.max;
         let y = this.__worldPos.y + top.y;
-        if (y > params.height.val * 4) return;
+        if (y >= max_height) {
+            console.log("max height reached");
+            console.log("top: ", y, "max: ", max_height);
+            console.log("im tired dawg, just delete it");
+            parent.parent?.remove(parent);
+            return;
+        }
+        var m = this.buildSection(parent, params);
+        this.buildSections(m, params, max_height);
 
-        let h = params.height.val + Math.random() * params.height.dev;
+    }
+
+    private __worldPos = new THREE.Vector3();
+    buildSection(parent: THREE.Mesh, params: BuildingParams) {
+
+        parent.getWorldPosition(this.__worldPos);
+        parent.geometry.computeBoundingBox();
+        var top = parent.geometry.boundingBox!.max;
+
+        let w = this._calcDist(params.width),
+            h = this._calcDist(params.height),
+            d = this._calcDist(params.depth);
+
 
         let geometry = new THREE.BoxGeometry(
-            params.width.val + Math.random() * params.width.dev,
-            h,
-            params.depth.val + Math.random() * params.depth.dev,
+            w, h, d,
             params.widthSegments, params.heightSegments, params.depthSegments
         );
 
         let mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false })
+            new THREE.MeshStandardMaterial({ color: 0x0000ff, wireframe: false })
         );
 
-        // place at center of parent object
-        mesh.position.set(0, top.y + h / 2 - 0.2, 0);
+        // place at center top of parent object
+        mesh.position.set(0, top.y + h / 2, 0);
 
-        let twist = params.twistFactor.val + (Math.random() * 2 - 1) * params.twistFactor.dev;
+        let twist = this._calcDist(params.twistFactor);
         this.twist(twist, mesh);
         parent.add(mesh);
-        params.width.val -= Math.random() * 2 * params.width.dev;
-        params.depth.val -= Math.random() * 2 * params.depth.dev;
-        this.build(mesh, params);
+
+        console.log("section: ", w, h, d);
+
+        return mesh;
     }
 
     private twist(angle: number, m: THREE.Mesh) {
@@ -137,7 +163,6 @@ export class BuildingNew extends SceneBase {
 
     // unused?
     public initialize() {
-        this.base();
     }
 
     public _onParamsChanged(params: any) {
@@ -146,15 +171,17 @@ export class BuildingNew extends SceneBase {
 
 }
 
+
 export const p_TwistyTower = () => {
     return {
-        width: { val: 3, dev: 0.1 },
-        height: { val: 8, dev: 8 },
-        depth: { val: 3, dev: 0.1 },
+        width: { offset: 10, deviation: 0 },
+        height: { offset: 80, deviation: 0 },
+        depth: { offset: 10, deviation: 0 },
         widthSegments: 1,
         heightSegments: 16,
         depthSegments: 1,
-        twistFactor: { val: 1, dev: 10 }
+        twistFactor: { offset: 0, deviation: 90 },
+        baseRatio: { offset: 0.1, deviation: 0 }
     };
 }
 
