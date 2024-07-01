@@ -4,168 +4,125 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
 
 export class CameraManager extends SceneBase {
-  private _camera: THREE.Camera;
-  private fakeCam: THREE.Camera;
-  private camParent: THREE.Group;
-  private camSubParent: THREE.Group; // takes the camera target into account
-  private cameraTarget: THREE.Vector3;
-  private direction: THREE.Vector3;
+    private _camera: THREE.Camera;
+    private fakeCam: THREE.Camera;
 
-  private _renderer: THREE.Renderer;
-  private _controls: OrbitControls;
-  private worldLoc: THREE.Vector3;
+    private camGlobalPosition: THREE.Group;
+    private camLocalOffset: THREE.Group;
+    private cameraTarget: THREE.Vector3;
 
-  private nextPos: THREE.Vector3;
-  private shouldBeAt: THREE.Vector3;
+    private shouldBeAt: THREE.Vector3;
+    private swayShouldBeAt: THREE.Vector3;
 
-  private framerate: number;
-  private frameInterval: number;
+    private direction: THREE.Vector3;
 
-  private prevTime: number;
-  private deltaTime: number;
-  private pathPercent: number;
+    private _renderer: THREE.Renderer;
+    private _controls: OrbitControls;
 
-  constructor(parentScene: THREE.Scene, renderer: THREE.Renderer) {
-    super(parentScene);
-    this._renderer = renderer;
-    this.framerate = 60;
-    this.frameInterval = 1000 / this.framerate;
-    this.prevTime = 0;
-    this.deltaTime = 0;
-    this.pathPercent = 0;
-    this.initialize();
-  }
-
-  public initialize() {
-    this._camera = new THREE.PerspectiveCamera(
-      90,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
-    );
-    this._camera.position.set(0, 1, -0.001);
-
-    this.nextPos = new THREE.Vector3(0, 0, 0);
-    this.shouldBeAt = new THREE.Vector3(0, 0, 0);
-
-    this.cameraTarget = new THREE.Vector3(0, 1, 0);
-    // offset target to replicate first person
-
-    this.camSubParent = new THREE.Group();
-    this.camParent = new THREE.Group();
-    this.camSubParent.add(this._camera);
-    this.camParent.add(this.camSubParent);
-    this._parentObject.add(this.camParent);
-    this.worldLoc = new THREE.Vector3();
-    this.direction = new THREE.Vector3();
-
-    this.fakeCam = this._camera.clone();
-    this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
-    this._controls.enableDamping = true;
-    this._controls.dampingFactor = 0.25;
-
-    this._controls.target = this.cameraTarget;
-    this._controls.update;
-    this._camera.copy(this.fakeCam);
-  }
-
-  public thing() {}
-
-  public add(child) {
-    this.camParent.add(child);
-  }
-
-  public getDirection(direcVec) {
-    this.direction.setX(direcVec.x);
-    this.direction.setY(direcVec.y);
-    this.direction.setZ(direcVec.z);
-  }
-
-  public getDirectVector() {
-    return this.direction;
-  }
-
-  public position() {
-    return this.worldLoc;
-  }
-
-  public getCam() {
-    return this._camera;
-  }
-
-  public getCamParent() {
-    return this.camParent;
-  }
-
-  public reset() {
-    this.nextPos.set(0, 0, 0);
-    this.shouldBeAt.set(0, 0, 0);
-  }
-
-  public getCamSubParent() {
-    return this.camSubParent;
-  }
-
-  private _clock = new THREE.Clock();
-
-  private atEnd = false;
-
-  public songUpdate(time: number) {
-    this.shouldBeAt.lerp(this.nextPos, this.pathPercent);
-
-    if (this.pathPercent >= 1) {
-      this.atEnd = true;
-      this.getDirection(Globals.sceneParams.camera.direction);
-      if (this.buildFunction) {
-        this.buildFunction();
-      }
-      this.pathPercent = 0;
-      this.nextPos.add(this.direction);
-      return;
+    constructor(parentScene: THREE.Scene, renderer: THREE.Renderer) {
+        super(parentScene);
+        this._renderer = renderer;
+        this.initialize();
     }
-    this.atEnd = false;
-  }
 
-  private buildFunction: Function;
+    public initialize() {
+        this._camera = new THREE.PerspectiveCamera(
+            90,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000,
+        );
 
-  public setBuildFunc(fnc: Function) {
-    this.buildFunction = fnc;
-  }
+        this._camera.position.set(0, 1, -0.001);
+        this.cameraTarget = new THREE.Vector3(0, 1, 0);
 
-  public isAtEnd() {
-    return this.atEnd;
-  }
+        this.shouldBeAt = new THREE.Vector3(0, 0, 0);
+        this.swayShouldBeAt = new THREE.Vector3(0, 0, 0);
+        this.direction = new THREE.Vector3();
 
-  public update() {
-    this.camParent.position.lerp(this.shouldBeAt, this._clock.getDelta() * 10);
+        this.camLocalOffset = new THREE.Group();
+        this.camGlobalPosition = new THREE.Group();
 
-    this._controls.update;
-    this._camera.copy(this.fakeCam);
-    this._camera.getWorldPosition(this.worldLoc);
-    this._controls.update;
+        this.camLocalOffset.add(this._camera);
+        this.camGlobalPosition.add(this.camLocalOffset);
+        this._parentObject.add(this.camGlobalPosition);
 
-    document.querySelector("#debug")!.innerHTML =
-      `x: ${this.camParent.position.x.toFixed(2)}, y: ${this.camParent.position.y.toFixed(2)}, z: ${this.camParent.position.z.toFixed(2)}`;
-    document.querySelector("#debug")!.innerHTML +=
-      `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
-    document.querySelector("#debug")!.innerHTML +=
-      `x: ${this.nextPos.x.toFixed(2)}, y: ${this.nextPos.y.toFixed(2)}, z: ${this.nextPos.z.toFixed(2)}`;
+        this.fakeCam = this._camera.clone();
+        this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
+        this._controls.enableDamping = true;
+        this._controls.dampingFactor = 0.25;
 
-    this.animate(Date.now());
-  }
+        this._controls.enableZoom = false;
+        this._controls.enablePan = false;
 
-  public _onParamsChanged(params) {}
+        this._controls.target = this.cameraTarget;
+        this._controls.update;
+        this._camera.copy(this.fakeCam);
+    }
 
-  public getPathPercent() {
-    return this.pathPercent;
-  }
+    public add(child) {
+        this.camGlobalPosition.add(child);
+    }
 
-  public animate(currTime) {
-    this.deltaTime = currTime - this.prevTime;
-    this.prevTime = currTime;
+    public getDirection(direcVec) {
+        this.direction.setX(direcVec.x);
+        this.direction.setY(direcVec.y);
+        this.direction.setZ(direcVec.z);
+    }
 
-    this.pathPercent +=
-      (Globals.sceneParams.camera.relativeSpeed / 10) *
-      (this.deltaTime / this.frameInterval);
-  }
+    public getDirectVector() {
+        return this.direction;
+    }
+
+    public getCam() {
+        return this._camera;
+    }
+
+    public getCamParent() {
+        return this.camGlobalPosition;
+    }
+
+    public reset() {
+        this.shouldBeAt.set(0, 0, 0);
+    }
+
+    public getCamSubParent() {
+        return this.camLocalOffset;
+    }
+
+    private songClock = new THREE.Clock();
+
+    public songUpdate(time: number) {
+        var t = time / 1000;
+
+        this.swayShouldBeAt.setX(Math.sin(t) / 4);
+        this.swayShouldBeAt.setY(Math.cos(t * 2) / 2 + 0.5);
+
+        let deltaTime = this.songClock.getDelta();
+
+        this.getDirection(Globals.sceneParams.camera?.direction);
+        this.shouldBeAt.add(
+            this.direction.multiplyScalar(
+                deltaTime * Globals.sceneParams.camera?.relativeSpeed * 3,
+            ),
+        );
+    }
+
+    private updateClock = new THREE.Clock();
+
+    public update() {
+        let deltaTime = this.updateClock.getDelta();
+        this.camGlobalPosition.position.lerp(this.shouldBeAt, deltaTime * 10);
+        this.camLocalOffset.position.lerp(this.swayShouldBeAt, deltaTime * 10);
+
+        this._controls.update;
+        this._camera.copy(this.fakeCam);
+
+        document.querySelector("#debug")!.innerHTML =
+            `x: ${this.camGlobalPosition.position.x.toFixed(2)}, y: ${this.camGlobalPosition.position.y.toFixed(2)}, z: ${this.camGlobalPosition.position.z.toFixed(2)}`;
+        document.querySelector("#debug")!.innerHTML +=
+            `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
+    }
+
+    public _onParamsChanged(params) { }
 }
