@@ -7,8 +7,8 @@ export class CameraManager extends SceneBase {
     private _camera: THREE.Camera;
     private fakeCam: THREE.Camera;
 
-    private camGlobalPosition: THREE.Group;
-    private camLocalOffset: THREE.Group;
+    private camGlobalGroup: THREE.Group;
+    private camLocalGroup: THREE.Group;
     private cameraTarget: THREE.Vector3;
 
     private shouldBeAt: THREE.Vector3;
@@ -22,7 +22,6 @@ export class CameraManager extends SceneBase {
     constructor(parentScene: THREE.Scene, renderer: THREE.Renderer) {
         super(parentScene);
         this._renderer = renderer;
-        this.initialize();
     }
 
     public initialize() {
@@ -39,21 +38,23 @@ export class CameraManager extends SceneBase {
         this.shouldBeAt = new THREE.Vector3(0, 0, 0);
         this.swayShouldBeAt = new THREE.Vector3(0, 0, 0);
         this.direction = new THREE.Vector3();
+        const { x, y, z } = Globals.sceneParams.camera?.direction!;
+        this.direction.set(x!, y!, z!);
 
-        this.camLocalOffset = new THREE.Group();
-        this.camGlobalPosition = new THREE.Group();
+        this.camLocalGroup = new THREE.Group();
+        this.camGlobalGroup = new THREE.Group();
 
-        this.camLocalOffset.add(this._camera);
-        this.camGlobalPosition.add(this.camLocalOffset);
-        this._parentObject.add(this.camGlobalPosition);
+        this.camLocalGroup.add(this._camera);
+        this.camGlobalGroup.add(this.camLocalGroup);
+        this._parentObject.add(this.camGlobalGroup);
 
         this.fakeCam = this._camera.clone();
         this._controls = new OrbitControls(this.fakeCam, this._renderer.domElement);
         this._controls.enableDamping = true;
         this._controls.dampingFactor = 0.25;
 
-        this._controls.enableZoom = false;
-        this._controls.enablePan = false;
+        // this._controls.enableZoom = false;
+        // this._controls.enablePan = false;
 
         this._controls.target = this.cameraTarget;
         this._controls.update;
@@ -61,13 +62,13 @@ export class CameraManager extends SceneBase {
     }
 
     public add(child) {
-        this.camGlobalPosition.add(child);
+        this.camGlobalGroup.add(child);
     }
 
-    public getDirection(direcVec) {
-        this.direction.setX(direcVec.x);
-        this.direction.setY(direcVec.y);
-        this.direction.setZ(direcVec.z);
+    public setDirection(direction : THREE.Vector3) {
+        this.direction.setX(direction.x);
+        this.direction.setY(direction.y);
+        this.direction.setZ(direction.z);
     }
 
     public getDirectVector() {
@@ -78,8 +79,8 @@ export class CameraManager extends SceneBase {
         return this._camera;
     }
 
-    public getCamParent() {
-        return this.camGlobalPosition;
+    public getCamGlobal() {
+        return this.camGlobalGroup;
     }
 
     public reset() {
@@ -87,12 +88,13 @@ export class CameraManager extends SceneBase {
     }
 
     public getCamSubParent() {
-        return this.camLocalOffset;
+        return this.camLocalGroup;
     }
 
     private songClock = new THREE.Clock();
 
     public songUpdate(time: number) {
+        console.log("songUpdate");
         var t = time / 1000;
 
         this.swayShouldBeAt.setX(Math.sin(t) / 4);
@@ -100,7 +102,7 @@ export class CameraManager extends SceneBase {
 
         let deltaTime = this.songClock.getDelta();
 
-        this.getDirection(Globals.sceneParams.camera?.direction);
+        this.setDirection(Globals.sceneParams.camera?.direction);
         this.shouldBeAt.add(
             this.direction.multiplyScalar(
                 deltaTime * Globals.sceneParams.camera?.relativeSpeed * 3,
@@ -112,14 +114,14 @@ export class CameraManager extends SceneBase {
 
     public update() {
         let deltaTime = this.updateClock.getDelta();
-        this.camGlobalPosition.position.lerp(this.shouldBeAt, deltaTime * 10);
-        this.camLocalOffset.position.lerp(this.swayShouldBeAt, deltaTime * 10);
+        this.camGlobalGroup.position.lerp(this.shouldBeAt, deltaTime * 10);
+        this.camLocalGroup.position.lerp(this.swayShouldBeAt, deltaTime * 10);
 
         this._controls.update;
         this._camera.copy(this.fakeCam);
 
         document.querySelector("#debug")!.innerHTML =
-            `x: ${this.camGlobalPosition.position.x.toFixed(2)}, y: ${this.camGlobalPosition.position.y.toFixed(2)}, z: ${this.camGlobalPosition.position.z.toFixed(2)}`;
+            `x: ${this.camGlobalGroup.position.x.toFixed(2)}, y: ${this.camGlobalGroup.position.y.toFixed(2)}, z: ${this.camGlobalGroup.position.z.toFixed(2)}`;
         document.querySelector("#debug")!.innerHTML +=
             `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
     }

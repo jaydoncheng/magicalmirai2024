@@ -54,7 +54,7 @@ export class PlayerManager {
                     if (unit.contains(now)) {
                         if (unit.startTime <= now && unit.endTime >= now) {
                             console.log(unit.text);
-                            Globals.three!.drawText(unit.text)
+                            // Globals.three!.drawText(unit.text)
                         }
                     }
                 }

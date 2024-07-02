@@ -6,7 +6,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
-import { Building, p_TwistyTower } from "./Building";
+import { BuildingGenerator, p_TwistyTower } from "./Building";
 import { CameraManager } from "./CameraManager";
 
 
@@ -49,17 +49,28 @@ export class ThreeManager {
         this._objMngs["skybox"] = skybox;
 
         this._camera = new CameraManager(this._scene, this._renderer);
+        this._camera.initialize();
 
-        // var colors = Globals.sceneParams.palette;
+        var plane = new THREE.Mesh(
+            new THREE.PlaneGeometry(300, 300, 1, 1),
+            new THREE.MeshStandardMaterial({ color: 0x333333, side: THREE.DoubleSide }),
+        );
+        // this._camera.getCamParent().add(plane);
+        plane.rotateX(Math.PI / 2);
+        plane.position.set(0, -3, 0);
 
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // var buildings = this._sceneBuilder = new Buildings(this._rootObj);
-        // buildings.initialize();
-        // this._objMngs["buildings"] = buildings;
+        var buildings = this._sceneBuilder = new Buildings(this._rootObj);
+        buildings.initialize();
+        this._objMngs["buildings"] = buildings;
 
-        // this._camera.add(this._sceneBuilder.getPlane());
+        var dir = this._camera.getDirectVector();
+        var pos = this._camera.getCam().position.clone();
+        console.log(pos, dir);
+        buildings.populate(this._camera.getCam().position, pos.addScaledVector(dir, 20));
+
         const loader = new GLTFLoader();
         // this works, only on the actual page
         loader.load(
@@ -83,14 +94,6 @@ export class ThreeManager {
         var plight = new THREE.PointLight(0xffffff, 1, 100);
         plight.position.set(0, 10, 0);
         this._scene.add(plight);
-
-        var building = new Building(this._rootObj);
-        this._objMngs["buildingnew"] = building;
-        for (let i = 0; i < 10; i++) {
-            var m = building.base(p_TwistyTower());
-            m.mesh.position.x = i * 20;
-            m.debug_mesh.position.x = i * 20;
-        }
     }
 
     public resize() {
@@ -98,27 +101,7 @@ export class ThreeManager {
     }
 
     public update(time: number) {
-        var t = time / 1000;
-
         this._camera.songUpdate(time);
-
-        let cam = this._camera.getCam();
-        let camGlobalPosition = this._camera.getCamParent();
-    }
-
-    private buildCount = 0;
-
-    private buildSet() {
-        let camGlobalPosition = this._camera.getCamParent();
-        this._camera.getDirection(Globals.sceneParams.camera.direction);
-        this._sceneBuilder.populate(
-            camGlobalPosition.position,
-            camGlobalPosition.position.add(this._camera.getDirectVector()),
-        );
-        this.buildCount++;
-        // if (this.buildCount >= 15) {
-        //   this._sceneBuilder.deleteBlock();
-        // }
     }
 
     public _update() {
@@ -127,12 +110,7 @@ export class ThreeManager {
         this.stats.update();
 
         this._camera.update();
-
         this._renderer.render(this._scene, cam);
-    }
-
-    public addBuilding(building: Building) {
-        this._scene.add(building.buildingBox);
     }
 
     // params currently kinda useless

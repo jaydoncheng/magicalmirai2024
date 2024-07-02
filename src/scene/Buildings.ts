@@ -1,70 +1,73 @@
 import * as THREE from "three";
-import { Building } from "./Building";
+import { BuildingGenerator, type BuildingParams, p_TwistyTower } from "./Building";
 import { SceneBase } from "./SceneBase";
 
 export class Buildings extends SceneBase {
 
-    private buildingBlocks: THREE.Object3D[] = [];
+    private buildingGroups: THREE.Group[] = [];
+    private _buildingGenerator: BuildingGenerator;
+    private buildingTypes: BuildingParams[] = [];
 
     constructor(_parentObject: THREE.Object3D) {
         super(_parentObject);
+        this._buildingGenerator = new BuildingGenerator();
     }
 
     public initialize() {
-        // implement later
+        this.buildingTypes = []; // TODO: double check if old objects are being properly disposed
+        this.buildingTypes.push(p_TwistyTower());
     }
 
-    public update() {
-        // implement later
-    }
+    public update() { }
 
-    public _onParamsChanged(params: any) {}
+    public _onParamsChanged(params: any) { }
 
+    private __direction = new THREE.Vector3();
+    private __dirNormal = new THREE.Vector3();
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
-        var _parent = new THREE.Object3D();
-        // populate with buildings between from and to vector
+        var buildingGroup = new THREE.Group();
+
         var distance = from.distanceTo(to);
         var direction = new THREE.Vector3();
         direction.subVectors(to, from);
         direction.normalize();
-        console.log("distance: " + distance);
 
         for (let i = 0; i < 10; i++) {
-            var building = new Building(1, Math.round(1 + Math.random() * 10), 1);
-            var mesh = building.getBox();
-            mesh.position.copy(from);
-            mesh.position.z += Math.random() * distance;
+            // WARN: this is only approximately a normal distribution.
+            let randBuilding = Math.floor(Math.random() * this.buildingTypes.length);
 
-            mesh.position.y = 0;
-            mesh.position.x += Math.random() * 10 - 5;
-            if (mesh.position.x > -1 && mesh.position.x < 1) {
-                mesh.position.x = mesh.position.x < 0 ? -2 : 2;
-            }
+            var building = this.buildingTypes[randBuilding];
+            var buildingMesh = this._buildingGenerator.genBuilding(building);
 
-            this.animate(building);
-            _parent.add(mesh);
+            this.__direction.copy(direction);
+            this.__dirNormal.crossVectors(this.__direction, new THREE.Vector3(0, 1, 0));
+            this.__dirNormal.normalize();
+
+            buildingMesh.position.add(this.__direction.multiplyScalar(i * 20));
+            buildingGroup.add(buildingMesh);
         }
-        _parent.position.copy(from);
-        _parent.lookAt(to);
-        this._parentObject.add(_parent);
-        this.buildingBlocks.push(_parent);
+
+        this.buildingGroups.push(buildingGroup);
+        this._parentObject.add(buildingGroup);
     }
 
-    public animate(building: Building) {
-        if (building.buildingBox.scale.y <= building.scale.y - 1) {
-            console.log("animating");
-
-            building.popup();
-            requestAnimationFrame(() => this.animate(building));
-        }
+    public animate(building: BuildingGenerator) {
+        // if (building.buildingBox.scale.y <= building.scale.y - 1) {
+        //     console.log("animating");
+        //
+        //     building.popup();
+        //     requestAnimationFrame(() => this.animate(building));
+        // }
     }
 
     public deleteBlock() {
-        var thisBuilding: THREE.Object3D = this.buildingBlocks.shift();
-        this.purge(thisBuilding);
+        if (this.buildingGroups.length > 0) {
+            var bG: THREE.Group = this.buildingGroups.shift()!;
+            this.purge(bG);
+        }
     }
 
-    public purge(obj) {
+    public purge(obj: any) {
         if (obj.children.length > 0) {
             for (let i = obj.children.length - 1; i >= 0; i--) {
                 this.purge(obj.children[i]);
