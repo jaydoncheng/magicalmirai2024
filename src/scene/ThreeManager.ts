@@ -44,12 +44,12 @@ export class ThreeManager {
         this._scene.add(this._rootObj);
         // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
-        var skybox = new Skybox(this._rootObj, this._scene);
-        skybox.initialize();
-        this._objMngs["skybox"] = skybox;
-
         this._camera = new CameraManager(this._scene, this._renderer);
         this._camera.initialize();
+        
+        var skybox = new Skybox(this._camera.getCamGlobal(), this._scene);
+        skybox.initialize();
+        this._objMngs["skybox"] = skybox;
 
         var plane = new THREE.Mesh(
             new THREE.PlaneGeometry(300, 300, 1, 1),

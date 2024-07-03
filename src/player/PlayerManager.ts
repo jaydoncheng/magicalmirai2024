@@ -53,6 +53,12 @@ export class PlayerManager {
             onStop: () => { this._onStop() },
         });
 
+        Globals.sceneParams = {
+            ...Globals.sceneParams,
+            ...this._keyframes[this._currentKeyframeI].sceneParams
+        }
+        Globals.three!._onParamsChanged();
+
         this._update();
     }
     private _onSongChanged() {
@@ -91,7 +97,7 @@ export class PlayerManager {
         console.log("onVideoReady");
 
         // animate gets called everytime a "unit" comes up in the song
-        const animate = function(now : any, unit: ITextUnit) {
+        const animate = function(now: any, unit: ITextUnit) {
             if (unit.contains(now)) {
                 if (unit.startTime <= now && unit.endTime >= now) {
                     console.log(unit.text);
@@ -138,7 +144,6 @@ export class PlayerManager {
     }
 
     private _onTimeUpdate(time: number) {
-        console.log("timeUpdate: ", time);
         this._position = time;
         this._updateTime = Date.now();
     }
