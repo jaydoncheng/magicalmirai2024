@@ -1,11 +1,10 @@
-import { Player, IVideo, IChar, ITextUnit } from 'textalive-app-api'
+import { Player, ITextUnit } from 'textalive-app-api'
 import Globals from '../core/Globals';
 
 export class PlayerManager {
     // TODO: Once loading/ready process is implemented in Globals.controls,
     // remove any lines that reference #loading and #controls
     public _player: Player;
-    private _video: IVideo;
     private _playerOptions: any = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")!,
@@ -27,7 +26,7 @@ export class PlayerManager {
 
         Globals.controls!.onPlay(() => { this._player.requestPlay(); });
         Globals.controls!.onPause(() => { this._player.requestPause(); });
-        Globals.controls!.onStop(() => { this._player.requestStop(); this._reset() });
+        Globals.controls!.onStop(() => { this._reset() });
 
         this._initPlayer();
 
@@ -38,17 +37,19 @@ export class PlayerManager {
 
     private _initPlayer() {
         var player = this._player = new Player(this._playerOptions);
+        this._position = 0;
+        this._updateTime = -1;
+        this._currentKeyframeI = 0;
+        this._keyframes = Globals.currentSong.keyframes;
 
         player.addListener({
             onAppReady: (app) => { this._onAppReady(app) },
             onAppMediaChange: () => { this._onAppMediaChange() },
             onVideoReady: (v) => { this._onVideoReady(v) },
             onTimerReady: () => { this._onTimerReady() },
-            onTimeUpdate: (time) => { this._onTimeUpdate(time) },
+            onThrottledTimeUpdate: (time) => { this._onTimeUpdate(time) },
             onPlay: () => { this._onPlay() },
-            onPause() {
-                console.log("onPause");
-            },
+            onPause() { console.log("onPause"); },
             onStop: () => { this._onStop() },
         });
 
@@ -61,14 +62,9 @@ export class PlayerManager {
         Globals.controls!.setReady("player", false);
 
         this._initPlayer();
-
     }
 
     private _onAppReady(app: any) {
-        if (app.managed) {
-            // TODO: what the FUCK is a lifecycle :fire: :fire:
-            // document.querySelector("#control")!.className = "disabled";
-        }
         if (!app.songUrl) {
             this._player.createFromSongUrl(Globals.currentSong.songUrl, {
                 video: Globals.currentSong.video,
@@ -87,6 +83,7 @@ export class PlayerManager {
     }
 
     public _reset() {
+        this._player.requestMediaSeek(0);
         this._player.requestStop();
     }
 
@@ -94,7 +91,7 @@ export class PlayerManager {
         console.log("onVideoReady");
 
         // animate gets called everytime a "unit" comes up in the song
-        const animate = function(now, unit: ITextUnit) {
+        const animate = function(now : any, unit: ITextUnit) {
             if (unit.contains(now)) {
                 if (unit.startTime <= now && unit.endTime >= now) {
                     console.log(unit.text);
@@ -121,16 +118,9 @@ export class PlayerManager {
         this._player.requestStop();
     }
 
-    private _render(t: number) {
-        if (isNaN(t)) { return; }
-
-        Globals.three!.update(t);
-    }
-
     private _update() {
         if (this._player && this._player.isPlaying && this._updateTime > 0) {
             var t = (Date.now() - this._updateTime) + this._position;
-            console.log(t);
 
             if (this._currentKeyframeI < this._keyframes.length) {
                 if (t > this._keyframes[this._currentKeyframeI].timestamp) {
@@ -142,17 +132,14 @@ export class PlayerManager {
                     this._currentKeyframeI++;
                 }
             }
-            this._render(t);
+            Globals.three!.update(t);
         }
         requestAnimationFrame(() => { this._update() });
     }
 
     private _onTimeUpdate(time: number) {
+        console.log("timeUpdate: ", time);
         this._position = time;
         this._updateTime = Date.now();
-
-        // this._render(time);
-        // TODO: Implement scene updating, character processing, etc
-        // Globals.three!.update(time);
     }
 }
