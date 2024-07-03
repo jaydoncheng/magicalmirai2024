@@ -9,5 +9,5 @@ export abstract class SceneBase {
 
     abstract initialize(): void; // initialize objects and add to scene
     abstract update(): void; // called by render loop
-    abstract _onParamsChanged(params: any): void; // called by Controller (dont use params rn)
+    abstract _onParamsChanged(): void; // called by Controller (dont use params rn)
 }

@@ -11,16 +11,19 @@ export default {
         lyricId: 59415,
         lyricDiffId: 13962
     },
-    keyframes: {
-        "0": {
-            colors: {
-                sky: 0x2222ff,
-                fog: 0x5555ff,
-                ambientLight: 0xffffff,
-                pointLight: 0xffffee,
-                plane: 0xeeeeee,
-                box: 0x00aaee
-            },
-        }
-    }
+    keyframes: [
+        {
+            timestamp: 0,
+            sceneParams: {
+                palette: {
+                    sky: "#fe06a5",
+                    fog: "#287493",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#999999",
+                },
+            } 
+        },
+    ]
 } as ISong;

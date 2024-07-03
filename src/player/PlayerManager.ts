@@ -4,13 +4,19 @@ import Globals from '../core/Globals';
 export class PlayerManager {
     // TODO: Once loading/ready process is implemented in Globals.controls,
     // remove any lines that reference #loading and #controls
-    private _player: Player;
+    public _player: Player;
     private _video: IVideo;
     private _playerOptions: any = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")!,
         mediaBannerPosition: "bottom left"
     }
+
+    private _keyframes = Globals.currentSong.keyframes;
+    private _currentKeyframeI = 0;
+
+    private _position = 0;
+    private _updateTime = -1;
 
     constructor() {
         Globals.controls!.setReady("player", false);
@@ -21,7 +27,7 @@ export class PlayerManager {
 
         Globals.controls!.onPlay(() => { this._player.requestPlay(); });
         Globals.controls!.onPause(() => { this._player.requestPause(); });
-        Globals.controls!.onStop(() => { this._player.requestStop(); });
+        Globals.controls!.onStop(() => { this._player.requestStop(); this._reset() });
 
         this._initPlayer();
 
@@ -34,56 +40,19 @@ export class PlayerManager {
         var player = this._player = new Player(this._playerOptions);
 
         player.addListener({
-            onAppReady(app) {
-                if (app.managed) {
-                    // TODO: what the FUCK is a lifecycle :fire: :fire:
-                    // document.querySelector("#control")!.className = "disabled";
-                }
-                if (!app.songUrl) {
-                    player.createFromSongUrl(Globals.currentSong.songUrl, {
-                        video: Globals.currentSong.video,
-                    })
-                }
-            },
-
-            onVideoReady(v) {
-                console.log("onVideoReady");
-                
-                // animate gets called everytime a "unit" comes up in the song
-                const animate = function(now, unit : ITextUnit) {
-                    if (unit.contains(now)) {
-                        if (unit.startTime <= now && unit.endTime >= now) {
-                            console.log(unit.text);
-                            // Globals.three!.drawText(unit.text)
-                        }
-                    }
-                }
-                let w = player.video.firstWord;
-                while (w) {
-                    w.animate = animate;
-                    w = w.next;
-                }
-            },
-
-            onTimerReady() {
-                console.log("onTimerReady");
-                Globals.controls!.setReady('player', true);
-            },
-
-            onTimeUpdate(time) {
-                console.log("onTimeUpdate", time);
-                // TODO: Implement scene updating, character processing, etc
-                Globals.three!.update(time);
-            },
-
-            onPlay() {
-                console.log("onPlay");
-            },
-
+            onAppReady: (app) => { this._onAppReady(app) },
+            onAppMediaChange: () => { this._onAppMediaChange() },
+            onVideoReady: (v) => { this._onVideoReady(v) },
+            onTimerReady: () => { this._onTimerReady() },
+            onTimeUpdate: (time) => { this._onTimeUpdate(time) },
+            onPlay: () => { this._onPlay() },
             onPause() {
                 console.log("onPause");
-            }
+            },
+            onStop: () => { this._onStop() },
         });
+
+        this._update();
     }
     private _onSongChanged() {
         this._player.requestStop();
@@ -93,5 +62,97 @@ export class PlayerManager {
 
         this._initPlayer();
 
+    }
+
+    private _onAppReady(app: any) {
+        if (app.managed) {
+            // TODO: what the FUCK is a lifecycle :fire: :fire:
+            // document.querySelector("#control")!.className = "disabled";
+        }
+        if (!app.songUrl) {
+            this._player.createFromSongUrl(Globals.currentSong.songUrl, {
+                video: Globals.currentSong.video,
+            })
+        }
+    }
+
+    private _onPlay() {
+        console.log("play")
+        this._updateTime = Date.now();
+    }
+
+    private _onStop() {
+        console.log("stop")
+        this._reset();
+    }
+
+    public _reset() {
+        this._player.requestStop();
+    }
+
+    private _onVideoReady(v: any) {
+        console.log("onVideoReady");
+
+        // animate gets called everytime a "unit" comes up in the song
+        const animate = function(now, unit: ITextUnit) {
+            if (unit.contains(now)) {
+                if (unit.startTime <= now && unit.endTime >= now) {
+                    console.log(unit.text);
+                    // Globals.three!.drawText(unit.text)
+                }
+            }
+        }
+        let w = this._player.video.firstWord;
+        while (w) {
+            w.animate = animate;
+            w = w.next;
+        }
+    }
+
+    private _onAppMediaChange() {
+        console.log("onAppMediaChange");
+        this._player.requestMediaSeek(0);
+        this._player.requestPause();
+    }
+
+    private _onTimerReady() {
+        console.log("onTimerReady");
+        Globals.controls!.setReady('player', true);
+        this._player.requestStop();
+    }
+
+    private _render(t: number) {
+        if (isNaN(t)) { return; }
+
+        Globals.three!.update(t);
+    }
+
+    private _update() {
+        if (this._player && this._player.isPlaying && this._updateTime > 0) {
+            var t = (Date.now() - this._updateTime) + this._position;
+            console.log(t);
+
+            if (this._currentKeyframeI < this._keyframes.length) {
+                if (t > this._keyframes[this._currentKeyframeI].timestamp) {
+                    Globals.sceneParams = {
+                        ...Globals.sceneParams,
+                        ...this._keyframes[this._currentKeyframeI].sceneParams
+                    }
+                    Globals.three!._onParamsChanged();
+                    this._currentKeyframeI++;
+                }
+            }
+            this._render(t);
+        }
+        requestAnimationFrame(() => { this._update() });
+    }
+
+    private _onTimeUpdate(time: number) {
+        this._position = time;
+        this._updateTime = Date.now();
+
+        // this._render(time);
+        // TODO: Implement scene updating, character processing, etc
+        // Globals.three!.update(time);
     }
 }

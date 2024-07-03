@@ -59,13 +59,17 @@ export class CameraManager extends SceneBase {
         this._controls.target = this.cameraTarget;
         this._controls.update;
         this._camera.copy(this.fakeCam);
+
+        Globals.controls!.onStop(() => {
+            this.reset();
+        });
     }
 
     public add(child) {
         this.camGlobalGroup.add(child);
     }
 
-    public setDirection(direction : THREE.Vector3) {
+    public setDirection(direction: THREE.Vector3) {
         this.direction.setX(direction.x);
         this.direction.setY(direction.y);
         this.direction.setZ(direction.z);
@@ -93,21 +97,25 @@ export class CameraManager extends SceneBase {
 
     private songClock = new THREE.Clock();
 
-    public songUpdate(time: number) {
-        console.log("songUpdate");
-        var t = time / 1000;
+    private _prevTime = 0;
+    public songUpdate(elapsedTime: number) {
+        let deltaTime = elapsedTime - this._prevTime;
+        if (deltaTime > 0) {
+            let t = deltaTime / 1000;
+            var r = elapsedTime / 1000;
+            console.log("time: ", t, elapsedTime);
 
-        this.swayShouldBeAt.setX(Math.sin(t) / 4);
-        this.swayShouldBeAt.setY(Math.cos(t * 2) / 2 + 0.5);
+            this.swayShouldBeAt.setX(Math.sin(r) / 4);
+            this.swayShouldBeAt.setY(Math.cos(r * 2) / 2 + 0.5);
 
-        let deltaTime = this.songClock.getDelta();
-
-        this.setDirection(Globals.sceneParams.camera?.direction);
-        this.shouldBeAt.add(
-            this.direction.multiplyScalar(
-                deltaTime * Globals.sceneParams.camera?.relativeSpeed * 3,
-            ),
-        );
+            this.setDirection(Globals.sceneParams.camera?.direction);
+            this.shouldBeAt.add(
+                this.direction.multiplyScalar(
+                    t * Globals.sceneParams.camera?.relativeSpeed * 3,
+                ),
+            );
+        }
+        this._prevTime = elapsedTime;
     }
 
     private updateClock = new THREE.Clock();
@@ -126,5 +134,5 @@ export class CameraManager extends SceneBase {
             `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
     }
 
-    public _onParamsChanged(params) { }
+    public _onParamsChanged() { }
 }

@@ -1,4 +1,4 @@
-export interface SceneParams {
+export interface ISceneParams {
     palette?: {
         sky?: string;
         fog?: string;
@@ -31,6 +31,7 @@ export interface SceneParams {
 }
 
 // bro
+
 export default {
     palette: {
         sky: "#87CEEB",
@@ -61,4 +62,4 @@ export default {
         twistFactor: { val: 0, dev: 0 },
         heightSegments: 5,
     }
-} as SceneParams;
+} as ISceneParams;

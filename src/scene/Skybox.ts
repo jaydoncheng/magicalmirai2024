@@ -47,7 +47,11 @@ export class Skybox extends SceneBase {
 
     public update() {}
 
-    public _onParamsChanged(params: any) {
+    public _onParamsChanged() {
+        console.log("skybox params changed");
+        this._palette = Globals.sceneParams.palette;
+        console.log(this._palette);
+        console.log(Globals.sceneParams);
         this._fog.color = new THREE.Color(this._palette!.fog);
 
         this._material.uniforms.topColor = { value: new THREE.Color(this._palette!.sky) };

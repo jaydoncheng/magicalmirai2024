@@ -20,7 +20,7 @@ export class Buildings extends SceneBase {
 
     public update() { }
 
-    public _onParamsChanged(params: any) { }
+    public _onParamsChanged() { }
 
     private __direction = new THREE.Vector3();
     private __dirNormal = new THREE.Vector3();

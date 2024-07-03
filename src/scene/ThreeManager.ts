@@ -114,9 +114,9 @@ export class ThreeManager {
     }
 
     // params currently kinda useless
-    public _onParamsChanged(params: any) {
+    public _onParamsChanged() {
         for (let objMng of Object.values(this._objMngs)) {
-            objMng._onParamsChanged(params);
+            objMng._onParamsChanged();
         }
     }
 }
