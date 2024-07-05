@@ -60,6 +60,8 @@ export class BuildingGenerator {
         // -----------------------
         var texture = Globals.textures.getTexture("building1");
         texture.repeat.set(genParams.widthSegments, genParams.heightSegments);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
         var mesh = new THREE.Mesh(
             geometry,
             new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false, map: texture })
@@ -89,8 +91,6 @@ export class BuildingGenerator {
         let y = this.__worldPos.y + top.y;
         if (y >= max_height) {
             console.log("top: ", y, "max: ", max_height);
-            console.log("max height reached");
-            console.log("im tired dawg, just delete it");
             parent.parent?.remove(parent);
             return;
         }

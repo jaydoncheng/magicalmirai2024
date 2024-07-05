@@ -24,6 +24,8 @@ class Textures {
             }, undefined, (err) => {
                 console.error('error loading texture', texturePath);
                 console.error(err);
+                this._textures[key] = new THREE.Texture();
+                this.isReady = true;
             })
         }
     }
