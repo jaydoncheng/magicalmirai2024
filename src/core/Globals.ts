@@ -4,7 +4,7 @@ import { ControlsType } from './Controls';
 import SceneParams from './SceneParams';
 import { ISong } from './ISong'
 import Songs from './songs'
-import Textures from './Textures';
+import Textures from './Textures'
 
 export default {
     songs: Songs as ISong[],

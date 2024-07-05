@@ -1,20 +1,29 @@
 import * as THREE from 'three'
 
 var textureFiles = {
-    'building1': 'assets/building1.png',
+    'building1': 'building1.png',
 }
 
 class Textures {
     private _textures: { [key: string]: THREE.Texture } = {}
 
+    public isReady = false;
     constructor() {
         const loader = new THREE.TextureLoader()
 
         for (const key in textureFiles) {
-            loader.load(textureFiles[key], (texture) => {
+            let texturePath = './textures/' + textureFiles[key]
+            loader.load(texturePath, (texture) => {
+                console.log('loaded texture', texturePath)
+                console.log(texture)
                 this._textures[key] = texture
+
+                if (Object.keys(this._textures).length === Object.keys(textureFiles).length) {
+                    this.isReady = true
+                }
             }, undefined, (err) => {
-                console.error(err)
+                console.error('error loading texture', texturePath);
+                console.error(err);
             })
         }
     }
