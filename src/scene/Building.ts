@@ -58,7 +58,9 @@ export class BuildingGenerator {
         );
 
         // -----------------------
-        var texture = Globals.textures.getTexture("building1");
+        var random = ['building1', 'building2', 'building3'];
+        var randomTexture = random[Math.floor(Math.random() * random.length)];
+        var texture = Globals.textures.getTexture(randomTexture);
         texture.repeat.set(genParams.widthSegments, genParams.heightSegments);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
@@ -113,7 +115,9 @@ export class BuildingGenerator {
             params.widthSegments, params.heightSegments, params.depthSegments
         );
 
-        var texture = Globals.textures.getTexture("building1");
+        var random = ['building1', 'building2', 'building3'];
+        var randomTexture = random[Math.floor(Math.random() * random.length)];
+        var texture = Globals.textures.getTexture(randomTexture);
         texture.repeat.set(params.widthSegments, params.heightSegments);
         let mesh = new THREE.Mesh(
             geometry,
