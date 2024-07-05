@@ -6,7 +6,6 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
-import { BuildingGenerator, p_TwistyTower } from "./Building";
 import { CameraManager } from "./CameraManager";
 import { LyricsManager } from "./Lyrics";
 
@@ -30,13 +29,22 @@ export class ThreeManager {
         });
 
         this._view.appendChild(this._renderer.domElement);
-        this.initialize();
+
 
         const _init = this.initialize.bind(this);
         window.addEventListener("songchanged", _init);
 
         this.stats = new Stats();
         document.body.appendChild(this.stats.dom);
+
+        let interval = setInterval(() => {
+            if (Globals.textures!.isReady) {
+                console.log("textures ready in threemanager");
+                clearInterval(interval);
+                this.initialize();
+            }
+            console.log("waiting for textures");
+        }, 800);
     }
 
     public initialize() {

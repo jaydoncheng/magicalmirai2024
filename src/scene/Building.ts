@@ -72,7 +72,6 @@ export class BuildingGenerator {
             maxDepth: { deviation: -d * 0.3, offset: d },
         };
 
-
         this.buildSections(mesh, SectionGenParams, max_h);
         return mesh;
     }
