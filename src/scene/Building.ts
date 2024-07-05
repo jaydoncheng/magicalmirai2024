@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Globals from "../core/Globals";
 
 // Each value is calculated as `offset + Math.random() * deviation`
 export type Dist = { offset: number, deviation: number };
@@ -57,9 +58,10 @@ export class BuildingGenerator {
         );
 
         // -----------------------
+        var texture = Globals.textures.getTexture("building1");
         var mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false })
+            new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false, map: texture })
         );
 
         mesh.position.y = h / 2;

@@ -38,12 +38,12 @@ export class ThreeManager {
         document.body.appendChild(this.stats.dom);
 
         let interval = setInterval(() => {
+            console.log("waiting for textures");
             if (Globals.textures!.isReady) {
                 console.log("textures ready in threemanager");
                 clearInterval(interval);
                 this.initialize();
             }
-            console.log("waiting for textures");
         }, 800);
     }
 
