@@ -2,46 +2,47 @@ import * as THREE from 'three';
 import { SceneBase } from "./SceneBase";
 
 export class LyricsManager extends SceneBase {
+
     private _textCanvasEl: HTMLCanvasElement;
     private _texture: THREE.Texture;
     private _material: THREE.Material;
     private _textPlane: THREE.Mesh;
-
+    private dpr = window.devicePixelRatio;
     constructor(_parentObject: THREE.Object3D) {
         super(_parentObject);
+
         this._textCanvasEl = document.createElement('canvas');
-        this._textCanvasEl.width = 1024;
-        this._textCanvasEl.height = 1024;
-        this._textCanvasEl.style.position = 'absolute';
-        this._textCanvasEl.style.display = 'none';
-        this._textCanvasEl.style.top = '0';
-        this._textCanvasEl.style.left = '0';
-        this._textCanvasEl.style.zIndex = '100';
+        this._textCanvasEl.width = document.body.clientWidth * this.dpr;
+        this._textCanvasEl.height = document.body.clientHeight * this.dpr;
 
         this._texture = new THREE.CanvasTexture(this._textCanvasEl);
         this._texture.magFilter = THREE.NearestFilter;
         this._texture.minFilter = THREE.NearestMipmapLinearFilter;
         this._texture.mapping = THREE.EquirectangularReflectionMapping;
 
-        this._material = new THREE.MeshBasicMaterial({ map: this._texture, transparent: true,
-            side: THREE.DoubleSide});
+        this._material = new THREE.MeshBasicMaterial({
+            map: this._texture, transparent: true,
+            side: THREE.DoubleSide
+        });
 
         this._textPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(),
+            new THREE.PlaneGeometry(this.dpr/2, this.dpr/2),
             this._material
         );
-        this._textPlane.scale.set(3, 3, 1);
-        this._textPlane.position.set(0, 1, -2);
-        this._textPlane.rotation.x = -Math.PI;
-        this._textPlane.rotation.y = Math.PI;
-        this._textPlane.rotation.z = Math.PI;
+        console.log(this.dpr);
+        this._textPlane.scale.set(this.dpr/2, this.dpr/2, 1);
+        this._textPlane.position.set(0, 1, 0.5);
+        this._textPlane.rotateX(-Math.PI);
+        this._textPlane.rotateY(2*Math.PI);
+        this._textPlane.rotateZ(Math.PI);
     }
 
     public drawText(text: string) {
         const ctx = this._textCanvasEl.getContext('2d');
         if (ctx) {
+            ctx.scale(this.dpr, this.dpr);
             ctx.fillStyle = 'white';
-            ctx.font = '48px Arial';
+            ctx.font = '80px Arial';
             ctx.clearRect(0, 0, this._textCanvasEl.width, this._textCanvasEl.height);
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -53,12 +54,13 @@ export class LyricsManager extends SceneBase {
         document.body.appendChild(this._textCanvasEl);
 
         this._parentObject.add(this._textPlane);
+        this.drawText('Hello');
     }
 
-    
+
     public update() {
     }
 
-    public _onParamsChanged(params: any): void {
+    public _onParamsChanged(): void {
     }
 }
