@@ -59,6 +59,7 @@ export class BuildingGenerator {
 
         // -----------------------
         var texture = Globals.textures.getTexture("building1");
+        texture.repeat.set(genParams.widthSegments, genParams.heightSegments);
         var mesh = new THREE.Mesh(
             geometry,
             new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false, map: texture })
@@ -112,9 +113,11 @@ export class BuildingGenerator {
             params.widthSegments, params.heightSegments, params.depthSegments
         );
 
+        var texture = Globals.textures.getTexture("building1");
+        texture.repeat.set(params.widthSegments, params.heightSegments);
         let mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: 0x0000ff, wireframe: false })
+            new THREE.MeshStandardMaterial({ color: 0x0000ff, wireframe: false, map: texture })
         );
 
         mesh.position.set(0, top.y + h / 2, 0);
