@@ -2,6 +2,8 @@ import * as THREE from 'three'
 
 var textureFiles = {
     'building1': 'building1.png',
+    'building2': 'building2.png',
+    'building3': 'building3.png',
 }
 
 class Textures {

@@ -11,14 +11,15 @@ export type BuildingParams = {
     heightSegments: number,
     depthSegments: number,
     twistFactor: Dist,
-    baseHeightRatio: Dist //  base height : max height
-    baseRatio: Dist // base width : max width
+    baseHeightRatio: Dist, //  base height : max height
+    baseRatio: Dist, // base width : max width
 };
 
 export class BuildingGenerator {
     constructor() {}
 
     private __worldPos = new THREE.Vector3();
+    private _palette = Globals.sceneParams.palette;
     private _calcDist(dist: Dist): number {
         return dist.offset + (Math.random() * dist.deviation);
     }
@@ -29,6 +30,8 @@ export class BuildingGenerator {
     }
 
     public buildBase(genParams: BuildingParams) {
+        this._palette = Globals.sceneParams.palette;
+
         var max_w = this._calcDist(genParams.maxWidth),
             max_h = this._calcDist(genParams.maxHeight),
             max_d = this._calcDist(genParams.maxDepth);
@@ -47,17 +50,18 @@ export class BuildingGenerator {
         );
 
         // debug ----------------
-        var max_geo = new THREE.BoxGeometry(
-            max_w, max_h, max_d,
-            genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
-        );
-
-        var debug_mesh = new THREE.Mesh(
-            max_geo,
-            new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true })
-        );
-
+        // var max_geo = new THREE.BoxGeometry(
+        //     max_w, max_h, max_d,
+        //     genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
+        // );
+        //
+        // var debug_mesh = new THREE.Mesh(
+        //     max_geo,
+        //     new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true })
+        // );
+        //
         // -----------------------
+
         var random = ['building1', 'building2', 'building3'];
         var randomTexture = random[Math.floor(Math.random() * random.length)];
         var texture = Globals.textures.getTexture(randomTexture);
@@ -66,11 +70,11 @@ export class BuildingGenerator {
         texture.wrapT = THREE.RepeatWrapping;
         var mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: 0x00ff00, wireframe: false, map: texture })
+            new THREE.MeshStandardMaterial({ color: this._palette!.buildingTint, wireframe: false, map: texture })
         );
 
         mesh.position.y = h / 2;
-        debug_mesh.position.y = max_h / 2;
+        // debug_mesh.position.y = max_h / 2;
 
         var SectionGenParams = {
             ...genParams,
@@ -121,7 +125,7 @@ export class BuildingGenerator {
         texture.repeat.set(params.widthSegments, params.heightSegments);
         let mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: 0x0000ff, wireframe: false, map: texture })
+            new THREE.MeshStandardMaterial({ color: this._palette?.buildingTint, wireframe: false, map: texture })
         );
 
         mesh.position.set(0, top.y + h / 2, 0);
@@ -172,7 +176,7 @@ export const p_TwistyTower = () => {
         widthSegments: 16,
         heightSegments: 16,
         depthSegments: 16,
-        twistFactor: { offset: 10, deviation: -15 },
+        twistFactor: { offset: 5, deviation: -5 },
         baseHeightRatio: { offset: 0.2, deviation: -0.1 },
         baseRatio: { offset: 2, deviation: 0 },
     } as BuildingParams;

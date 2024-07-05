@@ -16,12 +16,12 @@ export default {
             timestamp: 0,
             sceneParams: {
                 palette: {
-                    sky: "#fe06a5",
-                    fog: "#287493",
+                    sky: "#ffd43b",
+                    fog: "#6b57dc",
                     ambientLight: "#aaaaaa",
                     pointLight: "#ffffff",
                     plane: "#555555",
-                    buildingTint: "#999999",
+                    buildingTint: "#a9e3f4",
                 },
             } 
         },

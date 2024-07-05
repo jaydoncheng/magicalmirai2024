@@ -16,7 +16,7 @@ export default {
             timestamp: 0,
             sceneParams: {
                 palette: {
-                    sky: "#87CE00",
+                    sky: "#0f12d2",
                     fog: "#287493",
                     ambientLight: "#aaaaaa",
                     pointLight: "#ffffff",
