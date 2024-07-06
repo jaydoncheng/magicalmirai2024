@@ -15,7 +15,7 @@ export class Skybox extends SceneBase {
         super(_parentObject);
         this._scene = _scene;
 
-        this._geometry = new THREE.SphereGeometry(100, 32, 32);
+        this._geometry = new THREE.SphereGeometry(150, 32, 32);
         this._material = new THREE.ShaderMaterial({
             side: THREE.BackSide,
             uniforms: {
