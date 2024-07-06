@@ -1,14 +1,15 @@
-import { Player, ITextUnit } from 'textalive-app-api'
+import { Player, ITextUnit, PlayerOptions } from 'textalive-app-api'
 import Globals from '../core/Globals';
 
 export class PlayerManager {
     // TODO: Once loading/ready process is implemented in Globals.controls,
     // remove any lines that reference #loading and #controls
     public _player: Player;
-    private _playerOptions: any = {
+    private _playerOptions: PlayerOptions = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")!,
-        mediaBannerPosition: "bottom left"
+        mediaBannerPosition: "bottom left",
+        throttleInterval: 200,
     }
 
     private _keyframes = Globals.currentSong.keyframes;
@@ -58,7 +59,6 @@ export class PlayerManager {
             ...this._keyframes[this._currentKeyframeI].sceneParams
         }
         Globals.three!._onParamsChanged();
-
         this._update();
     }
     private _onSongChanged() {
