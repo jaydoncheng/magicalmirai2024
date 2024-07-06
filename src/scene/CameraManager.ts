@@ -103,7 +103,6 @@ export class CameraManager extends SceneBase {
         if (deltaTime > 0) {
             let t = deltaTime / 1000;
             var r = elapsedTime / 1000;
-            console.log("time: ", t, elapsedTime);
 
             this.swayShouldBeAt.setX(Math.sin(r) / 4);
             this.swayShouldBeAt.setY(Math.cos(r * 2) / 2 + 0.5);

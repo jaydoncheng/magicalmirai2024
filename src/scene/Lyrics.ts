@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SceneBase } from "./SceneBase";
 
-export class LyricsManager extends SceneBase {
+class LyricsManager extends SceneBase {
 
     private _textCanvasEl: HTMLCanvasElement;
     private _texture: THREE.Texture;

@@ -7,7 +7,6 @@ import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
-import { LyricsManager } from "./Lyrics";
 
 
 export class ThreeManager {
@@ -79,10 +78,6 @@ export class ThreeManager {
         var pos = this._camera.getCam().position.clone();
         console.log(pos, dir);
         buildings.populate(this._camera.getCam().position, pos.addScaledVector(dir, 20));
-
-        var lyrics = new LyricsManager(this._camera.getCamGlobal());
-        lyrics.initialize();
-        this._objMngs["lyrics"] = lyrics;
 
         const loader = new GLTFLoader();
         // this works, only on the actual page
