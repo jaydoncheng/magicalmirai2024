@@ -1,7 +1,7 @@
 import { PlayerManager } from '../player/PlayerManager';
 import { ThreeManager } from '../scene/ThreeManager';
 import { ControlsType } from './Controls';
-import SceneParams from './SceneParams';
+import SceneParams, { ISceneParams } from './SceneParams';
 import { ISong } from './ISong'
 import Songs from './songs'
 import Textures from './Textures'
@@ -21,6 +21,13 @@ export default {
     controls: null as ControlsType | null,
 
     sceneParams: SceneParams,
+    updateSceneParams: function (params: ISceneParams) {
+        this.sceneParams = { ...this.sceneParams, ...params };
+        const event = new CustomEvent('paramschanged', { detail: this.sceneParams })
+        console.log("paramschanged", this.sceneParams)
+        window.dispatchEvent(event)
+    },
+
     textures: Textures,
 }
 

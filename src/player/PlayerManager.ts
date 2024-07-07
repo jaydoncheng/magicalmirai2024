@@ -14,7 +14,7 @@ export class PlayerManager {
     }
 
     private _keyframes = Globals.currentSong.keyframes;
-    private _currentKeyframeI = 0;
+    private _curKeyframeIndex = 0;
 
     private _position = 0;
     private _updateTime = -1;
@@ -41,7 +41,6 @@ export class PlayerManager {
         });
 
         this._initPlayer();
-
         window.addEventListener("songchanged", () => {
             this._onSongChanged();
         });
@@ -51,7 +50,7 @@ export class PlayerManager {
         var player = (this._player = new Player(this._playerOptions));
         this._position = 0;
         this._updateTime = -1;
-        this._currentKeyframeI = 0;
+        this._curKeyframeIndex = 0;
         this._keyframes = Globals.currentSong.keyframes;
 
         player.addListener({
@@ -81,11 +80,7 @@ export class PlayerManager {
             },
         });
 
-        Globals.sceneParams = {
-            ...Globals.sceneParams,
-            ...this._keyframes[this._currentKeyframeI].sceneParams,
-        };
-        Globals.three!._onParamsChanged();
+        Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
         this._update();
     }
     private _onSongChanged() {
@@ -117,7 +112,7 @@ export class PlayerManager {
 
     public _reset() {
         this._keyframes = Globals.currentSong.keyframes;
-        this._currentKeyframeI = 0;
+        this._curKeyframeIndex = 0;
 
         this._position = 0;
         this._updateTime = -1;
@@ -127,7 +122,7 @@ export class PlayerManager {
     }
 
     private _prevWord: string = "";
-    private animate(now: any, unit: ITextUnit) {
+    private animateWord(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
             if (unit.startTime <= now && unit.endTime >= now) {
                 if (unit.text !== this._prevWord) {
@@ -138,16 +133,48 @@ export class PlayerManager {
         }
     }
 
+    private animateChar(now: any, unit: ITextUnit) {
+        if (unit.contains(now)) {
+            if (unit.startTime <= now && unit.endTime >= now) {
+                if (unit.text !== this._prevWord) {
+                    this._prevWord = unit.text;
+                    this._lyricsManager.handleWord(unit.text);
+                }
+            }
+        }
+    }
+
+    private animatePhrase(now: any, unit: ITextUnit) {
+        if (unit.contains(now)) {
+            this._lyricsManager.handlePhrase(unit.text);
+        }
+    }
+
+
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
 
         // animate gets called everytime a "unit" comes up in the song
         let w = this._player.video.firstWord;
-        this.animate = this.animate.bind(this);
-        while (w) {
-            w.animate = this.animate;
-            w = w.next;
+        this.animateWord = this.animateWord.bind(this);
+        this.animatePhrase = this.animatePhrase.bind(this);
+        this.animateChar = this.animateChar.bind(this);
+        // while (w) {
+        //     w.animate = this.animateWord;
+        //     w = w.next;
+        // }
+
+        let p = this._player.video.firstPhrase;
+        while (p) {
+            p.animate = this.animatePhrase;
+            p = p.next;
         }
+
+        // let c = this._player.video.firstChar;
+        // while (c) {
+        //     c.animate = this.animateChar;
+        //     c = c.next;
+        // }
     }
 
     private _onAppMediaChange() {
@@ -162,25 +189,24 @@ export class PlayerManager {
         this._player.requestStop();
     }
 
+    private _updateKeyframe(t : number) {
+        if (this._curKeyframeIndex < this._keyframes.length) {
+            if (t > this._keyframes[this._curKeyframeIndex].timestamp) {
+                Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
+                this._curKeyframeIndex++;
+            }
+        }
+
+    }
     private _update() {
         if (this._player && this._player.isPlaying && this._updateTime > 0) {
             var t = Date.now() - this._updateTime + this._position;
 
-            if (this._currentKeyframeI < this._keyframes.length) {
-                if (t > this._keyframes[this._currentKeyframeI].timestamp) {
-                    Globals.sceneParams = {
-                        ...Globals.sceneParams,
-                        ...this._keyframes[this._currentKeyframeI].sceneParams,
-                    };
-                    Globals.three!._onParamsChanged();
-                    this._currentKeyframeI++;
-                }
-            }
-            Globals.three!.update(t);
+            this._updateKeyframe(t);
+            Globals.three!.songUpdate(t);
         }
-        requestAnimationFrame(() => {
-            this._update();
-        });
+
+        requestAnimationFrame(() => { this._update(); });
     }
 
     private _onTimeUpdate(time: number) {

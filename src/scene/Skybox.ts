@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { SceneBase } from "./SceneBase";
 import Globals from "../core/Globals";
+import { ISceneParams } from "../core/SceneParams";
 
 export class Skybox extends SceneBase {
     private _skybox: THREE.Mesh;
@@ -32,10 +33,6 @@ export class Skybox extends SceneBase {
         this._palette = Globals.sceneParams.palette;
     }
 
-    private generateNoiseTexture() {
-        // implement later
-    }
-
     public initialize() {
         var fog = (this._fog = new THREE.Fog(
             new THREE.Color(this._palette!.fog),
@@ -56,11 +53,8 @@ export class Skybox extends SceneBase {
 
     public update() { }
 
-    public _onParamsChanged() {
-        console.log("skybox params changed");
-        this._palette = Globals.sceneParams.palette;
-        console.log(this._palette);
-        console.log(Globals.sceneParams);
+    public _onParamsChanged(details: ISceneParams) {
+        this._palette = details.palette;
         this._fog.color = new THREE.Color(this._palette!.fog);
 
         this._material.uniforms.topColor = {

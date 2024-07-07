@@ -73,7 +73,7 @@ class Controls {
                 return false;
             });
 
-        this.initDatGUI();
+        // this.initDatGUI();
     }
 
     // Any component which needs to be ready before the controls
@@ -124,41 +124,40 @@ class Controls {
         this._onStop.push(fnc);
     }
 
-    private _traverseObj(obj: any, folder: GUI = this._datGUI) {
-        for (var k in obj) {
-            var controller : GUIController | null = null;
-            if (typeof obj[k] === "function") {
-                // implement later maybe
-                continue;
-            } else if (typeof obj[k] === "string") {
-                if (obj[k].startsWith("#")) {
-                    controller = folder.addColor(obj, k);
-                } else {
-                    controller = folder.add(obj, k);
-                }
-            } else if (typeof obj[k] === "number") {
-                controller = folder.add(obj, k);
-            }
-
-            controller?.onFinishChange(() => {
-                console.log(Globals.sceneParams)
-                Globals.three?._onParamsChanged();
-            });
-
-            if (typeof obj[k] === "object" && obj[k] !== null) {
-                this._traverseObj(obj[k], folder.addFolder(k));
-            }
-        }
-    }
-
-    private initDatGUI() {
-        this._datGUI = new GUI();
-        this._datGUI.width = 300;
-        document.querySelector("#dg")!.appendChild(this._datGUI.domElement);
-
-        this._datGUI.remember(Globals.sceneParams);
-        this._traverseObj(Globals.sceneParams, this._datGUI);
-    }
+    // private _traverseObj(obj: any, folder: GUI = this._datGUI) {
+    //     for (var k in obj) {
+    //         var controller : GUIController | null = null;
+    //         if (typeof obj[k] === "function") {
+    //             // implement later maybe
+    //             continue;
+    //         } else if (typeof obj[k] === "string") {
+    //             if (obj[k].startsWith("#")) {
+    //                 controller = folder.addColor(obj, k);
+    //             } else {
+    //                 controller = folder.add(obj, k);
+    //             }
+    //         } else if (typeof obj[k] === "number") {
+    //             controller = folder.add(obj, k);
+    //         }
+    //
+    //         controller?.onFinishChange(() => {
+    //             console.log(Globals.sceneParams)
+    //         });
+    //
+    //         if (typeof obj[k] === "object" && obj[k] !== null) {
+    //             this._traverseObj(obj[k], folder.addFolder(k));
+    //         }
+    //     }
+    // }
+    //
+    // private initDatGUI() {
+    //     this._datGUI = new GUI();
+    //     this._datGUI.width = 300;
+    //     document.querySelector("#dg")!.appendChild(this._datGUI.domElement);
+    //
+    //     this._datGUI.remember(Globals.sceneParams);
+    //     this._traverseObj(Globals.sceneParams, this._datGUI);
+    // }
 }
 
 export type ControlsType = Controls;

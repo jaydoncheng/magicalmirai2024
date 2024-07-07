@@ -1,9 +1,7 @@
 // Code taken from repo textalive-app-dance
 import * as THREE from "three";
 import Globals from "../core/Globals";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
-import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
@@ -14,14 +12,15 @@ export class ThreeManager {
 
     private _renderer: THREE.WebGLRenderer;
     private _scene: THREE.Scene;
-    private _sceneBuilder: Buildings;
-    private _camera: CameraManager;
-    private stats: Stats;
-
     private _rootObj: THREE.Group;
-    private _objMngs: { [key: string]: SceneBase } = {};
 
-    private collisionPoint: THREE.Vector3;
+    // Scene Base Objects
+    public buildingsMng: Buildings;
+    public camMng: CameraManager;
+    public skyboxMng: Skybox;
+    public lyricsMng: LyricsPlacer;
+
+    private stats: Stats;
 
     constructor() {
         Globals.controls!.setReady("scene", false);
@@ -30,6 +29,8 @@ export class ThreeManager {
             antialias: true,
         });
 
+        this._renderer.shadowMap.enabled = true;
+        this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this._view.appendChild(this._renderer.domElement);
 
         const _init = this.initialize.bind(this);
@@ -38,6 +39,7 @@ export class ThreeManager {
         this.stats = new Stats();
         document.body.appendChild(this.stats.dom);
 
+        // TODO: fix this
         let interval = setInterval(() => {
             console.log("waiting for textures");
             if (Globals.textures!.isReady) {
@@ -52,14 +54,12 @@ export class ThreeManager {
         this._scene = new THREE.Scene();
         this._rootObj = new THREE.Group();
         this._scene.add(this._rootObj);
-        // ADD SCENE OBJECTS PARENTED TO ROOTOBJ
 
-        this._camera = new CameraManager(this._scene, this._renderer);
-        this._camera.initialize();
+        this.camMng = new CameraManager(this._scene, this._renderer);
+        this.camMng.initialize();
 
-        var skybox = new Skybox(this._camera.getCamGlobal(), this._scene);
+        var skybox = new Skybox(this.camMng.getCamGlobal(), this._scene);
         skybox.initialize();
-        this._objMngs["skybox"] = skybox;
 
         var plane = new THREE.Mesh(
             new THREE.PlaneGeometry(400, 400, 1, 1),
@@ -69,47 +69,14 @@ export class ThreeManager {
             }),
         );
         plane.receiveShadow = true;
-        this._camera.getCamGlobal().add(plane);
+        this.camMng.getCamGlobal().add(plane);
         plane.rotateX(Math.PI / 2);
         plane.position.set(0, -3, 0);
 
-        this._renderer.shadowMap.enabled = true;
-        this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        var buildings = (this._sceneBuilder = new Buildings(this._rootObj));
+        var buildings = this.buildingsMng = new Buildings(this._rootObj, this.camMng);
         buildings.initialize();
-        this._objMngs["buildings"] = buildings;
 
-        var dir = this._camera.getDirectVector();
-        var pos = this._camera.getCam().position.clone();
-        console.log(pos, dir);
-        this.collisionPoint = buildings.plotAndBuild(
-            this._camera.getCamGlobal().position,
-            100,
-            0,
-        );
-        console.log("DONE WITH FIRST BUILD");
-
-        var lyrics = new LyricsPlacer(this._rootObj, this._camera.getCamGlobal());
-        this._objMngs["lyrics"] = lyrics;
-
-        const loader = new GLTFLoader();
-        // this works, only on the actual page
-        loader.load(
-            "./scene.gltf",
-            (gltf) => {
-                gltf.scene.position.set(0, 0, 0);
-                this._scene.add(gltf.scene);
-            },
-            undefined,
-            (error) => {
-                console.error(error);
-            },
-        );
-        this.resize();
-
-        Globals.controls!.setReady("scene", true);
-        this._renderer.setAnimationLoop(this._update.bind(this));
+        this.lyricsMng = new LyricsPlacer(this._rootObj, this.camMng);
 
         var alight = new THREE.AmbientLight(0x404040);
         this._scene.add(alight);
@@ -117,55 +84,36 @@ export class ThreeManager {
         dlight.position.set(-5, 5, -5);
         dlight.castShadow = true;
         this._scene.add(dlight);
+
+        this.resize();
         Globals.controls?.onStop(() => {
             this.reset();
         });
+
+        Globals.controls!.setReady("scene", true);
+        this._renderer.setAnimationLoop(this._update.bind(this));
     }
 
     public resize() {
         this._renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    public placeLyrics(p: any) {
-        this._objMngs["lyrics"].placeLyrics(p);
-    }
-
-    public update(time: number) {
-        this._camera.songUpdate(time);
-        this._sceneBuilder.songUpdate(time);
+    public songUpdate(time: number) {
+        this.camMng.songUpdate(time);
+        this.buildingsMng.songUpdate(time);
     }
 
     public reset() {
-        this._objMngs["buildings"].setKeyframeIndex(1);
-        this.collisionPoint = this._objMngs["buildings"].plotAndBuild(
-            new THREE.Vector3(0, 0, 0),
-            100,
-            0,
-        );
+        this.buildingsMng.setKeyframeIndex(1);
     }
 
     public _update() {
-        let cam = this._camera.getCam();
+        let cam = this.camMng.getCam();
 
         this.stats.update();
-
-        this._camera.update();
-
-        if ( this._camera.getCamGlobal().position.distanceTo(this.collisionPoint) < 200 ) {
-            this.collisionPoint = this._objMngs["buildings"].plotAndBuild(
-                this.collisionPoint,
-                60,
-                0,
-            );
-        }
+        this.camMng.update();
+        this.buildingsMng.update();
 
         this._renderer.render(this._scene, cam);
-    }
-
-    // params currently kinda useless
-    public _onParamsChanged() {
-        for (let objMng of Object.values(this._objMngs)) {
-            objMng._onParamsChanged();
-        }
     }
 }

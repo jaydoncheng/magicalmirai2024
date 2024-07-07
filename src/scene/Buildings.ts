@@ -6,27 +6,51 @@ import {
 } from "./Building";
 import { SceneBase } from "./SceneBase";
 import Globals from "../core/Globals";
+import { CameraManager } from "./CameraManager";
 
 export class Buildings extends SceneBase {
     private buildingGroups: THREE.Group[] = [];
     private _buildingGenerator: BuildingGenerator;
     private buildingTypes: BuildingParams[] = [];
 
-    constructor(_parentObject: THREE.Object3D) {
+    private _camMng: CameraManager;
+    private collisionPoint: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+
+    constructor(_parentObject: THREE.Object3D, _camMng: CameraManager) {
         super(_parentObject);
         this._buildingGenerator = new BuildingGenerator();
+        this._camMng = _camMng;
     }
 
     public initialize() {
         this.buildingTypes = []; // TODO: double check if old objects are being properly disposed
         this.buildingTypes.push(p_TwistyTower());
 
+        var dir = this._camMng.getDirection();
+        var pos = this._camMng.getCam().position.clone();
+        console.log("initializing buildings");
+        console.log(pos, dir);
+        this.collisionPoint = this.plotAndBuild(
+            this._camMng.getCamGlobal().position,
+            100,
+            0,
+        );
+        console.log("DONE WITH FIRST BUILD");
+
         Globals.controls!.onStop(() => {
             this.reset();
         });
     }
 
-    public update() { }
+    public update() { 
+        if (this._camMng.getCamGlobal().position.distanceTo(this.collisionPoint) < 200) {
+            this.collisionPoint = this.plotAndBuild(
+                this.collisionPoint,
+                60,
+                0,
+            );
+        }
+    }
 
     private keyframeIndex = 1;
 
@@ -107,11 +131,7 @@ export class Buildings extends SceneBase {
 
     public _onParamsChanged() { }
 
-    private __direction = new THREE.Vector3();
-    private __dirNormal = new THREE.Vector3();
-
     private lastKnownDirection = new THREE.Vector3(0, 0, 1);
-
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
         console.log("populate func");
         console.log(from);
@@ -175,21 +195,10 @@ export class Buildings extends SceneBase {
         buildingGroup.position.copy(from);
         buildingGroup.lookAt(to);
 
-        var center = new THREE.Vector3().copy(from);
-
         this.buildingGroups.push(buildingGroup);
         this._parentObject.add(buildingGroup);
 
         this.lastKnownDirection = direction;
-    }
-
-    public animate(building: BuildingGenerator) {
-        // if (building.buildingBox.scale.y <= building.scale.y - 1) {
-        //     console.log("animating");
-        //
-        //     building.popup();
-        //     requestAnimationFrame(() => this.animate(building));
-        // }
     }
 
     public deleteBlock() {
@@ -215,7 +224,6 @@ export class Buildings extends SceneBase {
     }
 
     private elapsedTime = 0;
-
     public songUpdate(time: number) {
         this.elapsedTime = time;
         this.deleteBlock();
@@ -230,5 +238,10 @@ export class Buildings extends SceneBase {
         for (let i = 0; i < this.buildingGroups.length; i++) {
             this.purge(this.buildingGroups[i]);
         }
+        this.collisionPoint = this.plotAndBuild(
+            new THREE.Vector3(0, 0, 0),
+            100,
+            0,
+        );
     }
 }

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { SceneBase } from "./SceneBase";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Globals from "../core/Globals";
+import { ISceneParams } from "../core/SceneParams";
 
 export class CameraManager extends SceneBase {
     private _camera: THREE.Camera;
@@ -13,6 +14,7 @@ export class CameraManager extends SceneBase {
 
     private shouldBeAt: THREE.Vector3;
     private swayShouldBeAt: THREE.Vector3;
+    private targetShouldBeAt: THREE.Vector3;
 
     private direction: THREE.Vector3;
 
@@ -37,6 +39,7 @@ export class CameraManager extends SceneBase {
 
         this.shouldBeAt = new THREE.Vector3(0, 0, 0);
         this.swayShouldBeAt = new THREE.Vector3(0, 10, 0);
+        this.targetShouldBeAt = new THREE.Vector3(0, 10, 0);
         this.direction = new THREE.Vector3();
         const { x, y, z } = Globals.sceneParams.camera?.direction!;
         this.direction.set(x!, y!, z!);
@@ -57,7 +60,6 @@ export class CameraManager extends SceneBase {
         // this._controls.enablePan = false;
 
         this._controls.target = this.cameraTarget;
-        this._controls.update;
         this._camera.copy(this.fakeCam);
 
         Globals.controls!.onStop(() => {
@@ -65,40 +67,18 @@ export class CameraManager extends SceneBase {
         });
     }
 
-    public add(child) {
-        this.camGlobalGroup.add(child);
-    }
-
-    public setDirection(direction) {
-        this.direction.setX(direction.x);
-        this.direction.setY(direction.y);
-        this.direction.setZ(direction.z);
-        this.direction.normalize();
-    }
-
-    public getDirectVector() {
-        return this.direction;
-    }
-
-    public getCam() {
-        return this._camera;
-    }
-
-    public getCamGlobal() {
-        return this.camGlobalGroup;
-    }
-
     public reset() {
         this.shouldBeAt.set(0, 0, 0);
     }
 
-    public getCamSubParent() {
-        return this.camLocalGroup;
-    }
-
-    private songClock = new THREE.Clock();
+    setTarget(target : THREE.Vector3) { this.targetShouldBeAt.copy(target); }
+    getDirection() { return this.direction; }
+    getCam() { return this._camera; }
+    getCamGlobal() { return this.camGlobalGroup; }
+    getCamSubParent() { return this.camLocalGroup; }
 
     private _prevTime = 0;
+    private __direction = new THREE.Vector3();
     public songUpdate(elapsedTime: number) {
         let deltaTime = elapsedTime - this._prevTime;
         if (deltaTime > 0) {
@@ -108,11 +88,9 @@ export class CameraManager extends SceneBase {
             this.swayShouldBeAt.setX(Math.sin(r) / 4);
             this.swayShouldBeAt.setY(25 + (Math.cos(r * 2) / 2 + 0.5));
 
-            const { x, y, z } = Globals.sceneParams.camera?.direction!;
-            this.direction.set(x!, y!, z!).normalize();
-
+            this.__direction.copy(this.direction);
             this.shouldBeAt.add(
-                this.direction.multiplyScalar(
+                this.__direction.multiplyScalar(
                     t * Globals.sceneParams.camera?.relativeSpeed * 3,
                 ),
             );
@@ -121,13 +99,13 @@ export class CameraManager extends SceneBase {
     }
 
     private updateClock = new THREE.Clock();
-
     public update() {
         let deltaTime = this.updateClock.getDelta();
         this.camGlobalGroup.position.lerp(this.shouldBeAt, deltaTime * 10);
         this.camLocalGroup.position.lerp(this.swayShouldBeAt, deltaTime * 10);
+        this.cameraTarget.lerp(this.targetShouldBeAt, deltaTime * 10);
 
-        this._controls.update;
+        this._controls.update();
         this._camera.copy(this.fakeCam);
 
         document.querySelector("#debug")!.innerHTML =
@@ -136,7 +114,9 @@ export class CameraManager extends SceneBase {
             `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
     }
 
-    public _onParamsChanged() {
-        console.log("camera params changed");
+    public _onParamsChanged(details : ISceneParams) {
+        console.log("params changed in camera");
+        const { x, y, z } = details.camera?.direction!;
+        this.direction.set(x!, y!, z!).normalize();
     }
 }
