@@ -9,7 +9,6 @@ import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
 import { LyricsManager } from "./Lyrics";
 
-
 export class ThreeManager {
     private _view: HTMLElement;
 
@@ -19,8 +18,11 @@ export class ThreeManager {
     private _camera: CameraManager;
     private stats: Stats;
 
-    private _rootObj : THREE.Group;
-    private _objMngs : { [key: string] : SceneBase } = {};
+    private _rootObj: THREE.Group;
+    private _objMngs: { [key: string]: SceneBase } = {};
+
+    private collisionPoint: THREE.Vector3;
+
     constructor() {
         Globals.controls!.setReady("scene", false);
         this._view = document.querySelector("#view")!;
@@ -29,7 +31,6 @@ export class ThreeManager {
         });
 
         this._view.appendChild(this._renderer.domElement);
-
 
         const _init = this.initialize.bind(this);
         window.addEventListener("songchanged", _init);
@@ -55,30 +56,39 @@ export class ThreeManager {
 
         this._camera = new CameraManager(this._scene, this._renderer);
         this._camera.initialize();
-        
+
         var skybox = new Skybox(this._camera.getCamGlobal(), this._scene);
         skybox.initialize();
         this._objMngs["skybox"] = skybox;
 
         var plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(300, 300, 1, 1),
-            new THREE.MeshStandardMaterial({ color: 0x333333, side: THREE.DoubleSide }),
+            new THREE.PlaneGeometry(400, 400, 1, 1),
+            new THREE.MeshStandardMaterial({
+                color: 0x333333,
+                side: THREE.DoubleSide,
+            }),
         );
-        // this._camera.getCamParent().add(plane);
+        plane.receiveShadow = true;
+        this._camera.getCamGlobal().add(plane);
         plane.rotateX(Math.PI / 2);
         plane.position.set(0, -3, 0);
 
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        var buildings = this._sceneBuilder = new Buildings(this._rootObj);
+        var buildings = (this._sceneBuilder = new Buildings(this._rootObj));
         buildings.initialize();
         this._objMngs["buildings"] = buildings;
 
         var dir = this._camera.getDirectVector();
         var pos = this._camera.getCam().position.clone();
         console.log(pos, dir);
-        buildings.populate(this._camera.getCam().position, pos.addScaledVector(dir, 20));
+        this.collisionPoint = buildings.plotAndBuild(
+            this._camera.getCamGlobal().position,
+            100,
+            0,
+        );
+        console.log("DONE WITH FIRST BUILD");
 
         var lyrics = new LyricsManager(this._camera.getCamGlobal());
         lyrics.initialize();
@@ -104,9 +114,13 @@ export class ThreeManager {
 
         var alight = new THREE.AmbientLight(0x404040);
         this._scene.add(alight);
-        var plight = new THREE.PointLight(0xffffff, 1, 100);
-        plight.position.set(0, 10, 0);
-        this._scene.add(plight);
+        var dlight = new THREE.DirectionalLight(0xffffff, 0.75);
+        dlight.position.set(-5, 5, -5);
+        dlight.castShadow = true;
+        this._scene.add(dlight);
+        Globals.controls?.onStop(() => {
+            this.reset();
+        });
     }
 
     public resize() {
@@ -115,6 +129,16 @@ export class ThreeManager {
 
     public update(time: number) {
         this._camera.songUpdate(time);
+        this._sceneBuilder.songUpdate(time);
+    }
+
+    public reset() {
+        this._objMngs["buildings"].setKeyframeIndex(1);
+        this.collisionPoint = this._objMngs["buildings"].plotAndBuild(
+            new THREE.Vector3(0, 0, 0),
+            100,
+            0,
+        );
     }
 
     public _update() {
@@ -123,6 +147,15 @@ export class ThreeManager {
         this.stats.update();
 
         this._camera.update();
+
+        if ( this._camera.getCamGlobal().position.distanceTo(this.collisionPoint) < 200 ) {
+            this.collisionPoint = this._objMngs["buildings"].plotAndBuild(
+                this.collisionPoint,
+                60,
+                0,
+            );
+        }
+
         this._renderer.render(this._scene, cam);
     }
 

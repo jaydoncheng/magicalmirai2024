@@ -9,12 +9,17 @@ export default {
         chordId: 2727637,
         repetitiveSegmentId: 2824328,
         lyricId: 59417,
-        lyricDiffId: 13964
+        lyricDiffId: 13964,
     },
     keyframes: [
         {
             timestamp: 0,
             sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 2,
+                },
                 palette: {
                     sky: "#99e9f2",
                     fog: "#f783ac",
@@ -23,7 +28,133 @@ export default {
                     plane: "#555555",
                     buildingTint: "#ffd43b",
                 },
-            }
+            },
         },
-    ]
+        {
+            timestamp: 15000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 1, y: 0, z: 1 },
+                    relativeSpeed: 2,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 25000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 10,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 40000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: -1, y: 0, z: 1 },
+                    relativeSpeed: 5,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 55000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 15,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 70000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 1, y: 0, z: 1 },
+                    relativeSpeed: 2,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 80000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 2,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+        {
+            timestamp: 1000000,
+            sceneParams: {
+                camera: {
+                    sway: () => { },
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 2,
+                },
+                palette: {
+                    sky: "#99e9f2",
+                    fog: "#f783ac",
+                    ambientLight: "#aaaaaa",
+                    pointLight: "#ffffff",
+                    plane: "#555555",
+                    buildingTint: "#ffd43b",
+                },
+            },
+        },
+    ],
 } as ISong;

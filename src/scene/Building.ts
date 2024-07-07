@@ -70,8 +70,11 @@ export class BuildingGenerator {
         texture.wrapT = THREE.RepeatWrapping;
         var mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: this._palette!.buildingTint, wireframe: false, map: texture })
+            // new THREE.MeshStandardMaterial({ color: this._palette!.buildingTint, wireframe: false, map: texture })
+            new THREE.MeshStandardMaterial({ color: this._palette!.buildingTint, wireframe: false})
         );
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
 
         mesh.position.y = h / 2;
         // debug_mesh.position.y = max_h / 2;
@@ -125,8 +128,11 @@ export class BuildingGenerator {
         texture.repeat.set(params.widthSegments, params.heightSegments);
         let mesh = new THREE.Mesh(
             geometry,
-            new THREE.MeshStandardMaterial({ color: this._palette?.buildingTint, wireframe: false, map: texture })
+            new THREE.MeshStandardMaterial({ color: this._palette?.buildingTint, wireframe: false})
+            // new THREE.MeshStandardMaterial({ color: this._palette?.buildingTint, wireframe: false, map: texture })
         );
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
 
         mesh.position.set(0, top.y + h / 2, 0);
 
