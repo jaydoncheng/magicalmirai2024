@@ -118,42 +118,23 @@ export class PlayerManager {
     private animateChar(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
             if (unit.startTime <= now && unit.endTime >= now) {
-                if (unit.text !== this._prevWord) {
-                    this._prevWord = unit.text;
-                    this._lyricsManager.handleChar(unit.text);
-                }
+                this._lyricsManager.handleChar(unit.text);
             }
         }
     }
 
-    private animatePhrase(now: any, unit: ITextUnit) {
-        if (unit.contains(now)) {
-            this._lyricsManager.handlePhrase(unit.text);
-        }
-    }
-
-
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
 
-        // animate gets called everytime a "unit" comes up in the song
         let w = this.player.video.firstWord;
         let c = this.player.video.firstChar;
-        // let p = this.player.video.firstPhrase;
-        //
         this.animateWord = this.animateWord.bind(this);
-        // this.animatePhrase = this.animatePhrase.bind(this);
         this.animateChar = this.animateChar.bind(this);
 
         while (w) {
             w.animate = this.animateWord;
             w = w.next;
         }
-
-        // while (p) {
-        //     p.animate = this.animatePhrase;
-        //     p = p.next;
-        // }
 
         while (c) {
             c.animate = this.animateChar;

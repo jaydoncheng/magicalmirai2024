@@ -29,18 +29,32 @@ export class LyricsPlacer extends SceneBase {
         return this._p;
     }
 
+    private _u = new THREE.Vector3();
+    private _randomDirection(baseDir: THREE.Vector3, maxAngle: number) {
+        this._u.copy(baseDir);
+        this._u.normalize();
+
+        this._u.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * maxAngle - maxAngle / 2);
+        this._u.setY(Math.random() * 0.2 - 0.1);
+        this._u.normalize();
+
+        return this._u;
+    }
+
 
     private _pos = new THREE.Vector3();
+    private _rot = new THREE.Vector3();
     public shootRay(maxDist : number) : THREE.Intersection | null {
         this._ray.far = maxDist;
         this._ray.near = 0;
         
         this._camMng.getCamSubParent().getWorldPosition(this._pos);
-        this._pos.addScaledVector(this.__direction, 0.1);
+        this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 0.1);
+        this._camMng.getCam().getWorldDirection(this._rot);
 
-        var r = this._randomPointOnScreen();
-        this._ray.setFromCamera(r, this._camMng.getCam());
-        this._ray.ray.origin.copy(this._pos);
+        var dir = this._randomDirection(this._rot, Math.PI / 4);
+        this._ray.set(this._pos, dir);
+        console.log(this._pos, dir);
 
         var children = this._parentObject.children;
         // only keep Group objects
@@ -53,55 +67,39 @@ export class LyricsPlacer extends SceneBase {
             }
         }
 
-        return null
+        return this.shootRay(maxDist);
     }
 
     public initialize() {}
 
-    private _word : CharTexMapType = {};
+    private _placeWordAt : any;
+    private _wordMap : CharTexMapType = {};
     public placeWord(word: CharTexMapType) {
         var hit : THREE.Intersection | null = null;
         hit = this.shootRay(100);
-
-        var pos = hit.point;
-        var norm = hit.face!.normal;
-        var parent_rot = hit.object.parent.rotation;
+        this._placeWordAt = hit;
+        this._wordMap = word;
     }
 
+    private _scale = 4;
     public placeChar(c: CharTex) {
+        var pos = this._placeWordAt.point;
+        var norm = this._placeWordAt.face!.normal;
+        var parent_rot = this._placeWordAt.object.parent.rotation;
+        var i = this._wordMap[c._char]._index;
 
+        c._plane.position.copy(pos);
+        c._plane.rotateY(parent_rot.y);
+        c._plane.position.addScaledVector(norm, 0.1);
+        c._plane.position.setY(c._plane.position.y - i * (this._scale + 0.5));
+        var l = new THREE.Vector3();
+        l.addVectors(c._plane.position, norm);
+        c._plane.scale.set(this._scale, this._scale, this._scale);
+        c._plane.lookAt(l);
+        this._parentObject.add(c._plane);
     }
 
-    public placeLyrics(p: CharTexMapType) {
-        console.log("placing lyrics");
-        console.log(p);
-
-        var hit : THREE.Intersection | null = null;
-        hit = this.shootRay(100);
-
-        var pos = hit.point;
-        var norm = hit.face!.normal;
-        var parent_rot = hit.object.parent.rotation;
-
-        var keys = Object.keys(p);
-        for (var i = 0; i < keys.length; i++) {
-            var c : CharTex = p[keys[i]];
-
-            c._plane.position.copy(pos);
-            c._plane.position.addScaledVector(norm, 0.1);
-            c._plane.position.setY(c._plane.position.y - i * 5.5);
-            var l = new THREE.Vector3();
-            l.addVectors(c._plane.position, norm);
-            c._plane.scale.set(5, 5, 5);
-            c._plane.lookAt(l);
-            c._plane.rotateY(parent_rot.y);
-            this._parentObject.add(c._plane);
-            console.log("placed", c, pos, norm, hit);
-        }
-    }
-
-    public update() {
-    }
+    public update() {}
 
     public _onParamsChanged(details : ISceneParams) {
         const { x, y, z } = Globals.sceneParams.camera?.direction!;

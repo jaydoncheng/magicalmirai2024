@@ -4,34 +4,32 @@ import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
 
-    private _curWord: string = "";
     constructor() {
     }
 
-    private _prevPhrase: string = "";
-    public handlePhrase(phrase: string) {
-
-        if (phrase === this._prevPhrase) return;
-        console.log("handlePhrase", phrase);
-        this._prevPhrase = phrase;
-    }
-
     public handleChar(c : string) {
-        var l : CharTexMapType = {};
-        l[c] = this._charTexMap.getCharTex(c);
-        return l;
+        console.log(c);
+        var a = this._charTexMap.getCharTex(c);
+
+        Globals.three?.lyricsMng.placeChar(a);
     }
     
+    private _prevWord: string = "";
     public handleWord(word: string) {
-        var c = word.split('');
+        if (this._prevWord === word) {
+            return;
+        }
 
+        var c = word.split('');
         var l : CharTexMapType = {};
         for (var i = 0; i < c.length; i++) {
             l[c[i]] = this._charTexMap.getCharTex(c[i]);
+            l[c[i]]._index = i;
+            console.log(l[c[i]]._char + " " + l[c[i]]._index);
         }
 
-        Globals.three?.lyricsMng.placeLyrics(l);
-        return l;
+        Globals.three?.lyricsMng.placeWord(l);
+        this._prevWord = word;
     }
 
 }

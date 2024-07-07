@@ -6,8 +6,10 @@ export class CharTex {
     public _texture: THREE.Texture;
     public _plane: THREE.Mesh;
     public _char: string
-    constructor(char: string) {
+    public _index: number = 0;
+    constructor(char: string, _index: number = 0) {
         this._char = char;
+        this._index = _index;
 
         this._initCanvas();
         this._drawChar();
