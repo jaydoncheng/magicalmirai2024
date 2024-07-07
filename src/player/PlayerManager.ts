@@ -10,7 +10,7 @@ export class PlayerManager {
         mediaElement: document.querySelector("#media")!,
         mediaBannerPosition: "bottom left",
         throttleInterval: 200,
-    };
+    }
 
     private _keyframes = Globals.currentSong.keyframes;
     private _currentKeyframeI = 0;
