@@ -94,15 +94,24 @@ export class PlayerManager {
     }
 
     public _reset() {
+        this._keyframes = Globals.currentSong.keyframes;
+        this._currentKeyframeI = 0;
+
+        this._position = 0;
+        this._updateTime = -1;
+
         this._player.requestMediaSeek(0);
         this._player.requestStop();
     }
 
+    private _prevWord: string = "";
     private animate(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
             if (unit.startTime <= now && unit.endTime >= now) {
-                // console.log(unit.text);
-                this._lyricsManager.handleWord(unit.text);
+                if (unit.text !== this._prevWord) {
+                    this._prevWord = unit.text;
+                    this._lyricsManager.handleWord(unit.text);
+                }
             }
         }
     }
@@ -112,6 +121,7 @@ export class PlayerManager {
 
         // animate gets called everytime a "unit" comes up in the song
         let w = this._player.video.firstWord;
+        this.animate = this.animate.bind(this);
         while (w) {
             w.animate = this.animate;
             w = w.next;

@@ -4,15 +4,16 @@ export class CharTex {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
     public _texture: THREE.Texture;
+    public _plane: THREE.Mesh;
     public _char: string
     constructor(char: string) {
         this._char = char;
 
         this._initCanvas();
-        this._initTexture();
-
         this._drawChar();
 
+        this._initTexture();
+        this._initPlane();
     }
 
     private _drawChar() {
@@ -25,7 +26,7 @@ export class CharTex {
         ctx.fillText(this._char, this._canvas.width / 2, this._canvas.height / 2);
     }
 
-    private _initCanvas(size: number = 1) {
+    private _initCanvas(size: number = 80) {
         this._canvas = document.createElement('canvas')
         this._canvas.width = this._canvas.height = size;
         var ctx = this._canvas.getContext('2d');
@@ -42,13 +43,20 @@ export class CharTex {
         texture.needsUpdate = true;
     }
 
+    private _initPlane() {
+        var geometry = new THREE.PlaneGeometry(1, 1);
+        var material = new THREE.MeshBasicMaterial({ map: this._texture, transparent: true, side: THREE.DoubleSide });
+        this._plane = new THREE.Mesh(geometry, material);
+    }
+
     public dispose() {
         // TODO: implement
     }
 }
 
+export type CharTexMapType = { [key: string]: CharTex };
 export class CharTexMap {
-    private _charTexMap: { [key: string]: CharTex } = {};
+    private _charTexMap: CharTexMapType = {};
     constructor() { }
 
     public hasChar(char: string) {

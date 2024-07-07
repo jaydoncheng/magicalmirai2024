@@ -1,4 +1,5 @@
-import { CharTexMap } from "./CharTex";
+import Globals from "../core/Globals";
+import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
 
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
@@ -7,11 +8,12 @@ export class LyricsManager {
     public handleWord(word: string) {
         var c = word.split('');
 
-        var l = {};
+        var l : CharTexMapType = {};
         for (var i = 0; i < c.length; i++) {
             l[c[i]] = this._charTexMap.getCharTex(c[i]);
         }
 
+        Globals.three?.placeLyrics(l);
         return l;
     }
 

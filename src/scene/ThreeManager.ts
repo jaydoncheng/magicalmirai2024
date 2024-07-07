@@ -7,7 +7,7 @@ import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
-
+import { LyricsPlacer } from "./Lyrics";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -79,6 +79,9 @@ export class ThreeManager {
         console.log(pos, dir);
         buildings.populate(this._camera.getCam().position, pos.addScaledVector(dir, 20));
 
+        var lyrics = new LyricsPlacer(this._rootObj, this._camera.getCamGlobal());
+        this._objMngs["lyrics"] = lyrics;
+
         const loader = new GLTFLoader();
         // this works, only on the actual page
         loader.load(
@@ -106,6 +109,10 @@ export class ThreeManager {
 
     public resize() {
         this._renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    public placeLyrics(p: any) {
+        this._objMngs["lyrics"].placeLyrics(p);
     }
 
     public update(time: number) {
