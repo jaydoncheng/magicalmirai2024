@@ -32,11 +32,11 @@ export class CameraManager extends SceneBase {
             1000,
         );
 
-        this._camera.position.set(0, 1, -0.001);
-        this.cameraTarget = new THREE.Vector3(0, 1, 0);
+        this._camera.position.set(0, 10, -0.001);
+        this.cameraTarget = new THREE.Vector3(0, 10, 0);
 
         this.shouldBeAt = new THREE.Vector3(0, 0, 0);
-        this.swayShouldBeAt = new THREE.Vector3(0, 0, 0);
+        this.swayShouldBeAt = new THREE.Vector3(0, 10, 0);
         this.direction = new THREE.Vector3();
         const { x, y, z } = Globals.sceneParams.camera?.direction!;
         this.direction.set(x!, y!, z!);
@@ -69,10 +69,11 @@ export class CameraManager extends SceneBase {
         this.camGlobalGroup.add(child);
     }
 
-    public setDirection(direction: THREE.Vector3) {
+    public setDirection(direction) {
         this.direction.setX(direction.x);
         this.direction.setY(direction.y);
         this.direction.setZ(direction.z);
+        this.direction.normalize();
     }
 
     public getDirectVector() {
@@ -105,9 +106,11 @@ export class CameraManager extends SceneBase {
             var r = elapsedTime / 1000;
 
             this.swayShouldBeAt.setX(Math.sin(r) / 4);
-            this.swayShouldBeAt.setY(Math.cos(r * 2) / 2 + 0.5);
+            this.swayShouldBeAt.setY(25 + (Math.cos(r * 2) / 2 + 0.5));
 
-            this.setDirection(Globals.sceneParams.camera?.direction);
+            const { x, y, z } = Globals.sceneParams.camera?.direction!;
+            this.direction.set(x!, y!, z!).normalize();
+
             this.shouldBeAt.add(
                 this.direction.multiplyScalar(
                     t * Globals.sceneParams.camera?.relativeSpeed * 3,
@@ -133,5 +136,7 @@ export class CameraManager extends SceneBase {
             `x: ${this.shouldBeAt.x.toFixed(2)}, y: ${this.shouldBeAt.y.toFixed(2)}, z: ${this.shouldBeAt.z.toFixed(2)}`;
     }
 
-    public _onParamsChanged() { }
+    public _onParamsChanged() {
+        console.log("camera params changed");
+    }
 }

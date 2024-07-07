@@ -30,9 +30,15 @@ export class PlayerManager {
             throw new Error("media element not found");
         }
 
-        Globals.controls!.onPlay(() => { this._player.requestPlay(); });
-        Globals.controls!.onPause(() => { this._player.requestPause(); });
-        Globals.controls!.onStop(() => { this._reset() });
+        Globals.controls!.onPlay(() => {
+            this._player.requestPlay();
+        });
+        Globals.controls!.onPause(() => {
+            this._player.requestPause();
+        });
+        Globals.controls!.onStop(() => {
+            this._reset();
+        });
 
         this._initPlayer();
 
@@ -42,27 +48,43 @@ export class PlayerManager {
     }
 
     private _initPlayer() {
-        var player = this._player = new Player(this._playerOptions);
+        var player = (this._player = new Player(this._playerOptions));
         this._position = 0;
         this._updateTime = -1;
         this._currentKeyframeI = 0;
         this._keyframes = Globals.currentSong.keyframes;
 
         player.addListener({
-            onAppReady: (app) => { this._onAppReady(app) },
-            onAppMediaChange: () => { this._onAppMediaChange() },
-            onVideoReady: (v) => { this._onVideoReady(v) },
-            onTimerReady: () => { this._onTimerReady() },
-            onThrottledTimeUpdate: (time) => { this._onTimeUpdate(time) },
-            onPlay: () => { this._onPlay() },
-            onPause() { console.log("onPause"); },
-            onStop: () => { this._onStop() },
+            onAppReady: (app) => {
+                this._onAppReady(app);
+            },
+            onAppMediaChange: () => {
+                this._onAppMediaChange();
+            },
+            onVideoReady: (v) => {
+                this._onVideoReady(v);
+            },
+            onTimerReady: () => {
+                this._onTimerReady();
+            },
+            onThrottledTimeUpdate: (time) => {
+                this._onTimeUpdate(time);
+            },
+            onPlay: () => {
+                this._onPlay();
+            },
+            onPause() {
+                console.log("onPause");
+            },
+            onStop: () => {
+                this._onStop();
+            },
         });
 
         Globals.sceneParams = {
             ...Globals.sceneParams,
-            ...this._keyframes[this._currentKeyframeI].sceneParams
-        }
+            ...this._keyframes[this._currentKeyframeI].sceneParams,
+        };
         Globals.three!._onParamsChanged();
         this._update();
     }
@@ -79,17 +101,17 @@ export class PlayerManager {
         if (!app.songUrl) {
             this._player.createFromSongUrl(Globals.currentSong.songUrl, {
                 video: Globals.currentSong.video,
-            })
+            });
         }
     }
 
     private _onPlay() {
-        console.log("play")
+        console.log("play");
         this._updateTime = Date.now();
     }
 
     private _onStop() {
-        console.log("stop")
+        console.log("stop");
         this._reset();
     }
 
@@ -136,27 +158,29 @@ export class PlayerManager {
 
     private _onTimerReady() {
         console.log("onTimerReady");
-        Globals.controls!.setReady('player', true);
+        Globals.controls!.setReady("player", true);
         this._player.requestStop();
     }
 
     private _update() {
         if (this._player && this._player.isPlaying && this._updateTime > 0) {
-            var t = (Date.now() - this._updateTime) + this._position;
+            var t = Date.now() - this._updateTime + this._position;
 
             if (this._currentKeyframeI < this._keyframes.length) {
                 if (t > this._keyframes[this._currentKeyframeI].timestamp) {
                     Globals.sceneParams = {
                         ...Globals.sceneParams,
-                        ...this._keyframes[this._currentKeyframeI].sceneParams
-                    }
+                        ...this._keyframes[this._currentKeyframeI].sceneParams,
+                    };
                     Globals.three!._onParamsChanged();
                     this._currentKeyframeI++;
                 }
             }
             Globals.three!.update(t);
         }
-        requestAnimationFrame(() => { this._update() });
+        requestAnimationFrame(() => {
+            this._update();
+        });
     }
 
     private _onTimeUpdate(time: number) {
