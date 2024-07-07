@@ -1,5 +1,6 @@
-import { Player, ITextUnit, PlayerOptions } from "textalive-app-api";
-import Globals from "../core/Globals";
+import { Player, ITextUnit, PlayerOptions } from 'textalive-app-api'
+import Globals from '../core/Globals';
+import { LyricsManager } from './LyricsManager';
 
 export class PlayerManager {
     // TODO: Once loading/ready process is implemented in Globals.controls,
@@ -18,7 +19,11 @@ export class PlayerManager {
     private _position = 0;
     private _updateTime = -1;
 
+    private _lyricsManager: LyricsManager;
+
     constructor() {
+        this._lyricsManager = new LyricsManager();
+
         Globals.controls!.setReady("player", false);
         const media: HTMLElement | null = document.querySelector("#media");
         if (media === null) {
@@ -121,21 +126,26 @@ export class PlayerManager {
         this._player.requestStop();
     }
 
+    private _prevWord: string = "";
+    private animate(now: any, unit: ITextUnit) {
+        if (unit.contains(now)) {
+            if (unit.startTime <= now && unit.endTime >= now) {
+                if (unit.text !== this._prevWord) {
+                    this._prevWord = unit.text;
+                    this._lyricsManager.handleWord(unit.text);
+                }
+            }
+        }
+    }
+
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
 
         // animate gets called everytime a "unit" comes up in the song
-        const animate = function(now: any, unit: ITextUnit) {
-            if (unit.contains(now)) {
-                if (unit.startTime <= now && unit.endTime >= now) {
-                    console.log(unit.text);
-                    // Globals.three!.drawText(unit.text)
-                }
-            }
-        };
         let w = this._player.video.firstWord;
+        this.animate = this.animate.bind(this);
         while (w) {
-            w.animate = animate;
+            w.animate = this.animate;
             w = w.next;
         }
     }

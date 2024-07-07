@@ -39,6 +39,14 @@ class Textures {
     public getTextures(): { [key: string]: THREE.Texture } {
         return this._textures
     }
+
+    public isTextureReady(key: string): boolean {
+        return this._textures[key] !== undefined
+    }
+
+    public setTexture(key: string, texture: THREE.Texture) {
+        this._textures[key] = texture
+    }
 }
 
 export default new Textures();

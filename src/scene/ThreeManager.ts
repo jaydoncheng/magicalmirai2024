@@ -7,7 +7,7 @@ import { SceneBase } from "./SceneBase";
 import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
-import { LyricsManager } from "./Lyrics";
+import { LyricsPlacer } from "./Lyrics";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -90,8 +90,7 @@ export class ThreeManager {
         );
         console.log("DONE WITH FIRST BUILD");
 
-        var lyrics = new LyricsManager(this._camera.getCamGlobal());
-        lyrics.initialize();
+        var lyrics = new LyricsPlacer(this._rootObj, this._camera.getCamGlobal());
         this._objMngs["lyrics"] = lyrics;
 
         const loader = new GLTFLoader();
@@ -125,6 +124,10 @@ export class ThreeManager {
 
     public resize() {
         this._renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    public placeLyrics(p: any) {
+        this._objMngs["lyrics"].placeLyrics(p);
     }
 
     public update(time: number) {
