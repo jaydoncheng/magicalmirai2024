@@ -1,11 +1,10 @@
 import Globals from "../core/Globals";
-import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
+import { CharTexMap, CharTexMapType } from "./CharTex";
 
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
 
-    constructor() {
-    }
+    constructor() {}
 
     public handleChar(c : string) {
         console.log(c);
