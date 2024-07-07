@@ -1,5 +1,4 @@
 import Globals from "./Globals";
-import { GUI, GUIController } from "dat.gui";
 
 class Controls {
     public playBtn: HTMLElement;
@@ -9,13 +8,10 @@ class Controls {
     public loadingEl: HTMLElement;
     public controlsEl: HTMLElement;
 
-    private _onPlay: Function[] = [];
-    private _onPause: Function[] = [];
-    private _onStop: Function[] = [];
+    private _onPlayFncs: Function[] = [];
+    private _onPauseFncs: Function[] = [];
+    private _onStopFncs: Function[] = [];
     private _whoisReady = {};
-
-    private _datGUI: GUI;
-    private _datGUIControls: { [key: string]: GUIController } = {};
 
     constructor() {
         var playBtn = (this.playBtn = document.querySelector("#bt_play")!);
@@ -47,15 +43,15 @@ class Controls {
 
         playBtn.addEventListener(
             "click",
-            handleBtn(this._onPlay, () => this.togglePlayPause()),
+            handleBtn(this._onPlayFncs, () => this.togglePlayPause()),
         );
         pauseBtn.addEventListener(
             "click",
-            handleBtn(this._onPause, () => this.togglePlayPause()),
+            handleBtn(this._onPauseFncs, () => this.togglePlayPause()),
         );
         stopBtn.addEventListener(
             "click",
-            handleBtn(this._onStop, () => this.reset()),
+            handleBtn(this._onStopFncs, () => this.reset()),
         );
 
         editorBtn.addEventListener("click", (e) => {
@@ -72,8 +68,6 @@ class Controls {
                 document.querySelector("#editor")!.classList.toggle("active");
                 return false;
             });
-
-        // this.initDatGUI();
     }
 
     // Any component which needs to be ready before the controls
@@ -102,62 +96,28 @@ class Controls {
         this.stopBtn.style.display = "inline";
     }
 
+    public setPlay() {
+        this.pauseBtn.style.display = "none";
+        this.playBtn.style.display = "inline";
+    }
+    
+    public setPause() {
+        this.playBtn.style.display = "none";
+        this.pauseBtn.style.display = "inline";
+    }
+
     public togglePlayPause() {
         if (this.playBtn.style.display === "none") {
-            this.pauseBtn.style.display = "none";
-            this.playBtn.style.display = "inline";
+            this.setPlay();
         } else {
-            this.playBtn.style.display = "none";
-            this.pauseBtn.style.display = "inline";
+            this.setPause();
         }
     }
 
-    public onPlay(fnc: Function) {
-        this._onPlay.push(fnc);
-    }
-
-    public onPause(fnc: Function) {
-        this._onPause.push(fnc);
-    }
-
-    public onStop(fnc: Function) {
-        this._onStop.push(fnc);
-    }
-
-    // private _traverseObj(obj: any, folder: GUI = this._datGUI) {
-    //     for (var k in obj) {
-    //         var controller : GUIController | null = null;
-    //         if (typeof obj[k] === "function") {
-    //             // implement later maybe
-    //             continue;
-    //         } else if (typeof obj[k] === "string") {
-    //             if (obj[k].startsWith("#")) {
-    //                 controller = folder.addColor(obj, k);
-    //             } else {
-    //                 controller = folder.add(obj, k);
-    //             }
-    //         } else if (typeof obj[k] === "number") {
-    //             controller = folder.add(obj, k);
-    //         }
-    //
-    //         controller?.onFinishChange(() => {
-    //             console.log(Globals.sceneParams)
-    //         });
-    //
-    //         if (typeof obj[k] === "object" && obj[k] !== null) {
-    //             this._traverseObj(obj[k], folder.addFolder(k));
-    //         }
-    //     }
-    // }
-    //
-    // private initDatGUI() {
-    //     this._datGUI = new GUI();
-    //     this._datGUI.width = 300;
-    //     document.querySelector("#dg")!.appendChild(this._datGUI.domElement);
-    //
-    //     this._datGUI.remember(Globals.sceneParams);
-    //     this._traverseObj(Globals.sceneParams, this._datGUI);
-    // }
+    // Callbacks whenever the play, pause, or stop buttons are clicked
+    onPlay(fnc: Function) { this._onPlayFncs.push(fnc); }
+    onPause(fnc: Function) { this._onPauseFncs.push(fnc); }
+    onStop(fnc: Function) { this._onStopFncs.push(fnc); }
 }
 
 export type ControlsType = Controls;

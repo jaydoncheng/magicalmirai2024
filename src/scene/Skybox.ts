@@ -36,8 +36,8 @@ export class Skybox extends SceneBase {
     public initialize() {
         var fog = (this._fog = new THREE.Fog(
             new THREE.Color(this._palette!.fog),
-            0.015,
-            100,
+            1,
+            150,
         ));
         this._scene.fog = fog;
 

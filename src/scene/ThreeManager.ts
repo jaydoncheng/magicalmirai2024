@@ -6,6 +6,7 @@ import { Skybox } from "./Skybox";
 import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
 import { LyricsPlacer } from "./Lyrics";
+import { FloorMng } from "./Floor";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -58,20 +59,8 @@ export class ThreeManager {
         this.camMng = new CameraManager(this._scene, this._renderer);
         this.camMng.initialize();
 
-        var skybox = new Skybox(this.camMng.getCamGlobal(), this._scene);
-        skybox.initialize();
-
-        var plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(400, 400, 1, 1),
-            new THREE.MeshStandardMaterial({
-                color: 0x333333,
-                side: THREE.DoubleSide,
-            }),
-        );
-        plane.receiveShadow = true;
-        this.camMng.getCamGlobal().add(plane);
-        plane.rotateX(Math.PI / 2);
-        plane.position.set(0, -3, 0);
+        var skybox = new Skybox(this.camMng.getCamGlobal(), this._scene).initialize();
+        var floor = new FloorMng(this.camMng.getCamGlobal()).initialize();
 
         var buildings = this.buildingsMng = new Buildings(this._rootObj, this.camMng);
         buildings.initialize();

@@ -3,6 +3,8 @@ import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
 
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
+
+    private _curWord: string = "";
     constructor() {
     }
 
@@ -11,15 +13,12 @@ export class LyricsManager {
 
         if (phrase === this._prevPhrase) return;
         console.log("handlePhrase", phrase);
-        // Globals.three?.lyricsMng.newCameraTarget();
-
         this._prevPhrase = phrase;
     }
 
     public handleChar(c : string) {
         var l : CharTexMapType = {};
         l[c] = this._charTexMap.getCharTex(c);
-        // this._sceneLyrics.placeLyrics(l);
         return l;
     }
     
@@ -31,7 +30,7 @@ export class LyricsManager {
             l[c[i]] = this._charTexMap.getCharTex(c[i]);
         }
 
-        // this._sceneLyrics.placeLyrics(l);
+        Globals.three?.lyricsMng.placeLyrics(l);
         return l;
     }
 

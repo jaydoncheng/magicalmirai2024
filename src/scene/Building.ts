@@ -40,27 +40,10 @@ export class BuildingGenerator {
             h = max_h * this._calcDist(genParams.baseHeightRatio),
             d = max_d * (1 - 0.2 * Math.random());
 
-        console.log("building base")
-        console.log("max building: ", max_w, max_h, max_d);
-        console.log("base: ", w, h, d);
-
         var geometry = new THREE.BoxGeometry(
             w, h, d,
             genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
         );
-
-        // debug ----------------
-        // var max_geo = new THREE.BoxGeometry(
-        //     max_w, max_h, max_d,
-        //     genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
-        // );
-        //
-        // var debug_mesh = new THREE.Mesh(
-        //     max_geo,
-        //     new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true })
-        // );
-        //
-        // -----------------------
 
         var random = ['building1', 'building2', 'building3'];
         var randomTexture = random[Math.floor(Math.random() * random.length)];
@@ -91,15 +74,12 @@ export class BuildingGenerator {
     }
 
     public buildSections(parent: THREE.Mesh, params: BuildingParams, max_height: number) {
-        console.log("building sections")
-        console.log(params);
         parent.getWorldPosition(this.__worldPos);
         parent.geometry.computeBoundingBox();
 
         var top = parent.geometry.boundingBox!.max;
         let y = this.__worldPos.y + top.y;
         if (y >= max_height) {
-            console.log("top: ", y, "max: ", max_height);
             parent.parent?.remove(parent);
             return;
         }
@@ -139,8 +119,6 @@ export class BuildingGenerator {
         let twist = this._calcDist(params.twistFactor);
         this._twist(twist, mesh);
         parent.add(mesh);
-
-        console.log("section: ", w, h, d);
 
         return mesh;
     }
@@ -182,7 +160,7 @@ export const p_TwistyTower = () => {
         widthSegments: 16,
         heightSegments: 16,
         depthSegments: 16,
-        twistFactor: { offset: 5, deviation: -5 },
+        twistFactor: { offset: 1, deviation: -2 },
         baseHeightRatio: { offset: 0.2, deviation: -0.1 },
         baseRatio: { offset: 2, deviation: 0 },
     } as BuildingParams;
@@ -190,13 +168,15 @@ export const p_TwistyTower = () => {
 
 export const p_BlockyTower = () => {
     return {
-        width: { val: 3, dev: 2 },
-        height: { val: 8, dev: 8 },
-        depth: { val: 3, dev: 2 },
-        widthSegments: 1,
+        maxWidth: { offset: 15, deviation: -2 },
+        maxHeight: { offset: 60, deviation: -10 },
+        maxDepth: { offset: 15, deviation: -2 },
+        widthSegments: 16,
         heightSegments: 16,
-        depthSegments: 1,
-        twistFactor: { val: 0, dev: 0 }
-    };
+        depthSegments: 16,
+        twistFactor: { offset: 0, deviation: 0 },
+        baseHeightRatio: { offset: 0.2, deviation: -0.1 },
+        baseRatio: { offset: 2, deviation: 0 },
+    } as BuildingParams;
 }
 

@@ -3,9 +3,7 @@ import Globals from '../core/Globals';
 import { LyricsManager } from './LyricsManager';
 
 export class PlayerManager {
-    // TODO: Once loading/ready process is implemented in Globals.controls,
-    // remove any lines that reference #loading and #controls
-    public _player: Player;
+    public player: Player;
     private _playerOptions: PlayerOptions = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")!,
@@ -31,10 +29,10 @@ export class PlayerManager {
         }
 
         Globals.controls!.onPlay(() => {
-            this._player.requestPlay();
+            this.player.requestPlay();
         });
         Globals.controls!.onPause(() => {
-            this._player.requestPause();
+            this.player.requestPause();
         });
         Globals.controls!.onStop(() => {
             this._reset();
@@ -47,44 +45,28 @@ export class PlayerManager {
     }
 
     private _initPlayer() {
-        var player = (this._player = new Player(this._playerOptions));
+        var player = (this.player = new Player(this._playerOptions));
         this._position = 0;
         this._updateTime = -1;
         this._curKeyframeIndex = 0;
         this._keyframes = Globals.currentSong.keyframes;
 
         player.addListener({
-            onAppReady: (app) => {
-                this._onAppReady(app);
-            },
-            onAppMediaChange: () => {
-                this._onAppMediaChange();
-            },
-            onVideoReady: (v) => {
-                this._onVideoReady(v);
-            },
-            onTimerReady: () => {
-                this._onTimerReady();
-            },
-            onThrottledTimeUpdate: (time) => {
-                this._onTimeUpdate(time);
-            },
-            onPlay: () => {
-                this._onPlay();
-            },
-            onPause() {
-                console.log("onPause");
-            },
-            onStop: () => {
-                this._onStop();
-            },
+            onAppReady: (app) => { this._onAppReady(app) },
+            onAppMediaChange: () => { this._onAppMediaChange() },
+            onVideoReady: (v) => { this._onVideoReady(v) },
+            onTimerReady: () => { this._onTimerReady() },
+            onThrottledTimeUpdate: (time) => { this._onTimeUpdate(time) },
+            onPlay: () => { this._onPlay() },
+            onPause: () => { console.log("onPause") },
+            onStop: () => { this._onStop() },
         });
 
         Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
         this._update();
     }
     private _onSongChanged() {
-        this._player.requestStop();
+        this.player.requestStop();
 
         Globals.controls!.reset();
         Globals.controls!.setReady("player", false);
@@ -94,7 +76,7 @@ export class PlayerManager {
 
     private _onAppReady(app: any) {
         if (!app.songUrl) {
-            this._player.createFromSongUrl(Globals.currentSong.songUrl, {
+            this.player.createFromSongUrl(Globals.currentSong.songUrl, {
                 video: Globals.currentSong.video,
             });
         }
@@ -117,8 +99,8 @@ export class PlayerManager {
         this._position = 0;
         this._updateTime = -1;
 
-        this._player.requestMediaSeek(0);
-        this._player.requestStop();
+        this.player.requestMediaSeek(0);
+        this.player.requestStop();
     }
 
     private _prevWord: string = "";
@@ -138,7 +120,7 @@ export class PlayerManager {
             if (unit.startTime <= now && unit.endTime >= now) {
                 if (unit.text !== this._prevWord) {
                     this._prevWord = unit.text;
-                    this._lyricsManager.handleWord(unit.text);
+                    this._lyricsManager.handleChar(unit.text);
                 }
             }
         }
@@ -155,41 +137,43 @@ export class PlayerManager {
         console.log("onVideoReady");
 
         // animate gets called everytime a "unit" comes up in the song
-        let w = this._player.video.firstWord;
+        let w = this.player.video.firstWord;
+        let c = this.player.video.firstChar;
+        // let p = this.player.video.firstPhrase;
+        //
         this.animateWord = this.animateWord.bind(this);
-        this.animatePhrase = this.animatePhrase.bind(this);
+        // this.animatePhrase = this.animatePhrase.bind(this);
         this.animateChar = this.animateChar.bind(this);
-        // while (w) {
-        //     w.animate = this.animateWord;
-        //     w = w.next;
-        // }
 
-        let p = this._player.video.firstPhrase;
-        while (p) {
-            p.animate = this.animatePhrase;
-            p = p.next;
+        while (w) {
+            w.animate = this.animateWord;
+            w = w.next;
         }
 
-        // let c = this._player.video.firstChar;
-        // while (c) {
-        //     c.animate = this.animateChar;
-        //     c = c.next;
+        // while (p) {
+        //     p.animate = this.animatePhrase;
+        //     p = p.next;
         // }
+
+        while (c) {
+            c.animate = this.animateChar;
+            c = c.next;
+        }
     }
 
     private _onAppMediaChange() {
         console.log("onAppMediaChange");
-        this._player.requestMediaSeek(0);
-        this._player.requestPause();
+        this.player.requestMediaSeek(0);
+        this.player.requestPause();
     }
 
     private _onTimerReady() {
         console.log("onTimerReady");
         Globals.controls!.setReady("player", true);
-        this._player.requestStop();
+        this.player.requestStop();
     }
 
-    private _updateKeyframe(t : number) {
+    private _updateKeyframe(t: number) {
         if (this._curKeyframeIndex < this._keyframes.length) {
             if (t > this._keyframes[this._curKeyframeIndex].timestamp) {
                 Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
@@ -199,7 +183,7 @@ export class PlayerManager {
 
     }
     private _update() {
-        if (this._player && this._player.isPlaying && this._updateTime > 0) {
+        if (this.player && this.player.isPlaying && this._updateTime > 0) {
             var t = Date.now() - this._updateTime + this._position;
 
             this._updateKeyframe(t);
