@@ -15,13 +15,13 @@ export class Skybox extends SceneBase {
         super(_parentObject);
         this._scene = _scene;
 
-        this._geometry = new THREE.SphereGeometry(150, 32, 32);
+        this._geometry = new THREE.SphereGeometry(200, 32, 32);
         this._material = new THREE.ShaderMaterial({
             side: THREE.BackSide,
             uniforms: {
                 topColor: { value: new THREE.Color(0xff0000) },
                 bottomColor: { value: new THREE.Color(0xff0000) },
-                offset: { value: 33 },
+                offset: { value: 25 },
                 exponent: { value: 0.6 },
             },
             vertexShader: this._vertexShader,
@@ -30,7 +30,6 @@ export class Skybox extends SceneBase {
 
         this._skybox = new THREE.Mesh(this._geometry, this._material);
         this._palette = Globals.sceneParams.palette;
-        _parentObject.add(this._skybox);
     }
 
     private generateNoiseTexture() {

@@ -5,7 +5,6 @@ import {
     p_TwistyTower,
 } from "./Building";
 import { SceneBase } from "./SceneBase";
-import { OBB } from "three/examples/jsm/math/OBB.js";
 import Globals from "../core/Globals";
 
 export class Buildings extends SceneBase {
@@ -31,6 +30,8 @@ export class Buildings extends SceneBase {
 
     private keyframeIndex = 1;
 
+    private buildRelativeElapsedTime = 0;
+
     public plotAndBuild(
         curPos: THREE.Vector3,
         disLimit: number,
@@ -41,7 +42,15 @@ export class Buildings extends SceneBase {
             "next keyframe timestamp: " + keyframeArr[this.keyframeIndex].timestamp,
         );
         var deltaTime =
-            keyframeArr[this.keyframeIndex].timestamp - this.elapsedTime - timeOffset;
+            keyframeArr[this.keyframeIndex].timestamp - this.buildRelativeElapsedTime;
+        // keyframeArr[this.keyframeIndex].timestamp - this.elapsedTime - timeOffset;
+
+        console.log(
+            "elapsedTime: " +
+            this.buildRelativeElapsedTime +
+            ", deltatime: " +
+            deltaTime,
+        );
 
         const { x, y, z } =
             keyframeArr[this.keyframeIndex - 1].sceneParams.camera?.direction;
@@ -71,6 +80,8 @@ export class Buildings extends SceneBase {
         if (distance > disLimit) {
             console.log("distance was bigger");
             this.populate(curPos, destination);
+            this.buildRelativeElapsedTime +=
+                disLimit / (0.003 * keyframeArr[this.keyframeIndex - 1].sceneParams.camera?.relativeSpeed!);
             return destination;
         } else if (distance == disLimit) {
             console.log("distance was equal");
@@ -79,6 +90,8 @@ export class Buildings extends SceneBase {
             if (this.keyframeIndex < Globals.currentSong.keyframes.length) {
                 this.keyframeIndex++;
             }
+            this.buildRelativeElapsedTime +=
+                disLimit / (0.003 * keyframeArr[this.keyframeIndex - 1].sceneParams.camera?.relativeSpeed!);
             return destination;
         } else {
             console.log("distance was smaller");
@@ -87,6 +100,7 @@ export class Buildings extends SceneBase {
                 this.keyframeIndex++;
             }
             console.log("recurse");
+            this.buildRelativeElapsedTime += deltaTime;
             return this.plotAndBuild(dirChange, disLimit - distance, deltaTime);
         }
     }
@@ -96,7 +110,7 @@ export class Buildings extends SceneBase {
     private __direction = new THREE.Vector3();
     private __dirNormal = new THREE.Vector3();
 
-    private _collisionBox = new OBB();
+    private lastKnownDirection = new THREE.Vector3(0, 0, 1);
 
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
         console.log("populate func");
@@ -111,9 +125,17 @@ export class Buildings extends SceneBase {
         direction.subVectors(to, from);
         direction.normalize();
 
+        var localDirection = Math.sin(
+            Math.asin(direction.x) - Math.asin(this.lastKnownDirection.x),
+        );
+
+        var compensation = Math.floor(localDirection * 4) * -buildingSize;
+        console.log("compensation: " + compensation);
+
         var gridLength = Math.floor(distance / buildingSize) * buildingSize;
 
-        for (let i = 0; i < gridLength; i += buildingSize) {
+        for (let i = compensation; i < gridLength; i += buildingSize) {
+            // right side
             for (let j = -buildingSize * 4; j < -buildingSize; j += buildingSize) {
                 if (Math.random() > 0.3) {
                     let randBuilding = Math.floor(
@@ -129,6 +151,10 @@ export class Buildings extends SceneBase {
                     buildingGroup.add(buildingMesh);
                 }
             }
+        }
+
+        for (let i = -compensation; i < gridLength; i += buildingSize) {
+            // left side
             for (let k = buildingSize * 2; k < buildingSize * 5; k += buildingSize) {
                 if (Math.random() > 0.3) {
                     let randBuilding = Math.floor(
@@ -146,43 +172,15 @@ export class Buildings extends SceneBase {
             }
         }
 
-        // for (let i = 0; i < 10; i++) {
-        //     // WARN: this is only approximately a normal distribution.
-        //     let randBuilding = Math.floor(Math.random() * this.buildingTypes.length);
-        //
-        //     var building = this.buildingTypes[randBuilding];
-        //     var buildingMesh = this._buildingGenerator.genBuilding(building);
-        //
-        //     this.__direction.copy(direction);
-        //     this.__dirNormal.crossVectors(
-        //         this.__direction,
-        //         new THREE.Vector3(0, 1, 0),
-        //     );
-        //     this.__dirNormal.normalize();
-        //
-        //     buildingMesh.position.z = Math.random() * distance;
-        //     if (Math.random() >= 0.5) {
-        //         buildingMesh.position.x = Math.random() * 20 + 10;
-        //     } else {
-        //         buildingMesh.position.x = Math.random() * 20 - 30;
-        //     }
-        //     buildingGroup.add(buildingMesh);
-        // }
         buildingGroup.position.copy(from);
         buildingGroup.lookAt(to);
 
         var center = new THREE.Vector3().copy(from);
 
-        this._collisionBox.applyMatrix4(buildingGroup.matrixWorld);
-        this._collisionBox.center = center.add(direction);
-        this._collisionBox.halfSize = new THREE.Vector3(50, 50, distance);
-
         this.buildingGroups.push(buildingGroup);
         this._parentObject.add(buildingGroup);
-    }
 
-    public isColliding(position: THREE.Vector3) {
-        return this._collisionBox.containsPoint(position);
+        this.lastKnownDirection = direction;
     }
 
     public animate(building: BuildingGenerator) {
@@ -195,7 +193,7 @@ export class Buildings extends SceneBase {
     }
 
     public deleteBlock() {
-        if (this.buildingGroups.length > 5) {
+        if (this.buildingGroups.length > 10) {
             var bG: THREE.Group = this.buildingGroups.shift()!;
             this.purge(bG);
         }
@@ -228,6 +226,7 @@ export class Buildings extends SceneBase {
     }
 
     public reset() {
+        this.buildRelativeElapsedTime = 0;
         for (let i = 0; i < this.buildingGroups.length; i++) {
             this.purge(this.buildingGroups[i]);
         }

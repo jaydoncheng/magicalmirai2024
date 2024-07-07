@@ -62,13 +62,14 @@ export class ThreeManager {
         this._objMngs["skybox"] = skybox;
 
         var plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(300, 300, 1, 1),
+            new THREE.PlaneGeometry(400, 400, 1, 1),
             new THREE.MeshStandardMaterial({
                 color: 0x333333,
                 side: THREE.DoubleSide,
             }),
         );
-        // this._camera.getCamParent().add(plane);
+        plane.receiveShadow = true;
+        this._camera.getCamGlobal().add(plane);
         plane.rotateX(Math.PI / 2);
         plane.position.set(0, -3, 0);
 
@@ -113,9 +114,10 @@ export class ThreeManager {
 
         var alight = new THREE.AmbientLight(0x404040);
         this._scene.add(alight);
-        var plight = new THREE.PointLight(0xffffff, 1, 100);
-        plight.position.set(0, 10, 0);
-        this._scene.add(plight);
+        var dlight = new THREE.DirectionalLight(0xffffff, 0.75);
+        dlight.position.set(-5, 5, -5);
+        dlight.castShadow = true;
+        this._scene.add(dlight);
         Globals.controls?.onStop(() => {
             this.reset();
         });
@@ -146,17 +148,10 @@ export class ThreeManager {
 
         this._camera.update();
 
-        // console.log(this.collisionPoint);
-        // console.log(
-        //     this._camera.getCamGlobal().position.distanceTo(this.collisionPoint),
-        // );
-
-        if (
-            this._camera.getCamGlobal().position.distanceTo(this.collisionPoint) < 10
-        ) {
+        if ( this._camera.getCamGlobal().position.distanceTo(this.collisionPoint) < 200 ) {
             this.collisionPoint = this._objMngs["buildings"].plotAndBuild(
-                this._camera.getCamGlobal().position,
-                100,
+                this.collisionPoint,
+                60,
                 0,
             );
         }
