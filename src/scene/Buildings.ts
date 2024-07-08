@@ -54,54 +54,26 @@ export class Buildings extends SceneBase {
 
     public plotAndBuild(curPos: THREE.Vector3, disLimit: number, timeOffset: number) {
         var keyframeArr = Globals.currentSong.keyframes;
-        console.log(
-            "next keyframe timestamp: " + keyframeArr[this._kfIndex].timestamp,
-        );
-        var deltaTime =
-            keyframeArr[this._kfIndex].timestamp - this._buildRelElapsedTime;
-        // keyframeArr[this.keyframeIndex].timestamp - this.elapsedTime - timeOffset;
+        var deltaTime = keyframeArr[this._kfIndex].timestamp - this._buildRelElapsedTime;
 
-        console.log(
-            "elapsedTime: " +
-            this._buildRelElapsedTime +
-            ", deltatime: " +
-            deltaTime,
-        );
-
-        const { x, y, z } =
-            keyframeArr[this._kfIndex - 1].sceneParams.camera?.direction!;
+        var kf = keyframeArr[this._kfIndex - 1];
+        const { x, y, z } = kf.sceneParams.camera?.direction!;
         var direction = new THREE.Vector3(x!, y!, z!).normalize();
 
-        var distance =
-            (deltaTime / 1000) *
-            keyframeArr[this._kfIndex - 1].sceneParams.camera?.relativeSpeed! *
-            3;
-        var dirChange = new THREE.Vector3()
-            .copy(curPos)
-            .add(direction.multiplyScalar(distance));
-
-        console.log("distance: " + distance + ", disLimit: " + disLimit);
+        var distance = (deltaTime / 1000) * kf.sceneParams.camera?.relativeSpeed! * 3;
+        var dirChange = new THREE.Vector3().copy(curPos).add(direction.multiplyScalar(distance));
 
         var destination = new THREE.Vector3()
             .copy(curPos)
             .add(direction.normalize().multiplyScalar(disLimit));
 
-        console.log("curPos:");
-        console.log(curPos);
-        console.log("To limit:");
-        console.log(destination);
-        console.log("To dirChange:");
-        console.log(dirChange);
-
         if (distance > disLimit) {
-            console.log("distance was bigger");
             this.populate(curPos, destination);
             this._buildRelElapsedTime +=
                 disLimit / (0.003 * keyframeArr[this._kfIndex - 1].sceneParams.camera?.relativeSpeed!);
+
             return destination;
         } else if (distance == disLimit) {
-            console.log("distance was equal");
-            // unlikely but just incase
             this.populate(curPos, destination);
             if (this._kfIndex < Globals.currentSong.keyframes.length) {
                 this._kfIndex++;
@@ -110,12 +82,10 @@ export class Buildings extends SceneBase {
                 disLimit / (0.003 * keyframeArr[this._kfIndex - 1].sceneParams.camera?.relativeSpeed!);
             return destination;
         } else {
-            console.log("distance was smaller");
             this.populate(curPos, dirChange);
             if (this._kfIndex < Globals.currentSong.keyframes.length) {
                 this._kfIndex++;
             }
-            console.log("recurse");
             this._buildRelElapsedTime += deltaTime;
             return this.plotAndBuild(dirChange, disLimit - distance, deltaTime);
         }
@@ -125,11 +95,7 @@ export class Buildings extends SceneBase {
 
     private _lastKnownDirection = new THREE.Vector3(0, 0, 1);
     public populate(from: THREE.Vector3, to: THREE.Vector3) {
-        console.log("populate func");
-        console.log(from);
-        console.log(to);
-        var buildingSize = 15;
-
+        var buildingSize = 16;
         var buildingGroup = new THREE.Group();
 
         var distance = from.distanceTo(to);
@@ -142,14 +108,12 @@ export class Buildings extends SceneBase {
         );
 
         var compensation = Math.floor(localDirection * 4) * -buildingSize;
-        console.log("compensation: " + compensation);
-
         var gridLength = Math.floor(distance / buildingSize) * buildingSize;
 
         for (let i = compensation; i < gridLength; i += (buildingSize + 1)) {
             // right side
             for (let j = -buildingSize - 5; j >= -((buildingSize + 1) * 4) - 5; j -= (buildingSize + 1)) {
-                if (Math.random() > 0.3) {
+                if (Math.random() > 0.15) {
                     let randBuilding = Math.floor(
                         Math.random() * this._buildingTypes.length,
                     );
@@ -168,7 +132,7 @@ export class Buildings extends SceneBase {
         for (let i = -compensation; i < gridLength; i += (buildingSize + 1)) {
             // left side
             for (let k = buildingSize + 5; k <= ((buildingSize + 1) * 4) + 5; k += (buildingSize + 1)) {
-                if (Math.random() > 0.3) {
+                if (Math.random() > 0.15) {
                     let randBuilding = Math.floor(
                         Math.random() * this._buildingTypes.length,
                     );
