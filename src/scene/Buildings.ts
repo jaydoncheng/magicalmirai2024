@@ -146,9 +146,9 @@ export class Buildings extends SceneBase {
 
         var gridLength = Math.floor(distance / buildingSize) * buildingSize;
 
-        for (let i = compensation; i < gridLength; i += buildingSize) {
+        for (let i = compensation; i < gridLength; i += (buildingSize + 1)) {
             // right side
-            for (let j = -buildingSize * 4; j < -buildingSize; j += buildingSize) {
+            for (let j = -buildingSize - 5; j >= -((buildingSize + 1) * 4) - 5; j -= (buildingSize + 1)) {
                 if (Math.random() > 0.3) {
                     let randBuilding = Math.floor(
                         Math.random() * this._buildingTypes.length,
@@ -165,9 +165,9 @@ export class Buildings extends SceneBase {
             }
         }
 
-        for (let i = -compensation; i < gridLength; i += buildingSize) {
+        for (let i = -compensation; i < gridLength; i += (buildingSize + 1)) {
             // left side
-            for (let k = buildingSize * 2; k < buildingSize * 5; k += buildingSize) {
+            for (let k = buildingSize + 5; k <= ((buildingSize + 1) * 4) + 5; k += (buildingSize + 1)) {
                 if (Math.random() > 0.3) {
                     let randBuilding = Math.floor(
                         Math.random() * this._buildingTypes.length,
