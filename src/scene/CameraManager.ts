@@ -5,8 +5,8 @@ import Globals from "../core/Globals";
 import { ISceneParams } from "../core/SceneParams";
 
 export class CameraManager extends SceneBase {
-    private _camera: THREE.Camera;
-    private fakeCam: THREE.Camera;
+    private _camera: THREE.PerspectiveCamera;
+    private fakeCam: THREE.PerspectiveCamera;
 
     private camGlobalGroup: THREE.Group;
     private camLocalGroup: THREE.Group;

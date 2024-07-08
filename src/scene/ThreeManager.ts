@@ -87,11 +87,14 @@ export class ThreeManager {
 
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
+        this._renderer.setPixelRatio(window.devicePixelRatio);
         this.resize();
+        window.addEventListener("resize", this.resize.bind(this));
     }
 
     public resize() {
-        this._renderer.setPixelRatio(window.devicePixelRatio);
+
+        this.camMng.resize();
         this._renderer.setSize(window.innerWidth, window.innerHeight);
         this._composer.setSize(window.innerWidth, window.innerHeight);
     }
