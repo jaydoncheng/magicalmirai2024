@@ -16,7 +16,7 @@ export default {
             timestamp: 0,
             sceneParams: {
                 camera: {
-                    sway: () => { },
+                    sway: 1,
                     direction: { x: 0, y: 0, z: 1 },
                     relativeSpeed: 2,
                 },

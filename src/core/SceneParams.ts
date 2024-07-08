@@ -8,7 +8,7 @@ export interface ISceneParams {
         buildingTint?: string;
     }
     camera?: {
-        sway?: () => void;
+        sway?: number;
         direction?: { x?: number, y?: number, z?: number };
         relativeSpeed?: number;
     }
@@ -42,7 +42,7 @@ export default {
         buildingTint: "#999999",
     },
     camera: {
-        sway: () => { },
+        sway: 1,
         direction: { x: 0, y: 0, z: 1 },
         relativeSpeed: 1,
     },

@@ -153,22 +153,31 @@ export class PlayerManager {
         }
     }
 
-    private directionX = 0;
-    private speed = 5;
 
     private _genKeyframes() {
+
+    var directionX = 0;
+
         var choruses = this.player.getChoruses();
+
         for (var i = 0; i < choruses.length; i++) {
-            this.directionX += (Math.random() * 6) - 3;
-            this.speed += (Math.random() * 8) - 4;
+
+            let timestamp = Math.round(choruses[i].startTime.valueOf());
+
+            let valAro = this.player.getValenceArousal(timestamp);
+            let valence = Math.pow(valAro.v, 2) * 25;
+            let arousal = Math.pow(valAro.a, 2) * 100;
+
+            directionX += (Math.random() * 6) - 3;
+            let speed = (arousal) + 2;
             Globals.currentSong.keyframes.push( 
                 {
-                    timestamp: Math.round(choruses[i].startTime.valueOf()),
+                    timestamp: timestamp,
                     sceneParams: {
                         camera: {
-                            sway: () => { },
-                            direction: { x: this.directionX, y: 0, z: 1 },
-                            relativeSpeed: this.speed,
+                            sway: valence,
+                            direction: { x: directionX, y: 0, z: 1 },
+                            relativeSpeed: speed,
                         },
                    },
                },
@@ -226,10 +235,10 @@ export class PlayerManager {
 
             console.log(t);
 
-            // console.log("Valence Arousal: ");
-            // console.log(this.player.getValenceArousal(t));
-            // console.log("Vocal Amplitude: ");
-            // console.log(this.player.getVocalAmplitude(t));
+            console.log("Valence Arousal: ");
+            console.log(this.player.getValenceArousal(t));
+            console.log("Vocal Amplitude: ");
+            console.log(this.player.getVocalAmplitude(t));
         }
 
         requestAnimationFrame(() => { this._update(); });

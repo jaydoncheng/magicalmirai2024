@@ -16,6 +16,7 @@ export class CameraManager extends SceneBase {
     private swayShouldBeAt: THREE.Vector3;
 
     private direction: THREE.Vector3;
+    private swayStrength: number;
 
     private _renderer: THREE.Renderer;
     private _controls: OrbitControls;
@@ -82,12 +83,12 @@ export class CameraManager extends SceneBase {
             let t = deltaTime / 1000;
             var r = elapsedTime / 1000;
 
-            this.swayShouldBeAt.setX(Math.sin(r) / 4);
-            this.swayShouldBeAt.setY(15 + (Math.cos(r * 2) / 2 + 0.5));
+            this.swayShouldBeAt.setX((Math.sin(r) / 4) * this.swayStrength);
+            this.swayShouldBeAt.setY(15 + ((Math.cos(r * 2) / 2 + 0.5) * this.swayStrength));
 
             this.__direction.copy(this.direction);
             this.shouldBeAt.addScaledVector(this.__direction,
-                t * Globals.sceneParams.camera?.relativeSpeed! * 2.825);
+                t * Globals.sceneParams.camera?.relativeSpeed! * 2.835);
         }
         this._prevTime = elapsedTime;
     }
@@ -106,6 +107,7 @@ export class CameraManager extends SceneBase {
     public _onParamsChanged(details: ISceneParams) {
         const { x, y, z } = details.camera?.direction!;
         this.direction.set(x!, y!, z!).normalize();
+        this.swayStrength = details.camera?.sway!;
     }
 
     public resize() {
