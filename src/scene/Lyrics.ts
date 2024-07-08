@@ -35,12 +35,11 @@ export class LyricsPlacer extends SceneBase {
         this._u.normalize();
 
         this._u.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * maxAngle - maxAngle / 2);
-        this._u.setY(Math.random() * 0.2 - 0.1);
+        this._u.setY(Math.random() * 0.4);
         this._u.normalize();
 
         return this._u;
     }
-
 
     private _pos = new THREE.Vector3();
     private _rot = new THREE.Vector3();

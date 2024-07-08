@@ -33,11 +33,11 @@ export class CameraManager extends SceneBase {
             1000,
         );
 
-        this._camera.position.set(0, 25, -0.001);
-        this.cameraTarget = new THREE.Vector3(0, 25, 0);
+        this._camera.position.set(0, 15, -0.001);
+        this.cameraTarget = new THREE.Vector3(0, 15, 0);
 
         this.shouldBeAt = new THREE.Vector3(0, 0, 0);
-        this.swayShouldBeAt = new THREE.Vector3(0, 25, 0);
+        this.swayShouldBeAt = new THREE.Vector3(0, 15, 0);
         this.direction = new THREE.Vector3();
         const { x, y, z } = Globals.sceneParams.camera?.direction!;
         this.direction.set(x!, y!, z!);
@@ -83,7 +83,7 @@ export class CameraManager extends SceneBase {
             var r = elapsedTime / 1000;
 
             this.swayShouldBeAt.setX(Math.sin(r) / 4);
-            this.swayShouldBeAt.setY(25 + (Math.cos(r * 2) / 2 + 0.5));
+            this.swayShouldBeAt.setY(15 + (Math.cos(r * 2) / 2 + 0.5));
 
             this.__direction.copy(this.direction);
             this.shouldBeAt.add(
