@@ -112,4 +112,9 @@ export class CameraManager extends SceneBase {
         const { x, y, z } = details.camera?.direction!;
         this.direction.set(x!, y!, z!).normalize();
     }
+
+    public resize() {
+        this._camera.aspect = window.innerWidth / window.innerHeight;
+        this._camera.updateProjectionMatrix();
+    }
 }

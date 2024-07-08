@@ -4,7 +4,6 @@ class Controls {
     public playBtn: HTMLElement;
     public pauseBtn: HTMLElement;
     public stopBtn: HTMLElement;
-    public editorBtn: HTMLElement;
     public loadingEl: HTMLElement;
     public controlsEl: HTMLElement;
 
@@ -17,7 +16,6 @@ class Controls {
         var playBtn = (this.playBtn = document.querySelector("#bt_play")!);
         var pauseBtn = (this.pauseBtn = document.querySelector("#bt_pause")!);
         var stopBtn = (this.stopBtn = document.querySelector("#bt_stop")!);
-        var editorBtn = (this.editorBtn = document.querySelector("#bt_editor")!);
         this.loadingEl = document.querySelector("#loading")!;
         this.controlsEl = document.querySelector("#controls")!;
 
@@ -53,21 +51,6 @@ class Controls {
             "click",
             handleBtn(this._onStopFncs, () => this.reset()),
         );
-
-        editorBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const editorEl: HTMLElement = document.querySelector("#editor")!;
-            editorEl.classList.toggle("active");
-            return false;
-        });
-
-        document
-            .querySelector("#bt_close_editor")!
-            .addEventListener("click", (e) => {
-                e.preventDefault();
-                document.querySelector("#editor")!.classList.toggle("active");
-                return false;
-            });
     }
 
     // Any component which needs to be ready before the controls

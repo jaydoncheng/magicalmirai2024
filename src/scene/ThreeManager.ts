@@ -7,10 +7,10 @@ import { Buildings } from "./Buildings";
 import { CameraManager } from "./CameraManager";
 import { LyricsPlacer } from "./Lyrics";
 import { FloorMng } from "./Floor";
+import { Lights } from "./Lights";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -25,6 +25,7 @@ export class ThreeManager {
     public camMng: CameraManager;
     public skyboxMng: Skybox;
     public lyricsMng: LyricsPlacer;
+    public lights: Lights;
 
     private stats: Stats;
 
@@ -64,6 +65,7 @@ export class ThreeManager {
 
         this.camMng = new CameraManager(this._scene, this._renderer);
         this.camMng.initialize();
+        this.camMng.resize();
 
         var skybox = new Skybox(this.camMng.getCamGlobal(), this._scene).initialize();
         var floor = new FloorMng(this.camMng.getCamGlobal()).initialize();
@@ -73,13 +75,9 @@ export class ThreeManager {
 
         this.lyricsMng = new LyricsPlacer(this._rootObj, this.camMng);
 
-        var alight = new THREE.AmbientLight(0x404040);
-        this._scene.add(alight);
-        var dlight = new THREE.DirectionalLight(0xffffff, 1);
-        dlight.position.set(0, 100, 100);
-        dlight.castShadow = true;
-        this._rootObj.add(dlight);
-
+        var lights = new Lights(this.camMng.getCamGlobal());
+        lights.initialize();
+        this.lights = lights;
         Globals.controls?.onStop(() => {
             this.reset();
         });
@@ -93,10 +91,9 @@ export class ThreeManager {
     }
 
     public resize() {
-        this._renderer.setSize(window.innerWidth, window.innerHeight);
+        this._renderer.setPixelRatio(window.devicePixelRatio);
         this._renderer.setSize(window.innerWidth, window.innerHeight);
         this._composer.setSize(window.innerWidth, window.innerHeight);
-        this.camMng.resize();
     }
 
     public songUpdate(time: number) {
@@ -113,6 +110,7 @@ export class ThreeManager {
         this.stats.update();
         this.camMng.update();
         this.buildingsMng.update();
+        this.lights.update();
 
         this._composer.render();
     }

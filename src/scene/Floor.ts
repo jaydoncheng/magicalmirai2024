@@ -13,20 +13,22 @@ export class FloorMng extends SceneBase {
         var plane = this._plane = new THREE.Mesh(
         new THREE.PlaneGeometry(400, 400, 1, 1),
         new THREE.MeshStandardMaterial({
-            color: 0x333333,
+            color: 0x555555,
             side: THREE.DoubleSide,
         }));
         
         plane.receiveShadow = true;
+        plane.castShadow = true;
         plane.rotateX(Math.PI / 2);
         plane.position.set(0, -3, 0);
 
         this._parentObject.add(this._plane);
+        return this._plane;
     }
 
     public update() {}
 
     public _onParamsChanged(details: ISceneParams): void {
-        this._plane.material.color.setHex(details.palette?.plane);
+        // this._plane.material.color.setHex(details.palette?.plane);
     }
 }
