@@ -4,7 +4,7 @@ import {
     type BuildingParams,
     p_TwistyTower,
     p_BlockyTower,
-} from "./Building";
+} from "./BuildingGenerator";
 import { SceneBase } from "./SceneBase";
 import Globals from "../core/Globals";
 import { CameraManager } from "./CameraManager";
@@ -40,7 +40,7 @@ export class Buildings extends SceneBase {
         });
     }
 
-    public update() { 
+    public update() {
         if (this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
             this._collisionPoint = this.plotAndBuild(
                 this._collisionPoint, 60, 0,
@@ -49,7 +49,6 @@ export class Buildings extends SceneBase {
     }
 
     private _kfIndex = 1;
-
     private _buildRelElapsedTime = 0;
 
     public plotAndBuild(curPos: THREE.Vector3, disLimit: number, timeOffset: number) {
@@ -61,11 +60,11 @@ export class Buildings extends SceneBase {
         var direction = new THREE.Vector3(x!, y!, z!).normalize();
 
         var distance = (deltaTime / 1000) * kf.sceneParams.camera?.relativeSpeed! * 3;
-        var dirChange = new THREE.Vector3().copy(curPos).add(direction.multiplyScalar(distance));
+        var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
 
         var destination = new THREE.Vector3()
             .copy(curPos)
-            .add(direction.normalize().multiplyScalar(disLimit));
+            .addScaledVector(direction, disLimit);
 
         if (distance > disLimit) {
             this.populate(curPos, destination);

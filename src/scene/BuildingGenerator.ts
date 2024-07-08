@@ -45,15 +45,8 @@ export class BuildingGenerator {
             genParams.widthSegments, genParams.heightSegments, genParams.depthSegments
         );
 
-        var random = ['building1', 'building2', 'building3'];
-        var randomTexture = random[Math.floor(Math.random() * random.length)];
-        var texture = Globals.textures.getTexture(randomTexture);
-        texture.repeat.set(genParams.widthSegments, genParams.heightSegments);
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
         var mesh = new THREE.Mesh(
             geometry,
-            // new THREE.MeshStandardMaterial({ color: this._palette!.buildingTint, wireframe: false, map: texture })
             new THREE.MeshToonMaterial({ color: this._palette?.buildingTint, wireframe: false})
         );
         mesh.castShadow = true;
@@ -103,14 +96,9 @@ export class BuildingGenerator {
             params.widthSegments, params.heightSegments, params.depthSegments
         );
 
-        var random = ['building1', 'building2', 'building3'];
-        var randomTexture = random[Math.floor(Math.random() * random.length)];
-        var texture = Globals.textures.getTexture(randomTexture);
-        texture.repeat.set(params.widthSegments, params.heightSegments);
         let mesh = new THREE.Mesh(
             geometry,
             new THREE.MeshToonMaterial({ color: this._palette?.buildingTint, wireframe: false})
-            // new THREE.MeshStandardMaterial({ color: this._palette?.buildingTint, wireframe: false, map: texture })
         );
         mesh.castShadow = true;
         mesh.receiveShadow = true;

@@ -86,11 +86,8 @@ export class CameraManager extends SceneBase {
             this.swayShouldBeAt.setY(15 + (Math.cos(r * 2) / 2 + 0.5));
 
             this.__direction.copy(this.direction);
-            this.shouldBeAt.add(
-                this.__direction.multiplyScalar(
-                    t * Globals.sceneParams.camera?.relativeSpeed * 2.825,
-                ),
-            );
+            this.shouldBeAt.addScaledVector(this.__direction,
+                t * Globals.sceneParams.camera?.relativeSpeed! * 2.825);
         }
         this._prevTime = elapsedTime;
     }
@@ -104,11 +101,9 @@ export class CameraManager extends SceneBase {
 
         this._controls.update();
         this._camera.copy(this.fakeCam);
-
     }
 
     public _onParamsChanged(details: ISceneParams) {
-        console.log("params changed in camera");
         const { x, y, z } = details.camera?.direction!;
         this.direction.set(x!, y!, z!).normalize();
     }

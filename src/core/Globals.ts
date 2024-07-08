@@ -4,7 +4,6 @@ import { ControlsType } from './Controls';
 import SceneParams, { ISceneParams } from './SceneParams';
 import { ISong } from './ISong'
 import Songs from './songs'
-import Textures from './Textures'
 
 export default {
     songs: Songs as ISong[],
@@ -27,7 +26,5 @@ export default {
         console.log("paramschanged", this.sceneParams)
         window.dispatchEvent(event)
     },
-
-    textures: Textures,
 }
 

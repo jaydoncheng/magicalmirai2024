@@ -6,7 +6,7 @@ export class PlayerManager {
     public player: Player;
     private _playerOptions: PlayerOptions = {
         app: { token: "U0WiRzyOIaolhCks" },
-        mediaElement: document.querySelector("#media")!,
+        mediaElement: document.querySelector("#media")! as HTMLMediaElement,
         mediaBannerPosition: "bottom left",
         throttleInterval: 200,
     }
@@ -106,7 +106,7 @@ export class PlayerManager {
     private _prevUnit: ITextUnit | null = null;
     private animateWord(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
-            if (unit.startTime <= now && unit.endTime >= now) {
+            if (unit.startTime <= now + 500 && unit.endTime >= now) {
                 if (unit !== this._prevUnit) {
                     this._prevUnit = unit;
                     this._lyricsManager.handleWord(unit.text);
@@ -117,7 +117,7 @@ export class PlayerManager {
 
     private animateChar(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
-            if (unit.startTime <= now && unit.endTime >= now) {
+            if (unit.startTime <= now + 500 && unit.endTime >= now) {
                 this._lyricsManager.handleChar(unit.text);
             }
         }
