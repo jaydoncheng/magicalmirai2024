@@ -22,7 +22,7 @@ export class CharTex {
         var ctx = this._ctx;
 
         ctx.fillStyle = 'white';
-        ctx.font = '80px Arial';
+        ctx.font = '80px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this._char, this._canvas.width / 2, this._canvas.height / 2);
@@ -52,7 +52,11 @@ export class CharTex {
     }
 
     public dispose() {
-        // TODO: implement
+        this._texture.dispose();
+        this._texture.dispose()
+        this._plane.geometry.dispose();
+
+        this._canvas.remove();
     }
 }
 
@@ -66,10 +70,13 @@ export class CharTexMap {
     }
 
     public getCharTex(char: string) {
-        if (!this.hasChar(char)) {
-            return this._charTexMap[char] = new CharTex(char);
-        } else {
-            return this._charTexMap[char]
+        return this._charTexMap[char] = new CharTex(char);
+    }
+
+    public dispose() {
+        for (var key in this._charTexMap) {
+            this._charTexMap[key].dispose();
+            delete this._charTexMap[key];
         }
     }
 }

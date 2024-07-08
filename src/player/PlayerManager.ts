@@ -103,12 +103,12 @@ export class PlayerManager {
         this.player.requestStop();
     }
 
-    private _prevWord: string = "";
+    private _prevUnit: ITextUnit | null = null;
     private animateWord(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
             if (unit.startTime <= now && unit.endTime >= now) {
-                if (unit.text !== this._prevWord) {
-                    this._prevWord = unit.text;
+                if (unit !== this._prevUnit) {
+                    this._prevUnit = unit;
                     this._lyricsManager.handleWord(unit.text);
                 }
             }
