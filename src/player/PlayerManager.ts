@@ -62,6 +62,7 @@ export class PlayerManager {
             onPlay: () => { this._onPlay() },
             onPause: () => { console.log("onPause") },
             onStop: () => { this._onStop() },
+            onSongMapLoad: () => { this.onSongMapLoad() },
         });
 
         Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
@@ -127,10 +128,15 @@ export class PlayerManager {
 
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
+
+        console.log(this.player);
+        console.log(this);
+        console.log(this.player.data.songMap);
         console.log("choruses: ");
         console.log(this.player.getChoruses());
         console.log("beats: ");
         console.log(this.player.getBeats());
+        this._genKeyframes();
 
         let w = this.player.video.firstWord;
         let c = this.player.video.firstChar;
@@ -146,6 +152,30 @@ export class PlayerManager {
             c.animate = this.animateChar;
             c = c.next;
         }
+    }
+
+    private directionX = 0;
+
+    private _genKeyframes() {
+        var choruses = this.player.getChoruses();
+        this.directionX += ( Math.random() * 1 ) - 0.5;
+        for (var i = 0; i < choruses.length; i++) {
+            Globals.currentSong.keyframes.push( 
+                {
+                    timestamp: choruses[i].startTime,
+                    sceneParams: {
+                        camera: {
+                            sway: () => { },
+                            direction: { x: this.directionX, y: 0, z: 1 },
+                            relativeSpeed: 2,
+                        },
+                   },
+               },
+            );
+        }
+    }
+
+    private onSongMapLoad() {
     }
 
     private _onAppMediaChange() {

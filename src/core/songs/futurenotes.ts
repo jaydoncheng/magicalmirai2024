@@ -30,55 +30,5 @@ export default {
                 },
             },
         },
-        {
-            timestamp: 11452,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: 0.5, y: 0, z: 1 },
-                    relativeSpeed: 5,
-                },
-            },
-        },
-        {
-            timestamp: 21656,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: -0.5, y: 0, z: 1 },
-                    relativeSpeed: 3,
-                },
-            },
-        },
-        {
-            timestamp: 34450,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: 1, y: 0, z: 1 },
-                    relativeSpeed: 13,
-                },
-            },
-        },
-        {
-            timestamp: 42045,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: 0.5, y: 0, z: 1 },
-                    relativeSpeed: 13,
-                },
-            },
-        },
-        {
-            timestamp: 1000000,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: 0, y: 0, z: 1 },
-                    relativeSpeed: 2,
-                },
-            },
-        },
     ],
 } as ISong;
