@@ -11,6 +11,8 @@ import { Lights } from "./Lights";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 
 export class ThreeManager {
     private _view: HTMLElement;
@@ -39,6 +41,7 @@ export class ThreeManager {
         this._renderer.shadowMap.enabled = true;
         this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this._composer = new EffectComposer(this._renderer);
+        this._composer.setSize(window.innerWidth, window.innerHeight);
         this._view.appendChild(this._renderer.domElement);
 
         const _init = this.initialize.bind(this);
@@ -78,6 +81,12 @@ export class ThreeManager {
         let cam = this.camMng.getCam();
         this._composer.addPass(new RenderPass(this._scene, cam));
 
+        const fxaaPass = new ShaderPass(FXAAShader);
+        const pixelRatio = this._renderer.getPixelRatio();
+        fxaaPass.material.uniforms["resolution"].value.x = 1 / (window.innerWidth * pixelRatio);
+        fxaaPass.material.uniforms["resolution"].value.y = 1 / (window.innerHeight * pixelRatio);
+        this._composer.addPass(fxaaPass);
+
         Globals.controls!.setReady("scene", true);
         this._renderer.setAnimationLoop(this._update.bind(this));
         this._renderer.setPixelRatio(window.devicePixelRatio);
@@ -88,6 +97,7 @@ export class ThreeManager {
     public resize() {
 
         this.camMng.resize();
+        console.log(window.innerWidth, window.innerHeight);
         this._renderer.setSize(window.innerWidth, window.innerHeight);
         this._composer.setSize(window.innerWidth, window.innerHeight);
     }
