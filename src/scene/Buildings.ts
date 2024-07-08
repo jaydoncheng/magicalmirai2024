@@ -28,23 +28,16 @@ export class Buildings extends SceneBase {
         this._buildingTypes.push(p_TwistyTower());
         this._buildingTypes.push(p_BlockyTower());
 
-
         this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
-        this._collisionPoint = this.plotAndBuild(
-            this._camMng.getCamGlobal().position,
-            100,
-            0,
-        );
-
         Globals.controls!.onStop(() => {
             this.reset();
         });
     }
 
     public update() {
-        if (this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
+        if ( Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
             this._collisionPoint = this.plotAndBuild(
-                this._collisionPoint, 60, 0,
+                this._collisionPoint, 34, 0,
             );
         }
     }

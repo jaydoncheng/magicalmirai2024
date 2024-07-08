@@ -10,7 +10,7 @@ class Controls {
     private _onPlayFncs: Function[] = [];
     private _onPauseFncs: Function[] = [];
     private _onStopFncs: Function[] = [];
-    private _whoisReady = {};
+    public _whoisReady = {};
 
     constructor() {
         var playBtn = (this.playBtn = document.querySelector("#bt_play")!);
@@ -60,7 +60,7 @@ class Controls {
         this._whoisReady[caller] = state;
         this._onReady();
     }
-
+    
     private _onReady() {
         if (Object.values(this._whoisReady).every((v) => v === true)) {
             this.loadingEl.style.display = "none";

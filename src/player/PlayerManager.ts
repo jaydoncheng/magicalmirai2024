@@ -62,7 +62,6 @@ export class PlayerManager {
             onPlay: () => { this._onPlay() },
             onPause: () => { console.log("onPause") },
             onStop: () => { this._onStop() },
-            onSongMapLoad: () => { this.onSongMapLoad() },
         });
 
         Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
@@ -155,11 +154,13 @@ export class PlayerManager {
     }
 
     private directionX = 0;
+    private speed = 5;
 
     private _genKeyframes() {
         var choruses = this.player.getChoruses();
-        this.directionX += ( Math.random() * 1 ) - 0.5;
         for (var i = 0; i < choruses.length; i++) {
+            this.directionX += (Math.random() * 6) - 3;
+            this.speed += (Math.random() * 8) - 4;
             Globals.currentSong.keyframes.push( 
                 {
                     timestamp: Math.round(choruses[i].startTime.valueOf()),
@@ -167,7 +168,7 @@ export class PlayerManager {
                         camera: {
                             sway: () => { },
                             direction: { x: this.directionX, y: 0, z: 1 },
-                            relativeSpeed: 5,
+                            relativeSpeed: this.speed,
                         },
                    },
                },
@@ -188,9 +189,11 @@ export class PlayerManager {
            },
         );
 
-    }
+        console.log("keyframes:");
+        for (var i = 0; i < Globals.currentSong.keyframes.length; i++) {
+            console.log(Globals.currentSong.keyframes[i].timestamp);
+        }
 
-    private onSongMapLoad() {
     }
 
     private _onAppMediaChange() {
