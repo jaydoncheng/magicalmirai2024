@@ -67,7 +67,7 @@ export class Buildings extends SceneBase {
         if (distance > disLimit) {
             this.populate(curPos, destination);
             this._buildRelElapsedTime +=
-                disLimit / (0.003 * keyframeArr[this._kfIndex - 1].sceneParams.camera?.relativeSpeed!);
+                disLimit / (0.003 * kf.camera?.relativeSpeed!);
 
             return destination;
         } else if (distance == disLimit) {
@@ -76,7 +76,7 @@ export class Buildings extends SceneBase {
                 this._kfIndex++;
             }
             this._buildRelElapsedTime +=
-                disLimit / (0.003 * keyframeArr[this._kfIndex - 1].sceneParams.camera?.relativeSpeed!);
+                disLimit / (0.003 * kf.camera?.relativeSpeed!);
             return destination;
         } else {
             this.populate(curPos, dirChange);
