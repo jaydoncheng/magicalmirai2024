@@ -125,6 +125,10 @@ export class PlayerManager {
 
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
+        console.log("choruses: ");
+        console.log(this.player.getChoruses());
+        console.log("beats: ");
+        console.log(this.player.getBeats());
 
         let w = this.player.video.firstWord;
         let c = this.player.video.firstChar;
@@ -169,6 +173,13 @@ export class PlayerManager {
 
             this._updateKeyframe(t);
             Globals.three!.songUpdate(t);
+
+            console.log(t);
+
+            console.log("Valence Arousal: ");
+            console.log(this.player.getValenceArousal(t));
+            console.log("Vocal Amplitude: ");
+            console.log(this.player.getVocalAmplitude(t));
         }
 
         requestAnimationFrame(() => { this._update(); });

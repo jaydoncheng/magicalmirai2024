@@ -28,12 +28,13 @@ export class Buildings extends SceneBase {
         this._buildingTypes.push(p_TwistyTower());
         this._buildingTypes.push(p_BlockyTower());
 
+
+        this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
         this._collisionPoint = this.plotAndBuild(
             this._camMng.getCamGlobal().position,
             100,
             0,
         );
-        console.log("DONE WITH FIRST BUILD");
 
         Globals.controls!.onStop(() => {
             this.reset();
@@ -191,6 +192,7 @@ export class Buildings extends SceneBase {
         for (let i = 0; i < this._buildingGroups.length; i++) {
             this.purge(this._buildingGroups[i]);
         }
+        this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
         this._collisionPoint = this.plotAndBuild(
             new THREE.Vector3(0, 0, 0),
             100,

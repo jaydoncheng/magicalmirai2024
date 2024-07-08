@@ -92,6 +92,7 @@ export class ThreeManager {
     }
 
     public songUpdate(time: number) {
+        // console.log("currentTime: " + Math.round(time));
         this.camMng.songUpdate(time);
         this.buildingsMng.songUpdate(time);
     }

@@ -31,110 +31,42 @@ export default {
             },
         },
         {
-            timestamp: 15000,
+            timestamp: 11452,
             sceneParams: {
                 camera: {
                     sway: () => { },
-                    direction: { x: 1, y: 0, z: 1 },
-                    relativeSpeed: 2,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
-                },
-            },
-        },
-        {
-            timestamp: 25000,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: 0, y: 0, z: 1 },
-                    relativeSpeed: 10,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
-                },
-            },
-        },
-        {
-            timestamp: 40000,
-            sceneParams: {
-                camera: {
-                    sway: () => { },
-                    direction: { x: -1, y: 0, z: 1 },
+                    direction: { x: 0.5, y: 0, z: 1 },
                     relativeSpeed: 5,
                 },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
-                },
             },
         },
         {
-            timestamp: 55000,
+            timestamp: 21656,
             sceneParams: {
                 camera: {
                     sway: () => { },
-                    direction: { x: 0, y: 0, z: 1 },
-                    relativeSpeed: 15,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
+                    direction: { x: -0.5, y: 0, z: 1 },
+                    relativeSpeed: 3,
                 },
             },
         },
         {
-            timestamp: 70000,
+            timestamp: 34450,
             sceneParams: {
                 camera: {
                     sway: () => { },
                     direction: { x: 1, y: 0, z: 1 },
-                    relativeSpeed: 2,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
+                    relativeSpeed: 13,
                 },
             },
         },
         {
-            timestamp: 80000,
+            timestamp: 42045,
             sceneParams: {
                 camera: {
                     sway: () => { },
-                    direction: { x: 0, y: 0, z: 1 },
-                    relativeSpeed: 2,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
+                    direction: { x: 0.5, y: 0, z: 1 },
+                    relativeSpeed: 13,
                 },
             },
         },
@@ -145,14 +77,6 @@ export default {
                     sway: () => { },
                     direction: { x: 0, y: 0, z: 1 },
                     relativeSpeed: 2,
-                },
-                palette: {
-                    sky: "#99e9f2",
-                    fog: "#f783ac",
-                    ambientLight: "#aaaaaa",
-                    pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#ffd43b",
                 },
             },
         },
