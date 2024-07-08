@@ -9,6 +9,8 @@ export class PlayerManager {
         mediaElement: document.querySelector("#media")! as HTMLMediaElement,
         mediaBannerPosition: "bottom left",
         throttleInterval: 200,
+        vocalAmplitudeEnabled: true,
+        valenceArousalEnabled: true,
     }
 
     private _keyframes = Globals.currentSong.keyframes;
