@@ -53,7 +53,7 @@ export class Buildings extends SceneBase {
         var deltaTime = keyframeArr[this._kfIndex].timestamp - this._buildRelElapsedTime;
 
         var kf = keyframeArr[this._kfIndex - 1].sceneParams;
-        kf = { ...kf, ...Globals.sceneParams };
+        kf = { ...Globals.sceneParams, ...kf };
         const { x, y, z } = kf.camera?.direction!;
         var direction = new THREE.Vector3(x!, y!, z!).normalize();
 
