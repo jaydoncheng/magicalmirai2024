@@ -30,5 +30,15 @@ export default {
                 },
             },
         },
+        // {
+        //     timestamp: 100000000000,
+        //     sceneParams: {
+        //         camera: {
+        //             sway: () => { },
+        //             direction: { x: 0, y: 0, z: 1 },
+        //             relativeSpeed: 2,
+        //         },
+        //     },
+        // },
     ],
 } as ISong;

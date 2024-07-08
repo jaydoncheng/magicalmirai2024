@@ -162,17 +162,32 @@ export class PlayerManager {
         for (var i = 0; i < choruses.length; i++) {
             Globals.currentSong.keyframes.push( 
                 {
-                    timestamp: choruses[i].startTime,
+                    timestamp: Math.round(choruses[i].startTime.valueOf()),
                     sceneParams: {
                         camera: {
                             sway: () => { },
                             direction: { x: this.directionX, y: 0, z: 1 },
-                            relativeSpeed: 2,
+                            relativeSpeed: 5,
                         },
                    },
                },
             );
         }
+
+        // last keyframe
+        Globals.currentSong.keyframes.push( 
+            {
+                timestamp: 10000000,
+                sceneParams: {
+                    camera: {
+                        sway: () => { },
+                        direction: { x: 0, y: 0, z: 1 },
+                        relativeSpeed: 5,
+                    },
+               },
+           },
+        );
+
     }
 
     private onSongMapLoad() {
@@ -208,10 +223,10 @@ export class PlayerManager {
 
             console.log(t);
 
-            console.log("Valence Arousal: ");
-            console.log(this.player.getValenceArousal(t));
-            console.log("Vocal Amplitude: ");
-            console.log(this.player.getVocalAmplitude(t));
+            // console.log("Valence Arousal: ");
+            // console.log(this.player.getValenceArousal(t));
+            // console.log("Vocal Amplitude: ");
+            // console.log(this.player.getVocalAmplitude(t));
         }
 
         requestAnimationFrame(() => { this._update(); });
