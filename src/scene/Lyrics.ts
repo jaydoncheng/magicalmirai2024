@@ -48,7 +48,7 @@ export class LyricsPlacer extends SceneBase {
         this._ray.near = 0;
 
         this._camMng.getCamSubParent().getWorldPosition(this._pos);
-        this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 1.2);
+        this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 3);
         this._camMng.getCam().getWorldDirection(this._rot);
 
         var dir = this._randomDirection(this._rot, Math.PI / 2);
@@ -65,7 +65,7 @@ export class LyricsPlacer extends SceneBase {
             }
         }
 
-        return this.shootRay(maxDist * 1.5);
+        return this.shootRay(maxDist * 1.2);
     }
 
     public initialize() { }
@@ -74,7 +74,7 @@ export class LyricsPlacer extends SceneBase {
     private _wordMap: CharTexMapType = {};
     public placeWord(word: CharTexMapType) {
         var hit: THREE.Intersection | null = null;
-        hit = this.shootRay(60);
+        hit = this.shootRay(20);
         this._placeWordAt = hit;
         this._wordMap = word;
     }
@@ -93,7 +93,7 @@ export class LyricsPlacer extends SceneBase {
         var i = this._wordMap[c._char]._index;
 
         c._plane.position.copy(this._poi);
-        c._plane.position.addScaledVector(this._n, 1.05)
+        c._plane.position.addScaledVector(this._n, 1.02)
         c._plane.lookAt(this._la);
         c._plane.position.setY(c._plane.position.y - i * (this._scale + 0.5));
         c._plane.scale.set(this._scale, this._scale, this._scale);

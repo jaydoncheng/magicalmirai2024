@@ -51,6 +51,7 @@ export class ThreeManager {
     }
 
     public initialize() {
+        this.reset();
         this._scene = new THREE.Scene();
         this._rootObj = new THREE.Group();
         this._scene.add(this._rootObj);
@@ -98,7 +99,10 @@ export class ThreeManager {
     }
 
     public reset() {
-        this.buildingsMng.setKeyframeIndex(1);
+        if (this.buildingsMng) {
+            this.buildingsMng.reset();
+            this.buildingsMng.setKeyframeIndex(1);
+        }
     }
 
     public _update() {

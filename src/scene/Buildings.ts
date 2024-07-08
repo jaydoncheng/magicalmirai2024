@@ -47,13 +47,17 @@ export class Buildings extends SceneBase {
 
     public plotAndBuild(curPos: THREE.Vector3, disLimit: number, timeOffset: number) {
         var keyframeArr = Globals.currentSong.keyframes;
+        if (this._kfIndex >= Globals.currentSong.keyframes.length) {
+            return curPos;
+        }
         var deltaTime = keyframeArr[this._kfIndex].timestamp - this._buildRelElapsedTime;
 
-        var kf = keyframeArr[this._kfIndex - 1];
-        const { x, y, z } = kf.sceneParams.camera?.direction!;
+        var kf = keyframeArr[this._kfIndex - 1].sceneParams;
+        kf = { ...kf, ...Globals.sceneParams };
+        const { x, y, z } = kf.camera?.direction!;
         var direction = new THREE.Vector3(x!, y!, z!).normalize();
 
-        var distance = (deltaTime / 1000) * kf.sceneParams.camera?.relativeSpeed! * 3;
+        var distance = (deltaTime / 1000) * kf.camera?.relativeSpeed! * 3;
         var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
 
         var destination = new THREE.Vector3()
