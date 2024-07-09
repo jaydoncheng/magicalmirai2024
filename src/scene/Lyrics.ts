@@ -22,10 +22,7 @@ export class LyricsPlacer extends SceneBase {
         this.__direction.set(x!, y!, z!);
 
         Globals.controls?.onStop(() => {
-            this._objs.forEach((o) => {
-                this._parentObject.remove(o);
-            });
-            this._objs = [];
+            this.reset();
         });
     }
 
@@ -48,7 +45,7 @@ export class LyricsPlacer extends SceneBase {
         this._ray.near = 0;
 
         this._camMng.getCamSubParent().getWorldPosition(this._pos);
-        this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 3);
+        this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 1.8);
         this._camMng.getCam().getWorldDirection(this._rot);
 
         var dir = this._randomDirection(this._rot, Math.PI / 2);
@@ -80,9 +77,9 @@ export class LyricsPlacer extends SceneBase {
     }
 
     private _scale = 4;
-    private _la : THREE.Vector3 = new THREE.Vector3();
-    private _poi : THREE.Vector3 = new THREE.Vector3();
-    private _n : THREE.Vector3 = new THREE.Vector3();
+    private _la: THREE.Vector3 = new THREE.Vector3();
+    private _poi: THREE.Vector3 = new THREE.Vector3();
+    private _n: THREE.Vector3 = new THREE.Vector3();
     public placeChar(c: CharTex) {
 
         this._poi.copy(this._placeWordAt.point);
@@ -100,6 +97,14 @@ export class LyricsPlacer extends SceneBase {
 
         this._parentObject.add(c._plane);
         this._objs.push(c._plane);
+    }
+
+    public reset() {
+        this._objs.forEach((o) => {
+            console.log(o);
+            this._parentObject.remove(o);
+        });
+        this._objs = [];
     }
 
     public update() { }

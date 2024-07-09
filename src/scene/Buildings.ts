@@ -195,5 +195,6 @@ export class Buildings extends SceneBase {
             100,
             0,
         );
+        this.setKeyframeIndex(1);
     }
 }

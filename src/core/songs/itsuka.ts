@@ -15,9 +15,6 @@ export default {
     {
       timestamp: 0,
       sceneParams: {
-        camera: {
-          direction: { x: 0, y: 0, z: 1 },
-        },
         palette: {
           sky: "#0f12d2",
           fog: "#287493",
@@ -27,22 +24,6 @@ export default {
           buildingTint: "#999999",
         },
       },
-    },
-    {
-      timestamp: 1000,
-      sceneParams: {
-        camera: {
-          direction: { x: 0, y: 0, z: 1 },
-        },
-        palette: {
-          sky: "#ffffff",
-          fog: "#287493",
-          ambientLight: "#aaaaaa",
-          pointLight: "#ffffff",
-          plane: "#555555",
-          buildingTint: "#999999",
-        },
-      },
-    },
+    }
   ],
 } as ISong;

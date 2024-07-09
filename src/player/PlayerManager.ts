@@ -51,7 +51,6 @@ export class PlayerManager {
         this._position = 0;
         this._updateTime = -1;
         this._curKeyframeIndex = 0;
-        this._keyframes = Globals.currentSong.keyframes;
 
         player.addListener({
             onAppReady: (app) => { this._onAppReady(app) },
@@ -95,14 +94,16 @@ export class PlayerManager {
     }
 
     public _reset() {
-        this._keyframes = Globals.currentSong.keyframes;
+        console.log("reset");
         this._curKeyframeIndex = 0;
 
         this._position = 0;
         this._updateTime = -1;
 
+        Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
+        this._genKeyframes();
         this.player.requestMediaSeek(0);
-        this.player.requestStop();
+        this.player.setVideoPosition(0);
     }
 
     private _prevUnit: ITextUnit | null = null;
@@ -127,14 +128,6 @@ export class PlayerManager {
 
     private _onVideoReady(v: any) {
         console.log("onVideoReady");
-
-        console.log(this.player);
-        console.log(this);
-        console.log(this.player.data.songMap);
-        console.log("choruses: ");
-        console.log(this.player.getChoruses());
-        console.log("beats: ");
-        console.log(this.player.getBeats());
         this._genKeyframes();
 
         let w = this.player.video.firstWord;
@@ -153,15 +146,12 @@ export class PlayerManager {
         }
     }
 
-
     private _genKeyframes() {
+        this._keyframes = Globals.currentSong.keyframes;
 
-    var directionX = 0;
-
+        var directionX = 0;
         var choruses = this.player.getChoruses();
-
         for (var i = 0; i < choruses.length; i++) {
-
             let timestamp = Math.round(choruses[i].startTime.valueOf());
 
             let valAro = this.player.getValenceArousal(timestamp);
@@ -170,37 +160,39 @@ export class PlayerManager {
 
             directionX += (Math.random() * 6) - 3;
             let speed = (arousal) + 2;
-            Globals.currentSong.keyframes.push( 
-                {
-                    timestamp: timestamp,
-                    sceneParams: {
-                        camera: {
-                            sway: valence,
-                            direction: { x: directionX, y: 0, z: 1 },
-                            relativeSpeed: speed,
-                        },
-                   },
-               },
-            );
+
+            if (this._keyframes.find((k) => k.timestamp === timestamp)) {
+                continue;
+            }
+
+            this._keyframes.push({
+                timestamp: timestamp,
+                sceneParams: {
+                    camera: {
+                        sway: valence,
+                        direction: { x: directionX, y: 0, z: 1 },
+                        relativeSpeed: speed,
+                    },
+                }
+            });
         }
 
         // last keyframe
-        Globals.currentSong.keyframes.push( 
-            {
-                timestamp: 10000000,
-                sceneParams: {
-                    camera: {
-                        sway: () => { },
-                        direction: { x: 0, y: 0, z: 1 },
-                        relativeSpeed: 5,
-                    },
-               },
-           },
-        );
+        this._keyframes.push({
+            timestamp: 10000000,
+            sceneParams: {
+                camera: {
+                    sway: 0,
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 5,
+                },
+            }
+        });
 
+        Globals.currentSong.keyframes = this._keyframes;
         console.log("keyframes:");
-        for (var i = 0; i < Globals.currentSong.keyframes.length; i++) {
-            console.log(Globals.currentSong.keyframes[i].timestamp);
+        for (var i = 0; i < this._keyframes.length; i++) {
+            console.log(this._keyframes[i].timestamp, this._keyframes[i].sceneParams);
         }
 
     }
@@ -220,6 +212,7 @@ export class PlayerManager {
     private _updateKeyframe(t: number) {
         if (this._curKeyframeIndex < this._keyframes.length) {
             if (t > this._keyframes[this._curKeyframeIndex].timestamp) {
+                console.log("update keyframe", this._curKeyframeIndex);
                 Globals.updateSceneParams(this._keyframes[this._curKeyframeIndex].sceneParams);
                 this._curKeyframeIndex++;
             }
@@ -232,13 +225,6 @@ export class PlayerManager {
 
             this._updateKeyframe(t);
             Globals.three!.songUpdate(t);
-
-            console.log(t);
-
-            console.log("Valence Arousal: ");
-            console.log(this.player.getValenceArousal(t));
-            console.log("Vocal Amplitude: ");
-            console.log(this.player.getVocalAmplitude(t));
         }
 
         requestAnimationFrame(() => { this._update(); });

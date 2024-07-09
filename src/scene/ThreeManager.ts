@@ -103,16 +103,13 @@ export class ThreeManager {
     }
 
     public songUpdate(time: number) {
-        // console.log("currentTime: " + Math.round(time));
         this.camMng.songUpdate(time);
         this.buildingsMng.songUpdate(time);
     }
 
     public reset() {
-        if (this.buildingsMng) {
-            this.buildingsMng.reset();
-            this.buildingsMng.setKeyframeIndex(1);
-        }
+        if (this.buildingsMng) this.buildingsMng.reset(); 
+        if (this.camMng) this.camMng.reset();
     }
 
     public _update() {

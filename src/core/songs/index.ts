@@ -6,9 +6,9 @@ import reality from './reality';
 import tmarks from './tmarks';
 
 export default [
-    futurenotes,
     superhero,
     itsuka,
+    futurenotes,
     miraik,
     reality,
     tmarks,

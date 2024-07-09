@@ -68,6 +68,13 @@ export class CameraManager extends SceneBase {
 
     public reset() {
         this.shouldBeAt.set(0, 0, 0);
+        this._camera.position.set(0, 15, -0.001);
+        this.cameraTarget.set(0, 15, 0);
+
+        this.shouldBeAt.set(0, 0, 0);
+        this.swayShouldBeAt.set(0, 15, 0);
+        const { x, y, z } = Globals.sceneParams.camera?.direction!;
+        this.direction.set(x!, y!, z!);
     }
 
     getDirection() { return this.direction; }
