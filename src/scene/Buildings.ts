@@ -215,10 +215,7 @@ export class Buildings extends SceneBase {
             this.purge(this._buildingGroups[i]);
         }
         this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
-        this._collisionPoint = this.plotAndBuild(
-            new THREE.Vector3(0, 0, 0),
-            100,
-        );
+        this._collisionPoint.set(0,0,0);
         this.setKeyframeIndex(1);
     }
 }

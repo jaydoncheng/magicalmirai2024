@@ -143,7 +143,7 @@ export class CameraManager extends SceneBase {
         }
 
         var distance = currentKf.distanceTo(nextKf);
-        var direction = new THREE.Vector3().subVectors(nextKf, currentKf).normalize().multiplyScalar(kf.camera?.relativeSpeed! * 0.015);
+        var direction = new THREE.Vector3().subVectors(nextKf, currentKf).normalize().multiplyScalar(t * kf.camera?.relativeSpeed! * 3);
         var origin = new THREE.Vector3();
         this.distanceChecker += origin.distanceTo(direction);
         this.shouldBeAt.add(direction);
@@ -151,20 +151,25 @@ export class CameraManager extends SceneBase {
         if (this.distanceChecker >= distance) {
             this.distanceChecker = 0;
             this._kfIndex++;
-            console.log()
+            console.log("changed direction at: " + this.testElapsedTime);
         }
 
     }
 
     public reset() {
-        this.shouldBeAt.set(0, 0, 0);
         this._camera.position.set(0, 15, -0.001);
         this.cameraTarget.set(0, 15, 0);
-
-        this.directionalChanges= [];
-        this._kfIndex = 0;
         this.shouldBeAt.set(0, 0, 0);
         this.swayShouldBeAt.set(0, 15, 0);
+
+        this.directionalChanges= [];
+        this._buildRelElapsedTime = 0;
+        this.kfGenClone = 1;
+        this._kfIndex = 0;
+        this.distanceChecker = 0;
+
+        this.isPathGenerated = false;
+
         const { x, y, z } = Globals.sceneParams.camera?.direction!;
         this.direction.set(x!, y!, z!);
     }
@@ -176,7 +181,11 @@ export class CameraManager extends SceneBase {
 
     private _prevTime = 0;
     private __direction = new THREE.Vector3();
+
+    private testElapsedTime = 0;
+
     public songUpdate(elapsedTime: number) {
+        this.testElapsedTime = elapsedTime;
         let deltaTime = elapsedTime - this._prevTime;
         if (deltaTime > 0) {
             let t = deltaTime / 1000;
@@ -188,9 +197,6 @@ export class CameraManager extends SceneBase {
             this.__direction.copy(this.direction);
 
             this.updateShouldBeAt(t);
-
-            // this.shouldBeAt.addScaledVector(this.__direction,
-            //     t * Globals.sceneParams.camera?.relativeSpeed! * 2.835);
         }
         this._prevTime = elapsedTime;
     }
