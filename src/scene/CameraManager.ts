@@ -55,8 +55,8 @@ export class CameraManager extends SceneBase {
         this._controls.enableDamping = true;
         this._controls.dampingFactor = 0.25;
 
-        // this._controls.enableZoom = false;
-        // this._controls.enablePan = false;
+        this._controls.enableZoom = false;
+        this._controls.enablePan = false;
 
         this._controls.target = this.cameraTarget;
         this._camera.copy(this.fakeCam);

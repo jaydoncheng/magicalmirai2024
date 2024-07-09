@@ -34,8 +34,6 @@ export class Buildings extends SceneBase {
         });
     }
 
-    private updateClock = new THREE.Clock();
-
     public update() {
         this.recolor();
         if (Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
@@ -158,7 +156,7 @@ export class Buildings extends SceneBase {
     }
 
     public deleteBlock() {
-        if (this._buildingGroups.length > 10) {
+        if (this._buildingGroups.length > 15) {
             var bG: THREE.Group = this._buildingGroups.shift()!;
             this.purge(bG);
         }
