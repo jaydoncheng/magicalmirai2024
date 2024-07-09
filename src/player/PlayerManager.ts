@@ -201,6 +201,16 @@ export class PlayerManager {
                 },
             }
         });
+        this._keyframes.push({
+            timestamp: this.player.video.endTime + 25000,
+            sceneParams: {
+                camera: {
+                    sway: 0,
+                    direction: { x: 0, y: 0, z: 1 },
+                    relativeSpeed: 5,
+                },
+            }
+        });
 
         Globals.currentSong.keyframes = this._keyframes;
         console.log("keyframes:");

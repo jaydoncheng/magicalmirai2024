@@ -25,8 +25,8 @@ export default {
                     fog: "#ff95a5",
                     ambientLight: "#aaaaaa",
                     pointLight: "#ffffff",
-                    plane: "#555555",
-                    buildingTint: "#bd6a4e",
+                    plane: "#1a931c",
+                    buildingTint: "#e59e6c",
                 },
             }
         },

@@ -29,7 +29,5 @@ export class FloorMng extends SceneBase {
 
     public update() {}
 
-    public _onParamsChanged(details: ISceneParams): void {
-        // this._plane.material.color.setHex(details.palette?.plane);
-    }
+    public _onParamsChanged(details: ISceneParams): void {}
 }
