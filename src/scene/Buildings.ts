@@ -40,7 +40,7 @@ export class Buildings extends SceneBase {
         this.recolor();
         if (Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
             this._collisionPoint = this.plotAndBuild(
-                this._collisionPoint, 34, 0,
+                this._collisionPoint, 34,
             );
         }
     }
@@ -48,7 +48,7 @@ export class Buildings extends SceneBase {
     private _kfIndex = 1;
     private _buildRelElapsedTime = 0;
 
-    public plotAndBuild(curPos: THREE.Vector3, disLimit: number, timeOffset: number) {
+    public plotAndBuild(curPos: THREE.Vector3, disLimit: number) {
         var keyframeArr = Globals.currentSong.keyframes;
         if (this._kfIndex >= Globals.currentSong.keyframes.length) {
             return curPos;
@@ -63,9 +63,7 @@ export class Buildings extends SceneBase {
         var distance = (deltaTime / 1000) * kf.camera?.relativeSpeed! * 3;
         var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
 
-        var destination = new THREE.Vector3()
-            .copy(curPos)
-            .addScaledVector(direction, disLimit);
+        var destination = new THREE.Vector3().copy(curPos).addScaledVector(direction, disLimit);
 
         if (distance > disLimit) {
             this.populate(curPos, destination);
@@ -83,11 +81,13 @@ export class Buildings extends SceneBase {
             return destination;
         } else {
             this.populate(curPos, dirChange);
+            console.log("buildings dirChange:");
+            console.log(dirChange);
             if (this._kfIndex < Globals.currentSong.keyframes.length) {
                 this._kfIndex++;
             }
             this._buildRelElapsedTime += deltaTime;
-            return this.plotAndBuild(dirChange, disLimit - distance, deltaTime);
+            return this.plotAndBuild(dirChange, disLimit - distance);
         }
     }
 
@@ -218,7 +218,6 @@ export class Buildings extends SceneBase {
         this._collisionPoint = this.plotAndBuild(
             new THREE.Vector3(0, 0, 0),
             100,
-            0,
         );
         this.setKeyframeIndex(1);
     }
