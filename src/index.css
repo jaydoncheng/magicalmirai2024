@@ -102,6 +102,7 @@ a {
 #license {
     font-size: calc(0.4rem + 0.5vmin);
     width: calc(100vw - 100px - 16vmin);
+    z-index: 80;
 }
 
 .dg.ac {
