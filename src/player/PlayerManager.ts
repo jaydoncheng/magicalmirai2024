@@ -151,6 +151,9 @@ export class PlayerManager {
 
         var directionX = 0;
         var choruses = this.player.getChoruses();
+
+        this.maxAmplitude = this.player.getMaxVocalAmplitude();
+
         for (var i = 0; i < choruses.length; i++) {
             let timestamp = Math.round(choruses[i].startTime.valueOf());
 
@@ -158,7 +161,7 @@ export class PlayerManager {
             let valence = Math.pow(valAro.v, 2) * 25;
             let arousal = Math.pow(valAro.a, 2) * 100;
 
-            directionX += (Math.random() * 6) - 3;
+            directionX += (Math.random() * 3) - 1.5;
             let speed = (arousal) + 2;
 
             if (this._keyframes.find((k) => k.timestamp === timestamp)) {
@@ -219,12 +222,19 @@ export class PlayerManager {
         }
 
     }
+
+    public amplitude;
+    public maxAmplitude;
+
     private _update() {
         if (this.player && this.player.isPlaying && this._updateTime > 0) {
             var t = Date.now() - this._updateTime + this._position;
 
             this._updateKeyframe(t);
             Globals.three!.songUpdate(t);
+
+            this.amplitude = this.player.getVocalAmplitude(t);
+
         }
 
         requestAnimationFrame(() => { this._update(); });

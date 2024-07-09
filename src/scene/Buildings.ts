@@ -34,7 +34,10 @@ export class Buildings extends SceneBase {
         });
     }
 
+    private updateClock = new THREE.Clock();
+
     public update() {
+        this.recolor();
         if ( Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
             this._collisionPoint = this.plotAndBuild(
                 this._collisionPoint, 34, 0,
@@ -173,6 +176,28 @@ export class Buildings extends SceneBase {
         }
         if (obj.parent) {
             obj.parent.remove(obj);
+        }
+    }
+
+    public recolor() {
+        for (var i = 0; i < this._buildingGroups.length; i++) {
+            this.recolorHelper(this._buildingGroups[i]);
+        }
+
+    }
+
+    public recolorHelper(obj) {
+        if (obj.children.length > 0) {
+            for (let i = obj.children.length - 1; i >= 0; i--) {
+                this.recolorHelper(obj.children[i]);
+            }
+        }
+        if (obj.isMesh) {
+            var newCol = new THREE.Color(Globals.sceneParams.palette?.buildingTint);
+            newCol.multiplyScalar(((Globals.player?.amplitude/Globals.player?.maxAmplitude)*0.5) + 0.8);
+
+            obj.material.color.set(newCol);
+
         }
     }
 
