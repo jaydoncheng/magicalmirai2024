@@ -7,7 +7,7 @@ export class PlayerManager {
     private _playerOptions: PlayerOptions = {
         app: { token: "U0WiRzyOIaolhCks" },
         mediaElement: document.querySelector("#media")! as HTMLMediaElement,
-        mediaBannerPosition: "bottom left",
+        mediaBannerPosition: "top left",
         throttleInterval: 200,
         vocalAmplitudeEnabled: true,
         valenceArousalEnabled: true,

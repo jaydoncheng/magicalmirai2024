@@ -95,6 +95,8 @@ export class ThreeManager {
     }
 
     public resize() {
+        this._renderer.setPixelRatio(window.devicePixelRatio);
+        this._composer.setPixelRatio(window.devicePixelRatio);
 
         this.camMng.resize();
         console.log(window.innerWidth, window.innerHeight);
