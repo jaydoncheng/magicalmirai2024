@@ -63,7 +63,7 @@ export class CharTex {
 
 export type CharTexMapType = CharTex[];
 export class CharTexMap {
-    private _charTexList: CharTexMapType = [];
+    private _charTexList: CharTex[] = [];
     constructor() { }
 
     public newCharTex(char: string, i : number = 0) {
@@ -73,8 +73,8 @@ export class CharTexMap {
     }
 
     public dispose() {
-        for (let obj in this._charTexList) {
-            obj.dispose();
+        for (var i = 0; i < this._charTexList.length; i++) {
+            this._charTexList[i].dispose();
         }
     }
 }

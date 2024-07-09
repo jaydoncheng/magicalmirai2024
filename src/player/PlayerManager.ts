@@ -217,6 +217,7 @@ export class PlayerManager {
     }
 
     private _onTimerReady() {
+        this.player.volume = 40;
         console.log("onTimerReady");
         Globals.controls!.setReady("player", true);
         this.player.requestStop();
