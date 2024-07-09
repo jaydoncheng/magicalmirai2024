@@ -194,13 +194,10 @@ export class Buildings extends SceneBase {
         }
         if (obj.isMesh) {
             var newCol = new THREE.Color(Globals.sceneParams.palette?.buildingTint);
-            let ampP = Globals.player?.amplitude / Globals.player?.maxAmplitude;
-            if (ampP) {
-                newCol.multiplyScalar((ampP * 0.5) + 0.8);
-            }
+            let ampP = Globals.player?.amplitude! / Globals.player?.maxAmplitude!;
+            if (ampP) newCol.multiplyScalar((ampP * 0.5) + 0.8);
 
             obj.material.color.set(newCol);
-
         }
     }
 
