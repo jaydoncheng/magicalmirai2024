@@ -27,7 +27,9 @@ export class LyricsPlacer extends SceneBase {
     }
 
     private _u = new THREE.Vector3();
+    private _y = new THREE.Vector3(0, 1, 0);
     private _randomDirection(baseDir: THREE.Vector3, maxAngle: number) {
+
         this._u.copy(baseDir);
         this._u.normalize();
 
@@ -47,6 +49,9 @@ export class LyricsPlacer extends SceneBase {
         this._camMng.getCamSubParent().getWorldPosition(this._pos);
         this._pos.addScaledVector(this.__direction, Globals.sceneParams.camera?.relativeSpeed! * 1.8);
         this._camMng.getCam().getWorldDirection(this._rot);
+
+        let r = this._rot.angleTo(this._y);
+        if (r < 0.1 || r > Math.PI - 0.1 ) { return null; }
 
         var dir = this._randomDirection(this._rot, Math.PI / 2);
         this._ray.set(this._pos.setY(this._pos.y + offset), dir);
@@ -92,19 +97,19 @@ export class LyricsPlacer extends SceneBase {
 
         var i = this._wordMapLength - this._wordMap.length;
         var c : CharTex;
-        if (this._wordMap[0]?._char == char) {
+        if (this._wordMap[0]?.char == char) {
             c = this._wordMap.shift()!;
         } else { return }
         var height_offset = this._wordMapLength * this._scale / 2 + 2;
 
-        c._plane.position.copy(this._poi);
-        c._plane.position.addScaledVector(this._n, 1.02)
-        c._plane.lookAt(this._la);
-        c._plane.position.setY(c._plane.position.y - i * (this._scale + 0.25) + height_offset);
-        c._plane.scale.set(this._scale, this._scale, this._scale);
+        c.plane.position.copy(this._poi);
+        c.plane.position.addScaledVector(this._n, 1.02)
+        c.plane.lookAt(this._la);
+        c.plane.position.setY(c.plane.position.y - i * (this._scale + 0.25) + height_offset);
+        c.plane.scale.set(this._scale, this._scale, this._scale);
 
-        this._parentObject.add(c._plane);
-        this._objs.push(c._plane);
+        this._parentObject.add(c.plane);
+        this._objs.push(c.plane);
     }
 
     public reset() {

@@ -3,13 +3,14 @@ import * as THREE from 'three';
 export class CharTex {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
-    public _texture: THREE.Texture;
-    public _plane: THREE.Mesh;
-    public _char: string
-    public _index: number = 0;
+    public texture: THREE.Texture;
+    public plane: THREE.Mesh;
+    public char: string
+    public index: number = 0;
+
     constructor(char: string, _index: number = 0) {
-        this._char = char;
-        this._index = _index;
+        this.char = char;
+        this.index = _index;
 
         this._initCanvas();
         this._drawChar();
@@ -25,7 +26,7 @@ export class CharTex {
         ctx.font = '80px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this._char, this._canvas.width / 2, this._canvas.height / 2);
+        ctx.fillText(this.char, this._canvas.width / 2, this._canvas.height / 2);
     }
 
     private _initCanvas(size: number = 80) {
@@ -39,7 +40,7 @@ export class CharTex {
     }
 
     private _initTexture() {
-        var texture = this._texture = new THREE.Texture(this._canvas);
+        var texture = this.texture = new THREE.Texture(this._canvas);
         texture.minFilter = THREE.NearestFilter;
         texture.magFilter = THREE.NearestFilter;
         texture.needsUpdate = true;
@@ -47,14 +48,14 @@ export class CharTex {
 
     private _initPlane() {
         var geometry = new THREE.PlaneGeometry(1, 1);
-        var material = new THREE.MeshBasicMaterial({ map: this._texture, transparent: true, side: THREE.DoubleSide });
-        this._plane = new THREE.Mesh(geometry, material);
+        var material = new THREE.MeshBasicMaterial({ map: this.texture, transparent: true, side: THREE.DoubleSide });
+        this.plane = new THREE.Mesh(geometry, material);
     }
 
     public dispose() {
-        this._texture.dispose();
-        this._texture.dispose()
-        this._plane.geometry.dispose();
+        this.texture.dispose();
+        this.texture.dispose()
+        this.plane.geometry.dispose();
 
         this._canvas.remove();
     }

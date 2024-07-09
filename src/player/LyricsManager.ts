@@ -1,5 +1,5 @@
 import Globals from "../core/Globals";
-import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
+import { CharTexMap, CharTexMapType } from "./CharTex";
 
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
@@ -16,39 +16,37 @@ export class LyricsManager {
     }
 
     private _isAlnum(str: string) {
-        var code: number, 
-            i: number, 
+        var code: number,
+            i: number,
             len: number;
 
         for (i = 0, len = str.length; i < len; i++) {
             code = str.charCodeAt(i);
-            if (!(code > 47 && code < 58) && // numeric (0-9)
-                !(code > 64 && code < 91) && // upper alpha (A-Z)
-                !(code > 96 && code < 123)) { // lower alpha (a-z)
+            if (!(code > 47 && code < 58) && // (0-9)
+                !(code > 64 && code < 91) && // (A-Z)
+                !(code > 96 && code < 123)) { // (a-z)
                 return false;
             }
         }
         return true;
     }
 
-    public handleChar(c : string) {
+    public handleChar(c: string) {
         Globals.three?.lyricsMng.placeChar(c);
     }
-    
+
     public handleWord(word: string) {
         var c = word.split('');
-        var l : CharTexMapType = [];
+        var l: CharTexMapType = [];
         for (var i = 0; i < c.length; i++) {
-            let charTex = this._charTexMap.newCharTex(c[i], i);
-            charTex._index = i;
-            l.push(charTex);
+            l.push(this._charTexMap.newCharTex(c[i], i));
         }
 
         Globals.three?.lyricsMng.placeWord(l);
+
+        // If word is alphanumeric, place the whole word instead of animating
         if (this._isAlnum(word)) {
-            for (var i = 0; i < c.length; i++) {
-                this.handleChar(c[i]);
-            }
+            for (var i = 0; i < c.length; i++) this.handleChar(c[i]);
         }
     }
 }

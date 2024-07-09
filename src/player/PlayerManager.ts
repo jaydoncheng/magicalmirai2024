@@ -26,24 +26,14 @@ export class PlayerManager {
 
         Globals.controls!.setReady("player", false);
         const media: HTMLElement | null = document.querySelector("#media");
-        if (media === null) {
-            throw new Error("media element not found");
-        }
+        if (media === null) throw new Error("media element not found");
 
-        Globals.controls!.onPlay(() => {
-            this.player.requestPlay();
-        });
-        Globals.controls!.onPause(() => {
-            this.player.requestPause();
-        });
-        Globals.controls!.onStop(() => {
-            this._reset();
-        });
+        Globals.controls!.onPlay(() => { this.player.requestPlay(); });
+        Globals.controls!.onPause(() => { this.player.requestPause(); });
+        Globals.controls!.onStop(() => { this.reset(); });
 
         this._initPlayer();
-        window.addEventListener("songchanged", () => {
-            this._onSongChanged();
-        });
+        window.addEventListener("songchanged", () => { this._onSongChanged(); });
     }
 
     private _initPlayer() {
@@ -90,10 +80,10 @@ export class PlayerManager {
 
     private _onStop() {
         console.log("stop");
-        this._reset();
+        this.reset();
     }
 
-    public _reset() {
+    public reset() {
         console.log("reset");
         this._curKeyframeIndex = 0;
 
@@ -177,7 +167,7 @@ export class PlayerManager {
             let timestamp = Math.round(choruses[i].startTime.valueOf());
 
             let valAro = this.player.getValenceArousal(timestamp);
-            let valence = Math.pow(valAro.v, 2) * 25;
+            let valence = Math.pow(valAro.v, 2) * 40;
             let arousal = Math.pow(valAro.a, 2) * 100;
 
             directionX += (Math.random() * 3) - 1.5;
