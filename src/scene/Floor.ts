@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { ISceneParams } from "../core/SceneParams";
 import { SceneBase } from "./SceneBase";
+import Globals from "../core/Globals";
 
 export class FloorMng extends SceneBase {
     private _plane : THREE.Mesh;
@@ -13,7 +14,7 @@ export class FloorMng extends SceneBase {
         var plane = this._plane = new THREE.Mesh(
         new THREE.PlaneGeometry(400, 400, 1, 1),
         new THREE.MeshStandardMaterial({
-            color: 0x555555,
+            color: Globals.sceneParams.palette?.plane,
             side: THREE.DoubleSide,
         }));
         

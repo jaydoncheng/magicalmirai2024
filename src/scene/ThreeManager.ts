@@ -110,6 +110,7 @@ export class ThreeManager {
     public reset() {
         if (this.buildingsMng) this.buildingsMng.reset(); 
         if (this.camMng) this.camMng.reset();
+        if (this.lyricsMng) this.lyricsMng.reset();
     }
 
     public _update() {

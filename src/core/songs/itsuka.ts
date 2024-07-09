@@ -22,11 +22,11 @@ export default {
         },
         palette: {
           sky: "#0f12d2",
-          fog: "#287493",
+          fog: "#3bc9db",
           ambientLight: "#aaaaaa",
           pointLight: "#ffffff",
           plane: "#555555",
-          buildingTint: "#999999",
+          buildingTint: "#242253",
         },
       },
     }
