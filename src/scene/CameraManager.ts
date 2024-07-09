@@ -66,58 +66,63 @@ export class CameraManager extends SceneBase {
         });
     }
 
+
+    private generatePath () {
+        var curPos = new THREE.Vector3();
+
+        this.directionalChanges.push(new THREE.Vector3(0,0,0));
+
+        while (this.directionalChanges.length < Globals.currentSong.keyframes.length) {
+            curPos = this.plot(curPos, 34);
+        }
+
+        console.log(this.directionalChanges);
+
+    }
+
     private _buildRelElapsedTime = 0;
 
     private directionalChanges: THREE.Vector3[] = [];
 
-    private generatePath () {
+    private kfGenClone = 1;
+
+    public plot(curPos: THREE.Vector3, disLimit: number) {
         var keyframeArr = Globals.currentSong.keyframes;
-        var curPos = new THREE.Vector3();
-        var disLimit = 60;
-
-        this.directionalChanges.push(new THREE.Vector3(0,0,0));
-
-        var kfIndex = 1
-
-        for (var i = 1; i < keyframeArr.length; ) {
-
-            var kf = keyframeArr[kfIndex - 1].sceneParams;
-            kf = { ...Globals.sceneParams, ...kf };
-            const { x, y, z } = kf.camera?.direction!;
-            var direction = new THREE.Vector3(x!, y!, z!).normalize();
-
-            var deltaTime = keyframeArr[kfIndex].timestamp - this._buildRelElapsedTime;
-
-            var distance = (deltaTime / 1000) * kf.camera?.relativeSpeed! * 3;
-            var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
-
-            var destination = new THREE.Vector3()
-                .copy(curPos)
-                .addScaledVector(direction, disLimit);
-
-            if (distance > disLimit) {
-                this._buildRelElapsedTime +=
-                    disLimit / (0.003 * kf.camera?.relativeSpeed!);
-
-            } else if (distance == disLimit) {
-                if (kfIndex < Globals.currentSong.keyframes.length) {
-                    kfIndex++;
-                }
-                this._buildRelElapsedTime +=
-                    disLimit / (0.003 * kf.camera?.relativeSpeed!);
-            } else {
-                this.directionalChanges.push(dirChange);
-                i++;
-                if (kfIndex < Globals.currentSong.keyframes.length) {
-                    kfIndex++;
-                }
-                this._buildRelElapsedTime += deltaTime;
-            }
-
-            curPos.copy(destination);
+        if (this.kfGenClone >= Globals.currentSong.keyframes.length) {
+            return curPos;
         }
+        var deltaTime = keyframeArr[this.kfGenClone].timestamp - this._buildRelElapsedTime;
 
-        console.log(this.directionalChanges);
+        var kf = keyframeArr[this.kfGenClone - 1].sceneParams;
+        kf = { ...Globals.sceneParams, ...kf };
+        const { x, y, z } = kf.camera?.direction!;
+        var direction = new THREE.Vector3(x!, y!, z!).normalize();
+
+        var distance = (deltaTime / 1000) * kf.camera?.relativeSpeed! * 3;
+        var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
+
+        var destination = new THREE.Vector3().copy(curPos).addScaledVector(direction, disLimit);
+
+        if (distance > disLimit) {
+            this._buildRelElapsedTime +=
+                disLimit / (0.003 * kf.camera?.relativeSpeed!);
+
+            return destination;
+        } else if (distance == disLimit) {
+            if (this.kfGenClone < Globals.currentSong.keyframes.length) {
+                this.kfGenClone++;
+            }
+            this._buildRelElapsedTime +=
+                disLimit / (0.003 * kf.camera?.relativeSpeed!);
+            return destination;
+        } else {
+            this.directionalChanges.push(dirChange);
+            if (this.kfGenClone < Globals.currentSong.keyframes.length) {
+                this.kfGenClone++;
+            }
+            this._buildRelElapsedTime += deltaTime;
+            return this.plot(dirChange, disLimit - distance);
+        }
     }
 
     private _kfIndex = 0;
@@ -138,7 +143,7 @@ export class CameraManager extends SceneBase {
         }
 
         var distance = currentKf.distanceTo(nextKf);
-        var direction = new THREE.Vector3().subVectors(nextKf, currentKf).multiplyScalar(0.0005);
+        var direction = new THREE.Vector3().subVectors(nextKf, currentKf).normalize().multiplyScalar(kf.camera?.relativeSpeed! * 0.015);
         var origin = new THREE.Vector3();
         this.distanceChecker += origin.distanceTo(direction);
         this.shouldBeAt.add(direction);
@@ -146,6 +151,7 @@ export class CameraManager extends SceneBase {
         if (this.distanceChecker >= distance) {
             this.distanceChecker = 0;
             this._kfIndex++;
+            console.log()
         }
 
     }

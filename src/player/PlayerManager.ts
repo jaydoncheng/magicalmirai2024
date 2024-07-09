@@ -181,8 +181,9 @@ export class PlayerManager {
         }
 
         // last keyframe
+        console.log(this.player.video.endTime);
         this._keyframes.push({
-            timestamp: 10000000,
+            timestamp: this.player.video.endTime,
             sceneParams: {
                 camera: {
                     sway: 0,
@@ -235,7 +236,9 @@ export class PlayerManager {
 
             this.amplitude = this.player.getVocalAmplitude(t);
 
+            console.log("time: " + t);
         }
+
 
         requestAnimationFrame(() => { this._update(); });
     }
