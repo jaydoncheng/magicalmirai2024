@@ -48,7 +48,7 @@ export class ThreeManager {
         window.addEventListener("songchanged", _init);
 
         this.stats = new Stats();
-        document.body.appendChild(this.stats.dom);
+        // document.body.appendChild(this.stats.dom);
 
         this.initialize();
     }
