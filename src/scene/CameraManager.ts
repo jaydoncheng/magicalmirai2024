@@ -61,9 +61,93 @@ export class CameraManager extends SceneBase {
         this._controls.target = this.cameraTarget;
         this._camera.copy(this.fakeCam);
 
-        Globals.controls!.onStop(() => {
+        Globals.controls!.onStop(() => { 
             this.reset();
         });
+    }
+
+    private _buildRelElapsedTime = 0;
+
+    private directionalChanges: THREE.Vector3[] = [];
+
+    private generatePath () {
+        var keyframeArr = Globals.currentSong.keyframes;
+        var curPos = new THREE.Vector3();
+        var disLimit = 60;
+
+        this.directionalChanges.push(new THREE.Vector3(0,0,0));
+
+        var kfIndex = 1
+
+        for (var i = 1; i < keyframeArr.length; ) {
+
+            var kf = keyframeArr[kfIndex - 1].sceneParams;
+            kf = { ...Globals.sceneParams, ...kf };
+            const { x, y, z } = kf.camera?.direction!;
+            var direction = new THREE.Vector3(x!, y!, z!).normalize();
+
+            var deltaTime = keyframeArr[kfIndex].timestamp - this._buildRelElapsedTime;
+
+            var distance = (deltaTime / 1000) * kf.camera?.relativeSpeed! * 3;
+            var dirChange = new THREE.Vector3().copy(curPos).addScaledVector(direction, distance);
+
+            var destination = new THREE.Vector3()
+                .copy(curPos)
+                .addScaledVector(direction, disLimit);
+
+            if (distance > disLimit) {
+                this._buildRelElapsedTime +=
+                    disLimit / (0.003 * kf.camera?.relativeSpeed!);
+
+            } else if (distance == disLimit) {
+                if (kfIndex < Globals.currentSong.keyframes.length) {
+                    kfIndex++;
+                }
+                this._buildRelElapsedTime +=
+                    disLimit / (0.003 * kf.camera?.relativeSpeed!);
+            } else {
+                this.directionalChanges.push(dirChange);
+                i++;
+                if (kfIndex < Globals.currentSong.keyframes.length) {
+                    kfIndex++;
+                }
+                this._buildRelElapsedTime += deltaTime;
+            }
+
+            curPos.copy(destination);
+        }
+
+        console.log(this.directionalChanges);
+    }
+
+    private _kfIndex = 0;
+    private distanceChecker = 0;
+    private updateShouldBeAt (t) {
+        var keyframeArr = Globals.currentSong.keyframes;
+
+        var currentKf = this.directionalChanges[this._kfIndex];
+        var nextKf;
+
+        var kf = keyframeArr[this._kfIndex].sceneParams;
+        kf = { ...Globals.sceneParams, ...kf };
+
+        if (this._kfIndex + 1 >= this.directionalChanges.length) {
+            nextKf = this.directionalChanges[this._kfIndex].add(new THREE.Vector3(0,0,100));
+        } else {
+            nextKf = this.directionalChanges[this._kfIndex + 1];
+        }
+
+        var distance = currentKf.distanceTo(nextKf);
+        var direction = new THREE.Vector3().subVectors(nextKf, currentKf).multiplyScalar(0.0005);
+        var origin = new THREE.Vector3();
+        this.distanceChecker += origin.distanceTo(direction);
+        this.shouldBeAt.add(direction);
+
+        if (this.distanceChecker >= distance) {
+            this.distanceChecker = 0;
+            this._kfIndex++;
+        }
+
     }
 
     public reset() {
@@ -71,6 +155,8 @@ export class CameraManager extends SceneBase {
         this._camera.position.set(0, 15, -0.001);
         this.cameraTarget.set(0, 15, 0);
 
+        this.directionalChanges= [];
+        this._kfIndex = 0;
         this.shouldBeAt.set(0, 0, 0);
         this.swayShouldBeAt.set(0, 15, 0);
         const { x, y, z } = Globals.sceneParams.camera?.direction!;
@@ -94,18 +180,30 @@ export class CameraManager extends SceneBase {
             this.swayShouldBeAt.setY(15 + ((Math.cos(r * 2) / 2 + 0.5) * this.swayStrength));
 
             this.__direction.copy(this.direction);
-            this.shouldBeAt.addScaledVector(this.__direction,
-                t * Globals.sceneParams.camera?.relativeSpeed! * 2.835);
+
+            this.updateShouldBeAt(t);
+
+            // this.shouldBeAt.addScaledVector(this.__direction,
+            //     t * Globals.sceneParams.camera?.relativeSpeed! * 2.835);
         }
         this._prevTime = elapsedTime;
     }
 
     private updateClock = new THREE.Clock();
 
+    private isPathGenerated = false;
+
     public update() {
-        let deltaTime = this.updateClock.getDelta();
-        this.camGlobalGroup.position.lerp(this.shouldBeAt, deltaTime * 10);
-        this.camLocalGroup.position.lerp(this.swayShouldBeAt, deltaTime * 10);
+        if (Globals.controls?._whoisReady["player"] && !this.isPathGenerated) {
+            this.generatePath();
+            this.isPathGenerated = true;
+        }
+
+        if (this.isPathGenerated) {
+            let deltaTime = this.updateClock.getDelta();
+            this.camGlobalGroup.position.lerp(this.shouldBeAt, deltaTime * 10);
+            this.camLocalGroup.position.lerp(this.swayShouldBeAt, deltaTime * 10);
+        }
 
         this._controls.update();
         this._camera.copy(this.fakeCam);

@@ -83,6 +83,8 @@ export class Buildings extends SceneBase {
             return destination;
         } else {
             this.populate(curPos, dirChange);
+            console.log("buildings dirChange:");
+            console.log(dirChange);
             if (this._kfIndex < Globals.currentSong.keyframes.length) {
                 this._kfIndex++;
             }
