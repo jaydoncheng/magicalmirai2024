@@ -245,8 +245,6 @@ export class PlayerManager {
             Globals.three!.songUpdate(t);
 
             this.amplitude = this.player.getVocalAmplitude(t);
-
-            console.log("time: " + t);
         }
 
 
