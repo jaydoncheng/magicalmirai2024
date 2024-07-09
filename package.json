@@ -1,8 +1,8 @@
 {
-  "name": "TODO",
+  "name": "cityscape-lyrics",
   "private": true,
   "version": "1.0.0",
-  "description": "TODO",
+  "description": "A 3D cityscape that visualizes lyrics",
   "scripts": {
     "build-dev": "parcel src/index.html --dist-dir dev",
     "build": "parcel build src/index.html --public-url ./ --dist-dir docs --no-source-maps",
@@ -12,7 +12,7 @@
   "keywords": [
     "textalive"
   ],
-  "author": "",
+  "author": "jaydoncheng & pixelfrosty",
   "license": "MIT",
   "homepage": "",
   "dependencies": {
