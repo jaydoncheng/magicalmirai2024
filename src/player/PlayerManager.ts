@@ -71,6 +71,7 @@ export class PlayerManager {
                 video: Globals.currentSong.video,
             });
         }
+
     }
 
     private _onPlay() {
@@ -227,6 +228,8 @@ export class PlayerManager {
     }
 
     private _onTimerReady() {
+        console.log(this.player.data.songMap.revisions);
+        console.log(this.player.data.songMap.segments);
         this.player.volume = 40;
         console.log("onTimerReady");
         Globals.controls!.setReady("player", true);

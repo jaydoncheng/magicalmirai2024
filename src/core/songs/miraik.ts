@@ -7,7 +7,7 @@ export default {
     video: {
         beatId: 4592298,
         chordId: 2727638,
-        repetitiveSegmentId: 2824329,
+        repetitiveSegmentId: 2824322,
         lyricId: 59418,
         lyricDiffId: 13965
     },
