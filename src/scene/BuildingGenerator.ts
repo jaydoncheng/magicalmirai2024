@@ -143,9 +143,9 @@ export class BuildingGenerator {
 
 export const p_TwistyTower = () => {
     return {
-        maxWidth: { offset: 15, deviation: -2 },
+        maxWidth: { offset: 16, deviation: -1 },
         maxHeight: { offset: 90, deviation: -10 },
-        maxDepth: { offset: 15, deviation: -2 },
+        maxDepth: { offset: 16, deviation: -1 },
         widthSegments: 16,
         heightSegments: 16,
         depthSegments: 16,
@@ -157,9 +157,9 @@ export const p_TwistyTower = () => {
 
 export const p_BlockyTower = () => {
     return {
-        maxWidth: { offset: 15, deviation: -2 },
-        maxHeight: { offset: 60, deviation: -10 },
-        maxDepth: { offset: 15, deviation: -2 },
+        maxWidth: { offset: 15, deviation: -3 },
+        maxHeight: { offset: 80, deviation: -4 },
+        maxDepth: { offset: 15, deviation: -3 },
         widthSegments: 16,
         heightSegments: 16,
         depthSegments: 16,

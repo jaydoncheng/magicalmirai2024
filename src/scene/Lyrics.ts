@@ -40,7 +40,7 @@ export class LyricsPlacer extends SceneBase {
 
     private _pos = new THREE.Vector3();
     private _rot = new THREE.Vector3();
-    public shootRay(maxDist: number): THREE.Intersection | null {
+    public shootRay(maxDist: number, offset: number = 0): THREE.Intersection | null {
         this._ray.far = maxDist;
         this._ray.near = 0;
 
@@ -49,7 +49,7 @@ export class LyricsPlacer extends SceneBase {
         this._camMng.getCam().getWorldDirection(this._rot);
 
         var dir = this._randomDirection(this._rot, Math.PI / 2);
-        this._ray.set(this._pos, dir);
+        this._ray.set(this._pos.setY(this._pos.y + offset), dir);
 
         var children = this._parentObject.children;
         // only keep Group objects
@@ -68,31 +68,39 @@ export class LyricsPlacer extends SceneBase {
     public initialize() { }
 
     private _placeWordAt: any;
-    private _wordMap: CharTexMapType = {};
+    private _wordMap: CharTexMapType = [];
+    private _wordMapLength: number = 0;
     public placeWord(word: CharTexMapType) {
         var hit: THREE.Intersection | null = null;
         hit = this.shootRay(20);
+
         this._placeWordAt = hit;
         this._wordMap = word;
+        this._wordMapLength = this._wordMap.length;
     }
 
     private _scale = 4;
     private _la: THREE.Vector3 = new THREE.Vector3();
     private _poi: THREE.Vector3 = new THREE.Vector3();
     private _n: THREE.Vector3 = new THREE.Vector3();
-    public placeChar(c: CharTex) {
+    public placeChar(char: string) {
 
         this._poi.copy(this._placeWordAt.point);
         this._n.copy(this._placeWordAt.face.normal);
         this._n.transformDirection(this._placeWordAt.object.matrixWorld);
         this._la.copy(this._poi).addScaledVector(this._n, 2);
 
-        var i = this._wordMap[c._char]._index;
+        var i = this._wordMapLength - this._wordMap.length;
+        var c : CharTex;
+        if (this._wordMap[0]?._char == char) {
+            c = this._wordMap.shift()!;
+        } else { return }
+        var height_offset = this._wordMapLength * this._scale / 2 + 2;
 
         c._plane.position.copy(this._poi);
         c._plane.position.addScaledVector(this._n, 1.02)
         c._plane.lookAt(this._la);
-        c._plane.position.setY(c._plane.position.y - i * (this._scale + 0.5));
+        c._plane.position.setY(c._plane.position.y - i * (this._scale + 0.25) + height_offset);
         c._plane.scale.set(this._scale, this._scale, this._scale);
 
         this._parentObject.add(c._plane);

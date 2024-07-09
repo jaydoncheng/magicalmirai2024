@@ -1,5 +1,5 @@
 import Globals from "../core/Globals";
-import { CharTexMap, CharTexMapType } from "./CharTex";
+import { CharTex, CharTexMap, CharTexMapType } from "./CharTex";
 
 export class LyricsManager {
     private _charTexMap: CharTexMap = new CharTexMap();
@@ -15,20 +15,40 @@ export class LyricsManager {
         this._charTexMap.dispose();
     }
 
+    private _isAlnum(str: string) {
+        var code: number, 
+            i: number, 
+            len: number;
+
+        for (i = 0, len = str.length; i < len; i++) {
+            code = str.charCodeAt(i);
+            if (!(code > 47 && code < 58) && // numeric (0-9)
+                !(code > 64 && code < 91) && // upper alpha (A-Z)
+                !(code > 96 && code < 123)) { // lower alpha (a-z)
+                return false;
+            }
+        }
+        return true;
+    }
+
     public handleChar(c : string) {
-        var a = this._charTexMap.getCharTex(c);
-        Globals.three?.lyricsMng.placeChar(a);
+        Globals.three?.lyricsMng.placeChar(c);
     }
     
     public handleWord(word: string) {
-        console.log("handling word", word);
         var c = word.split('');
-        var l : CharTexMapType = {};
+        var l : CharTexMapType = [];
         for (var i = 0; i < c.length; i++) {
-            l[c[i]] = this._charTexMap.getCharTex(c[i]);
-            l[c[i]]._index = i;
+            let charTex = this._charTexMap.newCharTex(c[i], i);
+            charTex._index = i;
+            l.push(charTex);
         }
 
         Globals.three?.lyricsMng.placeWord(l);
+        if (this._isAlnum(word)) {
+            for (var i = 0; i < c.length; i++) {
+                this.handleChar(c[i]);
+            }
+        }
     }
 }

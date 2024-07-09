@@ -113,15 +113,34 @@ export class PlayerManager {
                 if (unit !== this._prevUnit) {
                     this._prevUnit = unit;
                     this._lyricsManager.handleWord(unit.text);
+
                 }
             }
         }
     }
 
+    private _isAlnum(str: string) {
+        var code: number,
+            i: number,
+            len: number;
+
+        for (i = 0, len = str.length; i < len; i++) {
+            code = str.charCodeAt(i);
+            if (!(code > 47 && code < 58) && // numeric (0-9)
+                !(code > 64 && code < 91) && // upper alpha (A-Z)
+                !(code > 96 && code < 123)) { // lower alpha (a-z)
+                return false;
+            }
+        }
+        return true;
+    }
+
     private animateChar(now: any, unit: ITextUnit) {
         if (unit.contains(now)) {
             if (unit.startTime <= now + 500 && unit.endTime >= now) {
-                this._lyricsManager.handleChar(unit.text);
+                if (!this._isAlnum(unit.text)) {
+                    this._lyricsManager.handleChar(unit.text);
+                }
             }
         }
     }
@@ -223,8 +242,8 @@ export class PlayerManager {
 
     }
 
-    public amplitude;
-    public maxAmplitude;
+    public amplitude : number = 0;
+    public maxAmplitude : number = 0;
 
     private _update() {
         if (this.player && this.player.isPlaying && this._updateTime > 0) {

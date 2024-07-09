@@ -28,7 +28,7 @@ export class Buildings extends SceneBase {
         this._buildingTypes.push(p_TwistyTower());
         this._buildingTypes.push(p_BlockyTower());
 
-        this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
+        this.populate(new THREE.Vector3(0, 0, -200), new THREE.Vector3(0, 0, 0));
         Globals.controls!.onStop(() => {
             this.reset();
         });
@@ -38,7 +38,7 @@ export class Buildings extends SceneBase {
 
     public update() {
         this.recolor();
-        if ( Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
+        if (Globals.controls?._whoisReady["player"] && this._camMng.getCamGlobal().position.distanceTo(this._collisionPoint) < 200) {
             this._collisionPoint = this.plotAndBuild(
                 this._collisionPoint, 34, 0,
             );
@@ -194,7 +194,10 @@ export class Buildings extends SceneBase {
         }
         if (obj.isMesh) {
             var newCol = new THREE.Color(Globals.sceneParams.palette?.buildingTint);
-            newCol.multiplyScalar(((Globals.player?.amplitude/Globals.player?.maxAmplitude)*0.5) + 0.8);
+            let ampP = Globals.player?.amplitude / Globals.player?.maxAmplitude;
+            if (ampP) {
+                newCol.multiplyScalar((ampP * 0.5) + 0.8);
+            }
 
             obj.material.color.set(newCol);
 
@@ -214,7 +217,7 @@ export class Buildings extends SceneBase {
         for (let i = 0; i < this._buildingGroups.length; i++) {
             this.purge(this._buildingGroups[i]);
         }
-        this.populate(new THREE.Vector3(0,0,-200), new THREE.Vector3(0,0,0));
+        this.populate(new THREE.Vector3(0, 0, -200), new THREE.Vector3(0, 0, 0));
         this._collisionPoint = this.plotAndBuild(
             new THREE.Vector3(0, 0, 0),
             100,

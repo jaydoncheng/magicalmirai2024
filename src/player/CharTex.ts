@@ -60,23 +60,20 @@ export class CharTex {
     }
 }
 
-export type CharTexMapType = { [key: string]: CharTex };
+export type CharTexMapType = CharTex[];
 export class CharTexMap {
-    private _charTexMap: CharTexMapType = {};
+    private _charTexList: CharTexMapType = [];
     constructor() { }
 
-    public hasChar(char: string) {
-        return this._charTexMap[char] !== undefined;
-    }
-
-    public getCharTex(char: string) {
-        return this._charTexMap[char] = new CharTex(char);
+    public newCharTex(char: string, i : number = 0) {
+        let c = new CharTex(char, i);
+        this._charTexList.push(c);
+        return c;
     }
 
     public dispose() {
-        for (var key in this._charTexMap) {
-            this._charTexMap[key].dispose();
-            delete this._charTexMap[key];
+        for (let obj in this._charTexList) {
+            obj.dispose();
         }
     }
 }
